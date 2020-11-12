@@ -1,2 +1,11 @@
-*.o
+#ignore extensionless files
+#ignore everything
+*
+#unignores all directories
+!/**/
+#/unignores files with extensions
+!*.*    
+
+#ignore object files
+*.o 
 *.o.tmp
