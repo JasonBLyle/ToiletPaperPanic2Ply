@@ -7,13 +7,13 @@ CC = g++
 CFLAGS = `sdl2-config --libs --cflags` -std=c++14 -ggdb3 -O0 -Wall -lSDL2_image -lm
 
 # add header files here
-HDRS = GameObject.h Sprite.h GameEngine.h Player.h PushableObj.h Particle.h ParticleEmitter.h
+HDRS = $(wildcard *.h) #GameObject.h Sprite.h GameEngine.h Player.h PushableObj.h Particle.h ParticleEmitter.h
 
 # add source files here
-SRCS = main.cpp GameObject.cpp Sprite.cpp GameEngine.cpp Player.cpp PushableObj.cpp Particle.cpp ParticleEmitter.cpp
+SRCS = $(wildcard *.cpp)
 
 # generate names of object files
-OBJS = $(SRCS:.cpp=.o)
+OBJS = $(SRCS:.cpp=.o) #$(SRCS:.cpp=.o)
 
 # name of executable
 EXEC = TPP2
@@ -41,4 +41,4 @@ clean:
 	rm -f $(OBJS)
 
 run:
-	./TPP2
+	./$(EXEC)
