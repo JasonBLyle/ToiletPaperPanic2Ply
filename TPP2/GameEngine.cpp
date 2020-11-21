@@ -25,6 +25,7 @@ auto player = std::make_shared<Player>();
 auto sanitizer2 = std::make_shared<HealthObj>();
 
 std::vector<std::shared_ptr<GameObject>> objs;
+SDL_Rect pause_dim;
 
 /* ----------------------------------- */
 
@@ -110,7 +111,16 @@ void GameEngine::Init(const int w, const int h){
     sanitizer2->SetBoxCollider(sanitizer2->GetSprite()->GetScreenRect());
     sanitizer2->SetHealthType(HealthType::SANITIZER);
 
+    pause_dim.x = 0;
+    pause_dim.y = 0;
+    pause_dim.w = screenW;
+    pause_dim.h = screenH;
+
     objs = {player, cart, cart2, sanitizer2};
+
+    /* ---------------- INITIALIZE GAME STATE ------------------- */
+    runningState = true;
+    paused = false;
 }
 
 
@@ -123,7 +133,6 @@ void GameEngine::Init(const int w, const int h){
 // Listens for input and sets states accordingly
 void GameEngine::HandleEvents(){
     SDL_Event my_input;
-    runningState = true;
 
     /* ---------- KEYBOARD INPUT  ---------- */
     while (SDL_PollEvent(&my_input) > 0){
@@ -143,6 +152,11 @@ void GameEngine::HandleEvents(){
                     player->SetPlayerState(PlayerState::JUMP); 
                     break;
                 }
+                case SDLK_ESCAPE:{
+                    if(paused) paused = false; //if currently paused, unpause
+                    else paused = true;
+                    break;
+                }
             }
         }
         else if(my_input.type == SDL_KEYUP){
@@ -150,22 +164,23 @@ void GameEngine::HandleEvents(){
         }
     }
     
-    
-    /* ---------- COLLISION CHECKING  ---------- */
-    for (auto obj1 : objs){
-        for(auto obj2 : objs){
-            if(obj1 != obj2){ //make sure the object isn't being compared with itself
-                if(IsColliding(obj1->GetBoxCollider(), obj2->GetBoxCollider())){ 
-                    //std::cout << "obj1: " << obj1->PrintObjType() << " obj2: " << obj2->PrintObjType() << "   COLLIDING" << std::endl;
+    if(!paused){
+        /* ---------- COLLISION CHECKING  ---------- */
+        for (auto obj1 : objs){
+            for(auto obj2 : objs){
+                if(obj1 != obj2){ //make sure the object isn't being compared with itself
+                    if(IsColliding(obj1->GetBoxCollider(), obj2->GetBoxCollider())){ 
+                        //std::cout << "obj1: " << obj1->PrintObjType() << " obj2: " << obj2->PrintObjType() << "   COLLIDING" << std::endl;
 
-                    obj1->DoCollisionResponse(obj2);
-                }
+                        obj1->DoCollisionResponse(obj2);
+                    }
 
-                else{
-                    //std::cout << "obj1: " << obj1->PrintObjType() << " obj2: " << obj2->PrintObjType() << "   NOT COLLIDING" << std::endl;
-                    
-                    if(obj1->GetType() == ObjType::Player && obj2->GetType() == ObjType::Pushable){
-                        obj2->SetIdle();
+                    else{
+                        //std::cout << "obj1: " << obj1->PrintObjType() << " obj2: " << obj2->PrintObjType() << "   NOT COLLIDING" << std::endl;
+                        
+                        if(obj1->GetType() == ObjType::Player && obj2->GetType() == ObjType::Pushable){
+                            obj2->SetIdle();
+                        }
                     }
                 }
             }
@@ -178,29 +193,29 @@ void GameEngine::HandleEvents(){
 
 
 void GameEngine::Update(){
-    for(auto obj : objs){
-        switch(obj->GetType()){
-            case ObjType::Player:{
-                //don't need to dynamic cast GameObject obj into Player obj since there's only one player
-                player->SetMovementSpeed(5);
-                player->Update();
-                break;
-            }
-            case ObjType::Pushable: {
-                auto pushable = std::dynamic_pointer_cast<PushableObj>(obj);
-                pushable->SetPushForce(player->GetMovementSpeed());
-                pushable->Update();
-                break;
-            }
-            default: {
-                obj->Update();
-                break;
+    if(!paused){
+        for(auto obj : objs){
+            switch(obj->GetType()){
+                case ObjType::Player:{
+                    //don't need to dynamic cast GameObject obj into Player obj since there's only one player
+                    player->SetMovementSpeed(5);
+                    player->Update();
+                    break;
+                }
+                case ObjType::Pushable: {
+                    auto pushable = std::dynamic_pointer_cast<PushableObj>(obj);
+                    pushable->SetPushForce(player->GetMovementSpeed());
+                    pushable->Update();
+                    break;
+                }
+                default: {
+                    obj->Update();
+                    break;
+                }
             }
         }
     }
-
 }
-
 
 
 
@@ -228,6 +243,13 @@ void GameEngine::Render(){
             }
         }
     }
+
+    if(paused){
+        SDL_SetRenderDrawColor(renderer, 0, 0, 0, 200);
+        SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
+        SDL_RenderFillRect(renderer, &pause_dim);
+    }
+
     SDL_RenderPresent(renderer);
 }
 

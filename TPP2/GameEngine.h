@@ -23,6 +23,7 @@ class GameEngine{
         int screenW; //width of the game window
         int screenH; //height of the game window
         bool runningState;
+        bool paused;
 
     public:
         static GameEngine *GetInstance();
