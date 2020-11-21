@@ -64,8 +64,6 @@ void PushableObj::Update(){
             break;
         }
     }
-
-    //MoveX(velocity);
    
     //prevent object from crossing left bound (left edge of screen)
     if(this->GetSprite()->GetX() < 0){this->GetSprite()->SetX(0);} 
@@ -105,20 +103,4 @@ void PushableObj::SetIdle(){
     SetObjState(PushableObjState::IDLE);
 }
 
-std::string PushableObj::PrintObjType(){
-    return "PushableObj";
-}
-
-std::string PushableObj::PrintState(){
-    switch(objState){
-        case PushableObjState::IDLE: {
-            return "IDLE";
-        }
-        case PushableObjState::PUSHED_FROM_LEFT: {
-            return "PUSHED FROM LEFT";
-        }
-        case PushableObjState::PUSHED_FROM_RIGHT: {
-            return "PUSHED FROM RIGHT";
-        }
-    }
-}
+std::string PushableObj::PrintObjType(){ return "PushableObj"; }

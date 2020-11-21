@@ -11,6 +11,7 @@
 #include <SDL2/SDL.h>
 #include "Player.h"
 #include "PushableObj.h"
+#include "HealthObj.h"
 
 class GameEngine{
     private:

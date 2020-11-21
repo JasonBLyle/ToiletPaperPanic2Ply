@@ -10,7 +10,6 @@
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
 #include "GameObject.h"
-#include "Player.h"
 
 enum class PushableObjState { IDLE, PUSHED_FROM_LEFT, PUSHED_FROM_RIGHT };
 
@@ -32,7 +31,6 @@ class PushableObj: public GameObject{
         void DoCollisionResponse(std::shared_ptr<GameObject> objCollidedWith) override;
         void SetIdle() override;
         std::string PrintObjType() override;
-        std::string PrintState();
 
 };
 

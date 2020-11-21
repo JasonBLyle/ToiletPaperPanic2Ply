@@ -24,8 +24,9 @@ class Player: public GameObject{
         int GetMovementSpeed();
         void SetMovementSpeed(int speed);
         void SetPlayerState(PlayerState state);
-        void Update() override;
 
+        //overrides
+        void Update() override;
         void DoCollisionResponse(std::shared_ptr<GameObject> objCollidedWith) override;
         void SetIdle() override;
         std::string PrintObjType() override;

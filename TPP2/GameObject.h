@@ -12,7 +12,7 @@
 #include <memory>
 #include "Sprite.h"
 
-enum class ObjType { Player, Pushable, Particle };
+enum class ObjType { Player, Pushable, Health };
 
 class GameObject{
     private:
@@ -30,7 +30,7 @@ class GameObject{
         virtual ~GameObject();
 
         void Init(SDL_Renderer *ren, const char *file);
-        
+        virtual void Render();
         void Render(double angle, SDL_Point *center, SDL_RendererFlip flip);
         void RenderBoxCollider();
 
@@ -52,7 +52,6 @@ class GameObject{
 
         //to be overridden by child classes
         virtual void Update();
-        virtual void Render();
         virtual void DoCollisionResponse(std::shared_ptr<GameObject> objCollidedWith);
         virtual void SetIdle();
         virtual std::string PrintObjType();

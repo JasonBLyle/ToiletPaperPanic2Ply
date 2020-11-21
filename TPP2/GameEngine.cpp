@@ -5,7 +5,6 @@
 */
 
 #include "GameEngine.h"
-#include "ParticleEmitter.h"
 
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
@@ -17,21 +16,19 @@
 #include <memory>
 #include <random>
 
-#define DEBUG_SHOWCOLLIDERS
+//#define DEBUG_SHOWCOLLIDERS
 
-/* GAME OBJECTS */
-//Player* player = NULL;
+/* ---------- GAME OBJECTS  ---------- */
 auto cart = std::make_shared<PushableObj>();
 auto cart2 = std::make_shared<PushableObj>();
 auto player = std::make_shared<Player>();
-auto sanitizer = std::make_shared<GameObject>();
-//GameObject *sanitizer = NULL;
+auto sanitizer2 = std::make_shared<HealthObj>();
 
-/* PARTICLE EMITTER */
-auto pe = std::make_unique<ParticleEmitter>();
-
-/* PUSHABLE OBJECTS CONTAINER */
 std::vector<std::shared_ptr<GameObject>> objs;
+
+/* ----------------------------------- */
+
+
 
 GameEngine::GameEngine(){
     screenW = 0;
@@ -56,6 +53,11 @@ bool GameEngine::GetRunningState(){return runningState;}
 
 void GameEngine::SetRunningState(bool newState){runningState = newState;}
 
+
+
+
+
+
 /*
     Initializes the game window, renderer, and game objects
 
@@ -63,32 +65,22 @@ void GameEngine::SetRunningState(bool newState){runningState = newState;}
     h = desired height of the game screen
 */
 void GameEngine::Init(const int w, const int h){
+    /* ---------------- INITIALIZE WINDOW ------------------- */
     screenW = w;
     screenH = h;
 
-    if (SDL_Init(SDL_INIT_EVERYTHING) != 0) {
-        std::cout << "Error initializing SDL: " << SDL_GetError() << std::endl;
-    }
-    
-    // Enable gpu_enhanced textures
-    IMG_Init(IMG_INIT_PNG);
-
-    window = SDL_CreateWindow("Toilet Paper Panic: 2-ply", SDL_WINDOWPOS_CENTERED,
-                                SDL_WINDOWPOS_CENTERED, 
-                                screenW,
-                                screenH, 
-                                0);
+    if (SDL_Init(SDL_INIT_EVERYTHING) != 0) std::cout << "Error initializing SDL: " << SDL_GetError() << std::endl;
+    IMG_Init(IMG_INIT_PNG); // Enable gpu_enhanced textures
+    window = SDL_CreateWindow("Toilet Paper Panic: 2-ply", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, screenW, screenH, 0);
     renderer = SDL_CreateRenderer(window, -1, 0);
 
-    /* --- INITIALIZE GAME OBJECTS --- */
-    //player = new Player();
-    //sanitizer = new GameObject();
 
+    /* ---------------- INITIALIZE GAME OBJECTS ------------------- */
     int spriteFrameWidth = 220;
     int spriteFrameHeight = 370;
     double scale = 0.5; //used to scale rendered sprite image if too big/small
     player->Init(renderer, "img/player.png");
-    player->GetSprite()->SetSrcRect(0, 0, spriteFrameWidth, spriteFrameHeight); //set the area of the surface to be rendered 
+    player->GetSprite()->SetSrcRect(0, 0, spriteFrameWidth, spriteFrameHeight); //set the area of the texture to be rendered 
     player->GetSprite()->SetScreenRect(screenW/2, 0, spriteFrameWidth * scale, spriteFrameHeight * scale); //set the area of the screen that renders src_rect
     player->GetSprite()->SetY(screenH - player->GetSprite()->GetH() - 25); 
     player->SetBoxCollider(player->GetSprite()->GetScreenRect());
@@ -101,7 +93,6 @@ void GameEngine::Init(const int w, const int h){
     cart->GetSprite()->SetScreenRect(screenW/2 + 10, 0, spriteFrameWidth * scale, spriteFrameHeight * scale);
     cart->GetSprite()->SetY(screenH - cart->GetSprite()->GetH() - 25);
     cart->SetBoxCollider(cart->GetSprite()->GetScreenRect());
-
     
     cart2->Init(renderer,"img/shoppingcart.png");
     cart2->GetSprite()->SetSrcRect(0, 0, spriteFrameWidth, spriteFrameHeight);
@@ -112,40 +103,29 @@ void GameEngine::Init(const int w, const int h){
     spriteFrameWidth = 239;
     spriteFrameHeight = 500;
     scale = 0.15;
-    sanitizer->Init(renderer,"img/sanitizer.png");
-    sanitizer->GetSprite()->SetSrcRect(0, 0, spriteFrameWidth, spriteFrameHeight);
-    sanitizer->GetSprite()->SetScreenRect(screenW/2 + -50, 0, spriteFrameWidth * scale, spriteFrameHeight * scale);
-    sanitizer->GetSprite()->SetY(screenH - sanitizer->GetSprite()->GetH() - 25);
-    sanitizer->SetBoxCollider(sanitizer->GetSprite()->GetScreenRect());
+    sanitizer2->Init(renderer,"img/sanitizer.png");
+    sanitizer2->GetSprite()->SetSrcRect(0, 0, spriteFrameWidth, spriteFrameHeight);
+    sanitizer2->GetSprite()->SetScreenRect(screenW/2 + -50, 0, spriteFrameWidth * scale, spriteFrameHeight * scale);
+    sanitizer2->GetSprite()->SetY(screenH - sanitizer2->GetSprite()->GetH() - 25);
+    sanitizer2->SetBoxCollider(sanitizer2->GetSprite()->GetScreenRect());
+    sanitizer2->SetHealthType(HealthType::SANITIZER);
 
-    objs.push_back(player);
-    objs.push_back(cart);
-    objs.push_back(cart2);
-
-
-    scale = 0.1;
-    spriteFrameWidth = 247*scale;
-    spriteFrameHeight = 247*scale;
-
-    /*
-        expression in startX param is the coordinate where the texture will align right on the horizontal center of sanitizer sprite
-        expression in startY param is the coordinate where the particle's bottom edge touches the sanitizer sprite's bottom edge
-    */
-    pe->Init(renderer, "img/healthsparkle.png", sanitizer->GetSprite()->GetX() + sanitizer->GetSprite()->GetW()/2 - spriteFrameWidth/2, 
-                                                sanitizer->GetSprite()->GetY() + sanitizer->GetSprite()->GetH() - spriteFrameHeight,
-                                                sanitizer->GetSprite()->GetW()/2, sanitizer->GetSprite()->GetH() - spriteFrameHeight,
-                                                spriteFrameWidth, spriteFrameHeight, ParticleType::RISE_FADEOUT);
-
+    objs = {player, cart, cart2, sanitizer2};
 }
 
-bool healthCollected = false;
+
+
+
+
+
+
 
 // Listens for input and sets states accordingly
 void GameEngine::HandleEvents(){
     SDL_Event my_input;
     runningState = true;
 
-    //Check for keyboard input
+    /* ---------- KEYBOARD INPUT  ---------- */
     while (SDL_PollEvent(&my_input) > 0){
         if(my_input.type == SDL_QUIT) runningState = false; //ends the game
         if(my_input.type == SDL_KEYDOWN){
@@ -171,26 +151,14 @@ void GameEngine::HandleEvents(){
     }
     
     
-    //CHECK FOR COLLISIONS
+    /* ---------- COLLISION CHECKING  ---------- */
     for (auto obj1 : objs){
         for(auto obj2 : objs){
             if(obj1 != obj2){ //make sure the object isn't being compared with itself
-                
-                if(obj1->GetType() == ObjType::Pushable){
-                    auto p = std::dynamic_pointer_cast<PushableObj>(obj1);
-                    std::cout << "obj1: " << p->PrintState() << std::endl;
-                }
-                if(obj2->GetType() == ObjType::Pushable){
-                    auto p = std::dynamic_pointer_cast<PushableObj>(obj2);
-                    std::cout << "obj2: " << p->PrintState() << std::endl;
-                }
-                
-
                 if(IsColliding(obj1->GetBoxCollider(), obj2->GetBoxCollider())){ 
                     //std::cout << "obj1: " << obj1->PrintObjType() << " obj2: " << obj2->PrintObjType() << "   COLLIDING" << std::endl;
 
                     obj1->DoCollisionResponse(obj2);
-                    obj2->DoCollisionResponse(obj1);
                 }
 
                 else{
@@ -203,16 +171,17 @@ void GameEngine::HandleEvents(){
             }
         }
     }
-
-    if(IsColliding(player->GetBoxCollider(), sanitizer->GetBoxCollider())){ 
-        healthCollected = true;
-    }
 }
+
+
+
+
 
 void GameEngine::Update(){
     for(auto obj : objs){
         switch(obj->GetType()){
             case ObjType::Player:{
+                //don't need to dynamic cast GameObject obj into Player obj since there's only one player
                 player->SetMovementSpeed(5);
                 player->Update();
                 break;
@@ -223,15 +192,16 @@ void GameEngine::Update(){
                 pushable->Update();
                 break;
             }
-
             default: {
+                obj->Update();
                 break;
             }
         }
     }
-    
-    if(healthCollected) pe->Update();
+
 }
+
+
 
 
 
@@ -249,34 +219,21 @@ void GameEngine::Render(){
                 #endif
                 break;
             }
-            case ObjType::Pushable: {
+            default: {
                 obj->Render();
                 #ifdef DEBUG_SHOWCOLLIDERS 
                 obj->RenderBoxCollider(); 
                 #endif
                 break;
             }
-            default: {
-                break;
-            }
         }
     }
-
-    if(healthCollected){
-        //fade out
-        sanitizer->ChangeAlpha(-1 * (255/pe->GetDuration() + 0.5)); //0.5 is added so that the truncation of 255/pe->GetDuration is rounded up
-        SDL_SetTextureAlphaMod(sanitizer->GetSprite()->GetTexture(),sanitizer->GetAlpha());
-    }
-    sanitizer->Render();
-
-    #ifdef DEBUG_SHOWCOLLIDERS 
-    sanitizer->RenderBoxCollider();
-    #endif
-   
-    if(healthCollected) pe->Render();
-       
     SDL_RenderPresent(renderer);
 }
+
+
+
+
 
 void GameEngine::Quit(){
     SDL_DestroyRenderer(renderer);
@@ -285,6 +242,10 @@ void GameEngine::Quit(){
     IMG_Quit();
     SDL_Quit();
 }
+
+
+
+
 
 bool GameEngine::IsColliding(SDL_Rect a, SDL_Rect b){
     int a_left, b_left;
