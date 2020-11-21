@@ -16,6 +16,7 @@ PushableObj::PushableObj(){
     objType = ObjType::Pushable;
     objState = PushableObjState::IDLE;
     pushForce = 0;
+    velocity = 0;
 };
 
 GameEngine* game2 = GameEngine::GetInstance();
@@ -33,7 +34,7 @@ void PushableObj::SetPushForce(int force){pushForce = force;}
 
 
 //Updates object's position based on object's state
-double velocity = 0;
+//double velocity = 0;
 void PushableObj::Update(){
     //dampen = amount of slow-down when the object goes from moving to idle
     // closer to 0 means more abrupt stop
@@ -46,6 +47,7 @@ void PushableObj::Update(){
             else if(velocity > 0){ velocity -= dampen; }
             else velocity = 0;
 
+            MoveX(velocity);
             //std::cout << velocity << std::endl;
             break;
         }
@@ -89,6 +91,7 @@ void PushableObj::DoCollisionResponse(std::shared_ptr<GameObject> objCollidedWit
             else if(player->GetPlayerState() == PlayerState::MOVE_RIGHT){
                 SetObjState(PushableObjState::PUSHED_FROM_RIGHT);
             }
+            
             break;
         }
 
@@ -104,4 +107,18 @@ void PushableObj::SetIdle(){
 
 std::string PushableObj::PrintObjType(){
     return "PushableObj";
+}
+
+std::string PushableObj::PrintState(){
+    switch(objState){
+        case PushableObjState::IDLE: {
+            return "IDLE";
+        }
+        case PushableObjState::PUSHED_FROM_LEFT: {
+            return "PUSHED FROM LEFT";
+        }
+        case PushableObjState::PUSHED_FROM_RIGHT: {
+            return "PUSHED FROM RIGHT";
+        }
+    }
 }

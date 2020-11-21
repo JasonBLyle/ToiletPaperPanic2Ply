@@ -18,6 +18,7 @@ class PushableObj: public GameObject{
     private:
         int pushForce;
         PushableObjState objState;
+        double velocity;
     public:
         PushableObj();
         PushableObjState GetObjState();
@@ -31,6 +32,7 @@ class PushableObj: public GameObject{
         void DoCollisionResponse(std::shared_ptr<GameObject> objCollidedWith) override;
         void SetIdle() override;
         std::string PrintObjType() override;
+        std::string PrintState();
 
 };
 

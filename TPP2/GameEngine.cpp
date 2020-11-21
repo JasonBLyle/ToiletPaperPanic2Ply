@@ -17,7 +17,7 @@
 #include <memory>
 #include <random>
 
-//#define DEBUG_SHOWCOLLIDERS
+#define DEBUG_SHOWCOLLIDERS
 
 /* GAME OBJECTS */
 //Player* player = NULL;
@@ -108,7 +108,6 @@ void GameEngine::Init(const int w, const int h){
     cart2->GetSprite()->SetScreenRect(screenW/2 - 300, 0, spriteFrameWidth * scale, spriteFrameHeight * scale);
     cart2->GetSprite()->SetY(screenH - cart2->GetSprite()->GetH() - 25);
     cart2->SetBoxCollider(cart2->GetSprite()->GetScreenRect());
-    
 
     spriteFrameWidth = 239;
     spriteFrameHeight = 500;
@@ -176,6 +175,17 @@ void GameEngine::HandleEvents(){
     for (auto obj1 : objs){
         for(auto obj2 : objs){
             if(obj1 != obj2){ //make sure the object isn't being compared with itself
+                
+                if(obj1->GetType() == ObjType::Pushable){
+                    auto p = std::dynamic_pointer_cast<PushableObj>(obj1);
+                    std::cout << "obj1: " << p->PrintState() << std::endl;
+                }
+                if(obj2->GetType() == ObjType::Pushable){
+                    auto p = std::dynamic_pointer_cast<PushableObj>(obj2);
+                    std::cout << "obj2: " << p->PrintState() << std::endl;
+                }
+                
+
                 if(IsColliding(obj1->GetBoxCollider(), obj2->GetBoxCollider())){ 
                     //std::cout << "obj1: " << obj1->PrintObjType() << " obj2: " << obj2->PrintObjType() << "   COLLIDING" << std::endl;
 
@@ -186,12 +196,8 @@ void GameEngine::HandleEvents(){
                 else{
                     //std::cout << "obj1: " << obj1->PrintObjType() << " obj2: " << obj2->PrintObjType() << "   NOT COLLIDING" << std::endl;
                     
-                    if(obj1->GetType() != ObjType::Player){
-                        //obj1->SetIdle();
-                    }
-
-                    if(obj2->GetType() != ObjType::Player){
-                        //obj2->SetIdle();
+                    if(obj1->GetType() == ObjType::Player && obj2->GetType() == ObjType::Pushable){
+                        obj2->SetIdle();
                     }
                 }
             }
