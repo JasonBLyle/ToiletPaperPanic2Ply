@@ -10,6 +10,7 @@
 #include <string>
 #include <SDL2/SDL_image.h>
 #include <iostream>
+#include "Player.h"
 
 PushableObj::PushableObj(){
     objType = ObjType::Pushable;
@@ -34,6 +35,8 @@ void PushableObj::SetPushForce(int force){pushForce = force;}
 //Updates object's position based on object's state
 double velocity = 0;
 void PushableObj::Update(){
+    //dampen = amount of slow-down when the object goes from moving to idle
+    // closer to 0 means more abrupt stop
     double dampen = 0.15; 
 
     switch(objState){
@@ -74,3 +77,31 @@ void PushableObj::Update(){
     this->SetBoxColliderPos(this->GetSprite()->GetX(), this->GetSprite()->GetY());
     return;
 }  
+
+void PushableObj::DoCollisionResponse(std::shared_ptr<GameObject> objCollidedWith){
+    switch(objCollidedWith->GetType()){
+        case ObjType::Player: {
+            //cast to Player
+            auto player = std::dynamic_pointer_cast<Player>(objCollidedWith);
+            if(player->GetPlayerState() == PlayerState::MOVE_LEFT){
+                SetObjState(PushableObjState::PUSHED_FROM_LEFT);
+            }
+            else if(player->GetPlayerState() == PlayerState::MOVE_RIGHT){
+                SetObjState(PushableObjState::PUSHED_FROM_RIGHT);
+            }
+            break;
+        }
+
+        default: {
+            break;
+        }
+    }
+}
+
+void PushableObj::SetIdle(){
+    SetObjState(PushableObjState::IDLE);
+}
+
+std::string PushableObj::PrintObjType(){
+    return "PushableObj";
+}

@@ -34,7 +34,7 @@ void Player::SetMovementSpeed(int speed){moveSpeed = speed;}
 void Player::Update(){
     int moveAnimYOffset = this->GetSprite()->GetSrcH();; //used to set sprite's src_rect to the next row of sprites in the sprite sheet
     int moveAnimTotalFrames = 4;
-    int moveAnimStartFrame = 0;
+    int moveAnimStartFrame = 0; //which animation frame you want to start at
 
     int animSpeed = 200;
 
@@ -86,4 +86,14 @@ void Player::Update(){
     }
 
     return;
+}
+
+void Player::DoCollisionResponse(std::shared_ptr<GameObject> objCollidedWith){ }
+
+void Player::SetIdle(){
+    SetPlayerState(PlayerState::IDLE);
+}
+
+std::string Player::PrintObjType(){
+    return "Player";
 }

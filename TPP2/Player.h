@@ -1,8 +1,7 @@
 /*
     Nikita Tran
     CPSC 4160 2D Game Engine Construction
-    Assignment 3
-    October 23 2020
+    Fall 2020
 */
 
 #ifndef PLAYER_H
@@ -26,6 +25,11 @@ class Player: public GameObject{
         void SetMovementSpeed(int speed);
         void SetPlayerState(PlayerState state);
         void Update() override;
+
+        void DoCollisionResponse(std::shared_ptr<GameObject> objCollidedWith) override;
+        void SetIdle() override;
+        std::string PrintObjType() override;
+
 };
 
 #endif

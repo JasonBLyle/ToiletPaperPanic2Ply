@@ -11,7 +11,16 @@
 #include <iostream>
 
 GameObject::GameObject(){};
+
+//VIRTUAL FUNCTIONS
+//NEEDS TO BE OVERWRITTEN BY CHILD
 GameObject::~GameObject(){};
+void GameObject::DoCollisionResponse(std::shared_ptr<GameObject> objCollidedWith){};
+void GameObject::SetIdle(){};
+void GameObject::Update(){};
+/* ------------------------------------- */
+
+
 
 /*
     Wrapper for Sprite constructor: Creates a texture with the desired image file
@@ -27,8 +36,6 @@ void GameObject::Init(SDL_Renderer *ren, const char *file){
     boxCollider = temp;
     alpha = 255;
 }
-
-void GameObject::Update(){};
 
 /*
     Renders the sprite associated with this GameObject
@@ -52,13 +59,14 @@ void GameObject::RenderBoxCollider(){
     SDL_RenderFillRect(renderer, &boxCollider);
 }
 
+
+//GETTERS
 Sprite* GameObject::GetSprite(){ return sprite; }
-
 ObjType GameObject::GetType(){ return objType; }
-
 SDL_Rect GameObject::GetBoxCollider(){ return boxCollider; }
-
 int GameObject::GetAlpha(){ return alpha; }
+/* ------------------------------------- */
+
 
 // Move x position of object by i pixels on screen
 void GameObject::MoveX(int i){
@@ -108,4 +116,18 @@ void GameObject::ChangeAlpha(int var){
     alpha += var;
     if(alpha <= 0) alpha = 0;
     if (alpha > 255) alpha = 255;
+}
+
+std::string GameObject::PrintObjType(){
+    switch (GetType()){
+        case ObjType::Player:{
+            return "Player Obj";
+        }
+        case ObjType::Pushable:{
+            return "Pushable Obj";
+        }
+        default:{
+            return "";
+        }
+    }
 }

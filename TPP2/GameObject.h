@@ -9,6 +9,7 @@
 #define GAMEOBJECT_H
 
 #include <SDL2/SDL.h>
+#include <memory>
 #include "Sprite.h"
 
 enum class ObjType { Player, Pushable, Particle };
@@ -29,7 +30,7 @@ class GameObject{
         virtual ~GameObject();
 
         void Init(SDL_Renderer *ren, const char *file);
-        virtual void Render();
+        
         void Render(double angle, SDL_Point *center, SDL_RendererFlip flip);
         void RenderBoxCollider();
 
@@ -49,7 +50,12 @@ class GameObject{
         void MoveX(int i);
         void MoveY(int i);
 
+        //to be overridden by child classes
         virtual void Update();
+        virtual void Render();
+        virtual void DoCollisionResponse(std::shared_ptr<GameObject> objCollidedWith);
+        virtual void SetIdle();
+        virtual std::string PrintObjType();
 };
 
 #endif

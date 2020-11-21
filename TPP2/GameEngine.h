@@ -21,7 +21,6 @@ class GameEngine{
         SDL_Window *window;
         int screenW; //width of the game window
         int screenH; //height of the game window
-        Player* player;
         bool runningState;
 
     public:

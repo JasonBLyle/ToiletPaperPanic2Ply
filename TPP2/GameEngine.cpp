@@ -20,15 +20,18 @@
 //#define DEBUG_SHOWCOLLIDERS
 
 /* GAME OBJECTS */
-Player* player = NULL;
+//Player* player = NULL;
 auto cart = std::make_shared<PushableObj>();
-GameObject *sanitizer = NULL;
+auto player = std::make_shared<Player>();
+auto sanitizer = std::make_shared<GameObject>();
+//GameObject *sanitizer = NULL;
 
 /* PARTICLE EMITTER */
 auto pe = std::make_unique<ParticleEmitter>();
 
 /* PUSHABLE OBJECTS CONTAINER */
 std::vector<std::shared_ptr<PushableObj>> pushables;
+std::vector<std::shared_ptr<GameObject>> objs;
 
 GameEngine::GameEngine(){
     screenW = 0;
@@ -78,8 +81,8 @@ void GameEngine::Init(const int w, const int h){
     renderer = SDL_CreateRenderer(window, -1, 0);
 
     /* --- INITIALIZE GAME OBJECTS --- */
-    player = new Player();
-    sanitizer = new GameObject();
+    //player = new Player();
+    //sanitizer = new GameObject();
 
     int spriteFrameWidth = 220;
     int spriteFrameHeight = 370;
@@ -87,7 +90,7 @@ void GameEngine::Init(const int w, const int h){
     player->Init(renderer, "img/player.png");
     player->GetSprite()->SetSrcRect(0, 0, spriteFrameWidth, spriteFrameHeight); //set the area of the surface to be rendered 
     player->GetSprite()->SetScreenRect(screenW/2, 0, spriteFrameWidth * scale, spriteFrameHeight * scale); //set the area of the screen that renders src_rect
-    player->GetSprite()->SetY(screenH - player->GetSprite()->GetH() - 25);
+    player->GetSprite()->SetY(screenH - player->GetSprite()->GetH() - 25); 
     player->SetBoxCollider(player->GetSprite()->GetScreenRect());
 
     spriteFrameWidth = 263;
@@ -110,6 +113,10 @@ void GameEngine::Init(const int w, const int h){
 
     //add pushable objects to container
     pushables.push_back(cart);
+
+    objs.push_back(player);
+    objs.push_back(cart);
+
 
     scale = 0.1;
     spriteFrameWidth = 247*scale;
@@ -158,19 +165,30 @@ void GameEngine::HandleEvents(){
         }
     }
     
-    //Check for pushable object(s) collision with player
-    for (auto obj : pushables){
-        //If pushable is colliding with player, move until no longer colliding
-        if(IsColliding(player->GetBoxCollider(), obj->GetBoxCollider())){
-            if(player->GetPlayerState() == PlayerState::MOVE_LEFT){
-                obj->SetObjState(PushableObjState::PUSHED_FROM_LEFT);
+    
+    //CHECK FOR COLLISIONS
+    for (auto obj1 : objs){
+        for(auto obj2 : objs){
+            if(obj1 != obj2){ //make sure the object isn't being compared with itself
+                if(IsColliding(obj1->GetBoxCollider(), obj2->GetBoxCollider())){ 
+                    //std::cout << "obj1: " << obj1->PrintObjType() << " obj2: " << obj2->PrintObjType() << "   COLLIDING" << std::endl;
+
+                    obj1->DoCollisionResponse(obj2);
+                    obj2->DoCollisionResponse(obj1);
+                }
+
+                else{
+                    //std::cout << "obj1: " << obj1->PrintObjType() << " obj2: " << obj2->PrintObjType() << "   NOT COLLIDING" << std::endl;
+                    
+                    if(obj1->GetType() != ObjType::Player){
+                        obj1->SetIdle();
+                    }
+
+                    if(obj2->GetType() != ObjType::Player){
+                        obj2->SetIdle();
+                    }
+                }
             }
-            else if(player->GetPlayerState() == PlayerState::MOVE_RIGHT){
-                obj->SetObjState(PushableObjState::PUSHED_FROM_RIGHT);
-            }
-        }
-        else{
-            obj->SetObjState(PushableObjState::IDLE);
         }
     }
 
@@ -206,7 +224,7 @@ void GameEngine::Render(){
 
     if(healthCollected){
         //fade out
-        sanitizer->ChangeAlpha(-1 * (255/pe->GetDuration() + 0.5));
+        sanitizer->ChangeAlpha(-1 * (255/pe->GetDuration() + 0.5)); //0.5 is added so that the truncation of 255/pe->GetDuration is rounded up
         SDL_SetTextureAlphaMod(sanitizer->GetSprite()->GetTexture(),sanitizer->GetAlpha());
     }
     sanitizer->Render();

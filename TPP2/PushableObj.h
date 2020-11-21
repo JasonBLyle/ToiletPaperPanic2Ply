@@ -2,7 +2,6 @@
     Nikita Tran
     CPSC 4160 2D Game Engine Construction
     Assignment 4
-    November 9 2020
 */
 
 #ifndef PUSHABLEPOBJ_H
@@ -20,7 +19,6 @@ class PushableObj: public GameObject{
         int pushForce;
         PushableObjState objState;
     public:
-        //Player(SDL_Renderer *ren, const char *file):GameObject(ren, file){};
         PushableObj();
         PushableObjState GetObjState();
         double GetPushForce();
@@ -28,7 +26,12 @@ class PushableObj: public GameObject{
         void SetPushForce(int force);
         void SetObjState(PushableObjState state);
 
+        //overrides
         void Update() override;
+        void DoCollisionResponse(std::shared_ptr<GameObject> objCollidedWith) override;
+        void SetIdle() override;
+        std::string PrintObjType() override;
+
 };
 
 #endif
