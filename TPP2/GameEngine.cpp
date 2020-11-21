@@ -22,6 +22,7 @@
 /* GAME OBJECTS */
 //Player* player = NULL;
 auto cart = std::make_shared<PushableObj>();
+auto cart2 = std::make_shared<PushableObj>();
 auto player = std::make_shared<Player>();
 auto sanitizer = std::make_shared<GameObject>();
 //GameObject *sanitizer = NULL;
@@ -102,6 +103,12 @@ void GameEngine::Init(const int w, const int h){
     cart->GetSprite()->SetY(screenH - cart->GetSprite()->GetH() - 25);
     cart->SetBoxCollider(cart->GetSprite()->GetScreenRect());
 
+    cart2->Init(renderer,"img/shoppingcart.png");
+    cart2->GetSprite()->SetSrcRect(0, 0, spriteFrameWidth, spriteFrameHeight);
+    cart2->GetSprite()->SetScreenRect(screenW/2 - 300, 0, spriteFrameWidth * scale, spriteFrameHeight * scale);
+    cart2->GetSprite()->SetY(screenH - cart->GetSprite()->GetH() - 25);
+    cart2->SetBoxCollider(cart->GetSprite()->GetScreenRect());
+
     spriteFrameWidth = 239;
     spriteFrameHeight = 500;
     scale = 0.15;
@@ -113,9 +120,11 @@ void GameEngine::Init(const int w, const int h){
 
     //add pushable objects to container
     pushables.push_back(cart);
+    pushables.push_back(cart2);
 
     objs.push_back(player);
     objs.push_back(cart);
+    objs.push_back(cart2);
 
 
     scale = 0.1;
