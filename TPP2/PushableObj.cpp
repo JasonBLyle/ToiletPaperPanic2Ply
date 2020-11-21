@@ -52,18 +52,18 @@ void PushableObj::Update(){
 
         case PushableObjState::PUSHED_FROM_LEFT: {
             velocity = pushForce * -1;
-    
+            MoveX(velocity);
             break;
         }
 
          case PushableObjState::PUSHED_FROM_RIGHT: {
             velocity = pushForce;
-              
+            MoveX(velocity);
             break;
         }
     }
 
-    MoveX(velocity);
+    //MoveX(velocity);
    
     //prevent object from crossing left bound (left edge of screen)
     if(this->GetSprite()->GetX() < 0){this->GetSprite()->SetX(0);} 

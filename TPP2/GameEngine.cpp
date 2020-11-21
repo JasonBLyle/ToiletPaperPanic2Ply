@@ -22,7 +22,7 @@
 /* GAME OBJECTS */
 //Player* player = NULL;
 auto cart = std::make_shared<PushableObj>();
-//auto cart2 = std::make_shared<PushableObj>();
+auto cart2 = std::make_shared<PushableObj>();
 auto player = std::make_shared<Player>();
 auto sanitizer = std::make_shared<GameObject>();
 //GameObject *sanitizer = NULL;
@@ -102,13 +102,13 @@ void GameEngine::Init(const int w, const int h){
     cart->GetSprite()->SetY(screenH - cart->GetSprite()->GetH() - 25);
     cart->SetBoxCollider(cart->GetSprite()->GetScreenRect());
 
-    /*
+    
     cart2->Init(renderer,"img/shoppingcart.png");
     cart2->GetSprite()->SetSrcRect(0, 0, spriteFrameWidth, spriteFrameHeight);
     cart2->GetSprite()->SetScreenRect(screenW/2 - 300, 0, spriteFrameWidth * scale, spriteFrameHeight * scale);
-    cart2->GetSprite()->SetY(screenH - cart->GetSprite()->GetH() - 25);
-    cart2->SetBoxCollider(cart->GetSprite()->GetScreenRect());
-    */
+    cart2->GetSprite()->SetY(screenH - cart2->GetSprite()->GetH() - 25);
+    cart2->SetBoxCollider(cart2->GetSprite()->GetScreenRect());
+    
 
     spriteFrameWidth = 239;
     spriteFrameHeight = 500;
@@ -121,7 +121,7 @@ void GameEngine::Init(const int w, const int h){
 
     objs.push_back(player);
     objs.push_back(cart);
-    //objs.push_back(cart2);
+    objs.push_back(cart2);
 
 
     scale = 0.1;
@@ -187,11 +187,11 @@ void GameEngine::HandleEvents(){
                     //std::cout << "obj1: " << obj1->PrintObjType() << " obj2: " << obj2->PrintObjType() << "   NOT COLLIDING" << std::endl;
                     
                     if(obj1->GetType() != ObjType::Player){
-                        obj1->SetIdle();
+                        //obj1->SetIdle();
                     }
 
                     if(obj2->GetType() != ObjType::Player){
-                        obj2->SetIdle();
+                        //obj2->SetIdle();
                     }
                 }
             }
