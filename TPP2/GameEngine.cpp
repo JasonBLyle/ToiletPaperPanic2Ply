@@ -22,7 +22,7 @@
 /* GAME OBJECTS */
 //Player* player = NULL;
 auto cart = std::make_shared<PushableObj>();
-auto cart2 = std::make_shared<PushableObj>();
+//auto cart2 = std::make_shared<PushableObj>();
 auto player = std::make_shared<Player>();
 auto sanitizer = std::make_shared<GameObject>();
 //GameObject *sanitizer = NULL;
@@ -31,7 +31,6 @@ auto sanitizer = std::make_shared<GameObject>();
 auto pe = std::make_unique<ParticleEmitter>();
 
 /* PUSHABLE OBJECTS CONTAINER */
-std::vector<std::shared_ptr<PushableObj>> pushables;
 std::vector<std::shared_ptr<GameObject>> objs;
 
 GameEngine::GameEngine(){
@@ -103,11 +102,13 @@ void GameEngine::Init(const int w, const int h){
     cart->GetSprite()->SetY(screenH - cart->GetSprite()->GetH() - 25);
     cart->SetBoxCollider(cart->GetSprite()->GetScreenRect());
 
+    /*
     cart2->Init(renderer,"img/shoppingcart.png");
     cart2->GetSprite()->SetSrcRect(0, 0, spriteFrameWidth, spriteFrameHeight);
     cart2->GetSprite()->SetScreenRect(screenW/2 - 300, 0, spriteFrameWidth * scale, spriteFrameHeight * scale);
     cart2->GetSprite()->SetY(screenH - cart->GetSprite()->GetH() - 25);
     cart2->SetBoxCollider(cart->GetSprite()->GetScreenRect());
+    */
 
     spriteFrameWidth = 239;
     spriteFrameHeight = 500;
@@ -118,13 +119,9 @@ void GameEngine::Init(const int w, const int h){
     sanitizer->GetSprite()->SetY(screenH - sanitizer->GetSprite()->GetH() - 25);
     sanitizer->SetBoxCollider(sanitizer->GetSprite()->GetScreenRect());
 
-    //add pushable objects to container
-    pushables.push_back(cart);
-    pushables.push_back(cart2);
-
     objs.push_back(player);
     objs.push_back(cart);
-    objs.push_back(cart2);
+    //objs.push_back(cart2);
 
 
     scale = 0.1;
@@ -207,12 +204,24 @@ void GameEngine::HandleEvents(){
 }
 
 void GameEngine::Update(){
-    player->SetMovementSpeed(5);
-    player->Update();
+    for(auto obj : objs){
+        switch(obj->GetType()){
+            case ObjType::Player:{
+                player->SetMovementSpeed(5);
+                player->Update();
+                break;
+            }
+            case ObjType::Pushable: {
+                auto pushable = std::dynamic_pointer_cast<PushableObj>(obj);
+                pushable->SetPushForce(player->GetMovementSpeed());
+                pushable->Update();
+                break;
+            }
 
-    for(auto obj : pushables){
-        obj->SetPushForce(player->GetMovementSpeed());
-        obj->Update();
+            default: {
+                break;
+            }
+        }
     }
     
     if(healthCollected) pe->Update();
@@ -225,11 +234,27 @@ void GameEngine::Render(){
     SDL_RenderClear(renderer);
 
     /* OBJECTS TO RENDER */
-    player->Render(0, NULL, player->GetSprite()->GetFlip());
-
-    #ifdef DEBUG_SHOWCOLLIDERS 
-    player->RenderBoxCollider();
-    #endif
+    for(auto obj : objs){
+        switch(obj->GetType()){
+            case ObjType::Player:{
+                player->Render(0, NULL, player->GetSprite()->GetFlip());
+                #ifdef DEBUG_SHOWCOLLIDERS 
+                player->RenderBoxCollider();
+                #endif
+                break;
+            }
+            case ObjType::Pushable: {
+                obj->Render();
+                #ifdef DEBUG_SHOWCOLLIDERS 
+                obj->RenderBoxCollider(); 
+                #endif
+                break;
+            }
+            default: {
+                break;
+            }
+        }
+    }
 
     if(healthCollected){
         //fade out
@@ -241,14 +266,6 @@ void GameEngine::Render(){
     #ifdef DEBUG_SHOWCOLLIDERS 
     sanitizer->RenderBoxCollider();
     #endif
-
-    for(auto obj : pushables){
-        obj->Render();
-
-        #ifdef DEBUG_SHOWCOLLIDERS 
-        obj->RenderBoxCollider(); 
-        #endif
-    }
    
     if(healthCollected) pe->Render();
        
