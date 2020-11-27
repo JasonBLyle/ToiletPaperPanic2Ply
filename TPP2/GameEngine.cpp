@@ -152,6 +152,10 @@ void GameEngine::HandleEvents(){
                     player->SetPlayerState(PlayerState::JUMP); 
                     break;
                 }
+                case SDLK_s: {
+                    player->SetPlayerState(PlayerState::FALL);
+                    break;
+                }
                 case SDLK_ESCAPE:{
                     if(paused) paused = false; //if currently paused, unpause
                     else paused = true;
@@ -160,18 +164,21 @@ void GameEngine::HandleEvents(){
             }
         }
         else if(my_input.type == SDL_KEYUP){
-            player->SetPlayerState(PlayerState::IDLE);
+            if(player->GetPlayerState() != PlayerState::FALL){
+                player->SetPlayerState(PlayerState::IDLE);
+            }
         }
     }
     
     if(!paused){
         /* ---------- COLLISION CHECKING  ---------- */
+        bool playerTest = false;
         for (auto obj1 : objs){
             for(auto obj2 : objs){
                 if(obj1 != obj2){ //make sure the object isn't being compared with itself
                     if(IsColliding(obj1->GetBoxCollider(), obj2->GetBoxCollider())){ 
                         //std::cout << "obj1: " << obj1->PrintObjType() << " obj2: " << obj2->PrintObjType() << "   COLLIDING" << std::endl;
-
+                        if(obj1->GetType() == ObjType::Player || obj2->GetType() == ObjType::Player){ playerTest = true; }
                         obj1->DoCollisionResponse(obj2);
                     }
 
@@ -184,6 +191,10 @@ void GameEngine::HandleEvents(){
                     }
                 }
             }
+        }
+        //Checking to see if player is colliding. If not, and idle, suggest that it go to falling state (overrided if on the floor)
+        if(playerTest == false && player->GetPlayerState() == PlayerState::IDLE){
+            player->SetPlayerState(PlayerState::FALL);
         }
     }
 }
