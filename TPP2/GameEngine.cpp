@@ -34,6 +34,7 @@ SDL_Rect pause_dim;
 GameEngine::GameEngine(){
     screenW = 0;
     screenH = 0;
+    floorY = 0;
     window = NULL;
     renderer = NULL;
     runningState = true;
@@ -48,6 +49,7 @@ GameEngine* GameEngine::GetInstance(){
 
 int GameEngine::GetScreenWidth(){return screenW;}
 int GameEngine::GetScreenHeight(){return screenH;}
+int GameEngine::GetFloorY(){return floorY;}
 SDL_Renderer* GameEngine::GetRenderer(){return renderer;}
 SDL_Window* GameEngine::GetWindow(){return window;}
 bool GameEngine::GetRunningState(){return runningState;}
@@ -75,6 +77,8 @@ void GameEngine::Init(const int w, const int h){
     window = SDL_CreateWindow("Toilet Paper Panic: 2-ply", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, screenW, screenH, 0);
     renderer = SDL_CreateRenderer(window, -1, 0);
 
+    /* ---------------- FLOOR ------------------- */
+    floorY = 25; //25 pixels from the bottom of the window
 
     /* ---------------- INITIALIZE GAME OBJECTS ------------------- */
     int spriteFrameWidth = 220;
@@ -83,7 +87,7 @@ void GameEngine::Init(const int w, const int h){
     player->Init(renderer, "img/player.png");
     player->GetSprite()->SetSrcRect(0, 0, spriteFrameWidth, spriteFrameHeight); //set the area of the texture to be rendered 
     player->GetSprite()->SetScreenRect(screenW/2, 0, spriteFrameWidth * scale, spriteFrameHeight * scale); //set the area of the screen that renders src_rect
-    player->GetSprite()->SetY(screenH - player->GetSprite()->GetH() - 25); 
+    player->GetSprite()->SetY(screenH - player->GetSprite()->GetH() - 300); 
     player->SetBoxCollider(player->GetSprite()->GetScreenRect());
 
     spriteFrameWidth = 263;
@@ -92,13 +96,13 @@ void GameEngine::Init(const int w, const int h){
     cart->Init(renderer,"img/shoppingcart.png");
     cart->GetSprite()->SetSrcRect(0, 0, spriteFrameWidth, spriteFrameHeight);
     cart->GetSprite()->SetScreenRect(screenW/2 + 10, 0, spriteFrameWidth * scale, spriteFrameHeight * scale);
-    cart->GetSprite()->SetY(screenH - cart->GetSprite()->GetH() - 25);
+    cart->GetSprite()->SetY(screenH - cart->GetSprite()->GetH() - floorY);
     cart->SetBoxCollider(cart->GetSprite()->GetScreenRect());
     
     cart2->Init(renderer,"img/shoppingcart.png");
     cart2->GetSprite()->SetSrcRect(0, 0, spriteFrameWidth, spriteFrameHeight);
     cart2->GetSprite()->SetScreenRect(screenW/2 - 300, 0, spriteFrameWidth * scale, spriteFrameHeight * scale);
-    cart2->GetSprite()->SetY(screenH - cart2->GetSprite()->GetH() - 25);
+    cart2->GetSprite()->SetY(screenH - cart2->GetSprite()->GetH() - floorY);
     cart2->SetBoxCollider(cart2->GetSprite()->GetScreenRect());
 
     spriteFrameWidth = 239;
@@ -107,7 +111,7 @@ void GameEngine::Init(const int w, const int h){
     sanitizer2->Init(renderer,"img/sanitizer.png");
     sanitizer2->GetSprite()->SetSrcRect(0, 0, spriteFrameWidth, spriteFrameHeight);
     sanitizer2->GetSprite()->SetScreenRect(screenW/2 + -50, 0, spriteFrameWidth * scale, spriteFrameHeight * scale);
-    sanitizer2->GetSprite()->SetY(screenH - sanitizer2->GetSprite()->GetH() - 25);
+    sanitizer2->GetSprite()->SetY(screenH - sanitizer2->GetSprite()->GetH() - floorY);
     sanitizer2->SetBoxCollider(sanitizer2->GetSprite()->GetScreenRect());
     sanitizer2->SetHealthType(HealthType::SANITIZER);
 
@@ -153,7 +157,7 @@ void GameEngine::HandleEvents(){
                     break;
                 }
                 case SDLK_s: {
-                    if(player->GetSprite()->GetY() + player->GetSprite()->GetH() < GetScreenHeight() - 25){
+                    if(player->GetSprite()->GetY() + player->GetSprite()->GetH() < GetScreenHeight() - floorY){
                         player->SetPlayerState(PlayerState::FALL);
                     }
                     break;
@@ -195,7 +199,7 @@ void GameEngine::HandleEvents(){
             }
         }
         //Checking to see if player is colliding. If not, and idle, suggest that it go to falling state (overrided if on the floor)
-        if(playerTest == false && player->GetPlayerState() == PlayerState::IDLE && player->GetSprite()->GetY() + player->GetSprite()->GetH() < GetScreenHeight() - 25){
+        if(playerTest == false && player->GetPlayerState() == PlayerState::IDLE && player->GetSprite()->GetY() + player->GetSprite()->GetH() < GetScreenHeight() - floorY){
             player->SetPlayerState(PlayerState::FALL);
         }
     }

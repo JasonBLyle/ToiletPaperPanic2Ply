@@ -48,9 +48,9 @@ void Player::Update(){
     this->SetBoxColliderPos(this->GetSprite()->GetX(), this->GetSprite()->GetY());
 
     //Keep player from falling through floor, bring them back to floor
-    if(this->GetSprite()->GetY() + this->GetSprite()->GetH() > game->GetScreenHeight() - 25){
+    if(this->GetSprite()->GetY() + this->GetSprite()->GetH() > game->GetScreenHeight() - game->GetFloorY()){
         ySpeed = 0;
-        this->GetSprite()->SetY(game->GetScreenHeight() - this->GetSprite()->GetH() - 25);
+        this->GetSprite()->SetY(game->GetScreenHeight() - this->GetSprite()->GetH() - game->GetFloorY());
         this->SetPlayerState(PlayerState::IDLE);
     }
     switch(playerState){

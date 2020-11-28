@@ -22,6 +22,7 @@ class GameEngine{
         SDL_Window *window;
         int screenW; //width of the game window
         int screenH; //height of the game window
+        int floorY; //the y coord of the floor
         bool runningState;
         bool paused;
 
@@ -30,6 +31,7 @@ class GameEngine{
         
         int GetScreenWidth();
         int GetScreenHeight();
+        int GetFloorY();
         SDL_Renderer* GetRenderer();
         SDL_Window* GetWindow();
         bool GetRunningState();
