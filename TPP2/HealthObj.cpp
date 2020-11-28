@@ -46,6 +46,7 @@ void HealthObj::SetHealthType(HealthType type){
 //overrides
 void HealthObj::Update(){
     if(objState == HealthObjState::COLLECTED){
+        SetBoxCollider(0,0,0,0); //remove collider
         if(healthType == HealthType::SANITIZER){
             particleEmitter->Update();
         }

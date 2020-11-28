@@ -87,7 +87,7 @@ void GameEngine::Init(const int w, const int h){
     player->Init(renderer, "img/player.png");
     player->GetSprite()->SetSrcRect(0, 0, spriteFrameWidth, spriteFrameHeight); //set the area of the texture to be rendered 
     player->GetSprite()->SetScreenRect(screenW/2, 0, spriteFrameWidth * scale, spriteFrameHeight * scale); //set the area of the screen that renders src_rect
-    player->GetSprite()->SetY(screenH - player->GetSprite()->GetH() - 300); 
+    player->GetSprite()->SetY(screenH - player->GetSprite()->GetH() - floorY); 
     player->SetBoxCollider(player->GetSprite()->GetScreenRect());
 
     spriteFrameWidth = 263;
@@ -213,12 +213,6 @@ void GameEngine::Update(){
     if(!paused){
         for(auto obj : objs){
             switch(obj->GetType()){
-                case ObjType::Player:{
-                    //don't need to dynamic cast GameObject obj into Player obj since there's only one player
-                    player->SetMovementSpeed(5);
-                    player->Update();
-                    break;
-                }
                 case ObjType::Pushable: {
                     auto pushable = std::dynamic_pointer_cast<PushableObj>(obj);
                     pushable->SetPushForce(player->GetMovementSpeed());
