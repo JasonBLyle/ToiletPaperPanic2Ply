@@ -23,6 +23,7 @@ GameEngine* game2 = GameEngine::GetInstance();
 
 PushableObjState PushableObj::GetObjState(){return objState;}
 double PushableObj::GetPushForce(){return pushForce;}
+double PushableObj::GetVelocity(){return velocity;}
 
 
 /*

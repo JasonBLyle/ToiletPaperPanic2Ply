@@ -65,6 +65,8 @@ Sprite* GameObject::GetSprite(){ return sprite; }
 ObjType GameObject::GetType(){ return objType; }
 SDL_Rect GameObject::GetBoxCollider(){ return boxCollider; }
 int GameObject::GetAlpha(){ return alpha; }
+bool GameObject::GetOnTop() { return onTop; }
+std::shared_ptr<GameObject> GameObject::GetOnTopOf() { return onTopOf; }
 /* ------------------------------------- */
 
 
@@ -108,6 +110,13 @@ void GameObject::SetAlpha(int a){
     else if (a > 255) alpha = 255;
     else alpha = a;
 }
+
+void GameObject::SetOnTopOf(std::shared_ptr<GameObject> below){
+    onTop = true;  
+    onTopOf = below;
+}
+
+void GameObject::SetOnTop(bool x){ onTop = x; }
 
 /*
     This function increment/decrements alpha value by var

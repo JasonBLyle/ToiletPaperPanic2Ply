@@ -20,6 +20,9 @@ class GameObject{
         Sprite *sprite;
         SDL_Rect boxCollider;
         int alpha;
+        //variables for when one object is on top of another
+        bool onTop;
+        std::shared_ptr<GameObject> onTopOf;
 
     protected:
         ObjType objType; 
@@ -39,11 +42,15 @@ class GameObject{
         SDL_Rect GetBoxCollider();
         SDL_Renderer * GetRenderer(){ return renderer; };
         int GetAlpha();
+        bool GetOnTop();
+        std::shared_ptr<GameObject> GetOnTopOf();
 
         void SetBoxCollider(int x, int y, int w, int h);
         void SetBoxColliderPos(int x, int y);
         void SetBoxCollider(SDL_Rect *r);
         void SetAlpha(int a);
+        void SetOnTopOf(std::shared_ptr<GameObject> below);
+        void SetOnTop(bool x);
         
         void ChangeAlpha(int var);
 

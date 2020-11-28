@@ -11,18 +11,21 @@
 #include <SDL2/SDL_image.h>
 #include "GameObject.h"
 
-enum class PlayerState { IDLE, MOVE_LEFT, MOVE_RIGHT, JUMP };
+enum class PlayerState { IDLE, MOVE_LEFT, MOVE_RIGHT, JUMP, FALL };
 
 class Player: public GameObject{
     private:
         int moveSpeed;
+        double ySpeed;
         PlayerState playerState;
     public:
         //Player(SDL_Renderer *ren, const char *file):GameObject(ren, file){};
         Player();
         PlayerState GetPlayerState();
         int GetMovementSpeed();
+        int GetYSpeed();
         void SetMovementSpeed(int speed);
+        void SetYSpeed(int speed);
         void SetPlayerState(PlayerState state);
 
         //overrides

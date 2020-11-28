@@ -22,6 +22,7 @@ class PushableObj: public GameObject{
         PushableObj();
         PushableObjState GetObjState();
         double GetPushForce();
+        double GetVelocity();
 
         void SetPushForce(int force);
         void SetObjState(PushableObjState state);
