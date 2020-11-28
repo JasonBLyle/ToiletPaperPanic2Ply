@@ -53,11 +53,6 @@ void Player::Update(){
         this->GetSprite()->SetY(game->GetScreenHeight() - this->GetSprite()->GetH() - 25);
         this->SetPlayerState(PlayerState::IDLE);
     }
-    //Gravity
-    else if(this->GetSprite()->GetY() + this->GetSprite()->GetH() < game->GetScreenHeight() - 25 && this->GetOnTop() != true){
-        this->SetPlayerState(PlayerState::FALL);
-    }    
-
     switch(playerState){
         case PlayerState::IDLE: {
             this->GetSprite()->SetSrcY(0);

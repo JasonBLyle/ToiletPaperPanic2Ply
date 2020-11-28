@@ -83,7 +83,7 @@ void GameEngine::Init(const int w, const int h){
     player->Init(renderer, "img/player.png");
     player->GetSprite()->SetSrcRect(0, 0, spriteFrameWidth, spriteFrameHeight); //set the area of the texture to be rendered 
     player->GetSprite()->SetScreenRect(screenW/2, 0, spriteFrameWidth * scale, spriteFrameHeight * scale); //set the area of the screen that renders src_rect
-    player->GetSprite()->SetY(screenH - player->GetSprite()->GetH() - 25); 
+    player->GetSprite()->SetY(screenH - player->GetSprite()->GetH() - 250); 
     player->SetBoxCollider(player->GetSprite()->GetScreenRect());
 
     spriteFrameWidth = 263;
@@ -153,7 +153,9 @@ void GameEngine::HandleEvents(){
                     break;
                 }
                 case SDLK_s: {
-                    player->SetPlayerState(PlayerState::FALL);
+                    if(player->GetSprite()->GetY() + player->GetSprite()->GetH() < GetScreenHeight() - 25){
+                        player->SetPlayerState(PlayerState::FALL);
+                    }
                     break;
                 }
                 case SDLK_ESCAPE:{
@@ -193,7 +195,7 @@ void GameEngine::HandleEvents(){
             }
         }
         //Checking to see if player is colliding. If not, and idle, suggest that it go to falling state (overrided if on the floor)
-        if(playerTest == false && player->GetPlayerState() == PlayerState::IDLE){
+        if(playerTest == false && player->GetPlayerState() == PlayerState::IDLE && player->GetSprite()->GetY() + player->GetSprite()->GetH() < GetScreenHeight() - 25){
             player->SetPlayerState(PlayerState::FALL);
         }
     }
