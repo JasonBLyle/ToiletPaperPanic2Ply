@@ -83,7 +83,7 @@ void GameEngine::Init(const int w, const int h){
     player->Init(renderer, "img/player.png");
     player->GetSprite()->SetSrcRect(0, 0, spriteFrameWidth, spriteFrameHeight); //set the area of the texture to be rendered 
     player->GetSprite()->SetScreenRect(screenW/2, 0, spriteFrameWidth * scale, spriteFrameHeight * scale); //set the area of the screen that renders src_rect
-    player->GetSprite()->SetY(screenH - player->GetSprite()->GetH() - 250); 
+    player->GetSprite()->SetY(screenH - player->GetSprite()->GetH() - 25); 
     player->SetBoxCollider(player->GetSprite()->GetScreenRect());
 
     spriteFrameWidth = 263;
