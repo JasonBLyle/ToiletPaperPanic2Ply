@@ -26,7 +26,7 @@ auto player = std::make_shared<Player>();
 auto sanitizer2 = std::make_shared<HealthObj>();
 
 std::vector<std::shared_ptr<GameObject>> objs;
-
+auto pauseMenuOptions = std::make_shared<MenuOptions>();
 
 /* ---------- TEXT  ---------- */
 auto healthLabel = std::make_shared<Text>();
@@ -143,29 +143,7 @@ void GameEngine::Init(const int w, const int h){
     objs = {player, cart, cart2, sanitizer2};
 
     /* ---------------- TEXT ------------------- */
-    SDL_Color healthLabelColor = {0,0,0};
-    healthLabel->Init(renderer, "fonts/theboldfont.ttf", 24, 10, 10, healthLabelColor);
-    healthLabel->SetText("Health: ");
-    healthValue->Init(renderer, "fonts/theboldfont.ttf", 24, healthLabel->GetWidth() + 10, 10, healthLabelColor);
-    healthValue->SetText("100"); 
-
-    SDL_Color pauseTextColor = {255,255,255};
-    unpause_text->Init(renderer, "fonts/theboldfont.ttf", 48, 0, 0, pauseTextColor);
-    unpause_text->SetText("Resume");
-    unpause_text->SetX(screenW/2 - unpause_text->GetWidth()/2);
-    unpause_text->SetY(screenH/2 - 15);
-
-    exitToTitle_text->Init(renderer, "fonts/theboldfont.ttf", 48, 0, 0, pauseTextColor);
-    exitToTitle_text->SetText("Exit to title");
-    exitToTitle_text->SetX(screenW/2 - exitToTitle_text->GetWidth()/2);
-    exitToTitle_text->SetY(unpause_text->GetY() + unpause_text->GetHeight() + 50);
-
-    pause_selection_controls->Init(renderer, "fonts/Comfortaa-Regular.ttf", 18, 0, 0, pauseTextColor);
-    pause_selection_controls->SetText("use W and S to select, [SPACE] to confirm");
-    pause_selection_controls->SetX(screenW/2 - pause_selection_controls->GetWidth()/2);
-    pause_selection_controls->SetY(screenH - pause_selection_controls->GetHeight() - 10);
-
-    textObjs = {healthLabel, healthValue, unpause_text, exitToTitle_text, pause_selection_controls}; //mainly used in Quit() to close all the fonts
+    InitText(renderer, screenW, screenH);
 
     /* ---------------- INITIALIZE GAME STATE ------------------- */
     runningState = true;
@@ -198,18 +176,43 @@ void GameEngine::HandleEvents(){
                     break;
                 }
                 case SDLK_SPACE: {
-                    player->SetPlayerState(PlayerState::JUMP); 
+                    if(paused){
+                        switch(pauseMenuOptions->GetCurrentOption()){
+                            case 0: {
+                                paused = false;
+                                break;
+                            }
+                            case 1: {
+                                //go to title screen
+                                break;
+                            }
+                        }
+                    } 
+                    
+                    else{
+                        player->SetPlayerState(PlayerState::JUMP); 
+                    }
+
+                    break;
+                }
+                case SDLK_w: {
+                    if(paused){
+                        pauseMenuOptions->SelectPrevOption();
+                    }
                     break;
                 }
                 case SDLK_s: {
-                    if(player->GetSprite()->GetY() + player->GetSprite()->GetH() < GetScreenHeight() - floorY){
+                    
+                    if(paused){
+                        pauseMenuOptions->SelectNextOption();
+                    }
+                    else if(player->GetSprite()->GetY() + player->GetSprite()->GetH() < GetScreenHeight() - floorY){
                         player->SetPlayerState(PlayerState::FALL);
                     }
                     break;
                 }
                 case SDLK_ESCAPE:{
-                    if(paused) paused = false; //if currently paused, unpause
-                    else paused = true;
+                    paused = true;
                     break;
                 }
             }
@@ -310,9 +313,8 @@ void GameEngine::Render(){
         SDL_RenderFillRect(renderer, &pause_dim);
 
         pause_title_sprite->Render();
-        unpause_text->Render();
-        exitToTitle_text->Render();
         pause_selection_controls->Render();
+        pauseMenuOptions->Render();
     }
 
     SDL_RenderPresent(renderer);
@@ -362,4 +364,37 @@ bool GameEngine::IsColliding(SDL_Rect a, SDL_Rect b){
        return false; 
 
     return true;
+}
+
+void GameEngine::InitText(SDL_Renderer *renderer, int screenW, int screenH){
+    //initialize each text object
+    SDL_Color healthLabelColor = {0,0,0};
+    healthLabel->Init(renderer, "fonts/theboldfont.ttf", 24, 10, 10, healthLabelColor);
+    healthLabel->SetText("Health: ");
+    healthValue->Init(renderer, "fonts/theboldfont.ttf", 24, healthLabel->GetW() + 10, 10, healthLabelColor);
+    healthValue->SetText("100");
+
+    SDL_Color pauseTextColor = {255,255,255};
+    unpause_text->Init(renderer, "fonts/theboldfont.ttf", 48, 0, 0, pauseTextColor);
+    unpause_text->SetText("Resume");
+    unpause_text->SetX(screenW/2 - unpause_text->GetW()/2);
+    unpause_text->SetY(screenH/2 - 15);
+
+    exitToTitle_text->Init(renderer, "fonts/theboldfont.ttf", 48, 0, 0, pauseTextColor);
+    exitToTitle_text->SetText("Exit to title");
+    exitToTitle_text->SetX(screenW/2 - exitToTitle_text->GetW()/2);
+    exitToTitle_text->SetY(unpause_text->GetY() + unpause_text->GetH() + 50);
+
+    pause_selection_controls->Init(renderer, "fonts/Comfortaa-Regular.ttf", 18, 0, 0, pauseTextColor);
+    pause_selection_controls->SetText("Use W and S to select, [SPACE] to confirm");
+    pause_selection_controls->SetX(screenW/2 - pause_selection_controls->GetW()/2);
+    pause_selection_controls->SetY(screenH - pause_selection_controls->GetH() - 10);
+
+    //create pause menu buttons
+    std::vector<std::shared_ptr<Text>> temp;
+    temp = {unpause_text, exitToTitle_text};
+    pauseMenuOptions->Init(renderer, "img/selector.png", 100, 100, 0.5, temp);
+    
+    //only used in Quit() to close all the fonts
+    textObjs = {healthLabel, healthValue, unpause_text, exitToTitle_text, pause_selection_controls}; 
 }

@@ -20,8 +20,8 @@ class Text{
         TTF_Font *GetFont();
         int GetX();
         int GetY();
-        int GetWidth();
-        int GetHeight();
+        int GetW();
+        int GetH();
 
         void SetText(const char *text);
         void SetX(int x);

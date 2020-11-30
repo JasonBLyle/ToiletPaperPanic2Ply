@@ -13,6 +13,7 @@
 #include "PushableObj.h"
 #include "HealthObj.h"
 #include "Text.h"
+#include "MenuOptions.h"
 
 class GameEngine{
     private:
@@ -26,6 +27,7 @@ class GameEngine{
         int floorY; //the y coord of the floor
         bool runningState;
         bool paused;
+        void InitText(SDL_Renderer *renderer, int screenW, int screenH);
 
     public:
         static GameEngine *GetInstance();

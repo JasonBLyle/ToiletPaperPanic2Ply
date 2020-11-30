@@ -26,8 +26,8 @@ void Text::Init(SDL_Renderer *ren, const char *ttf_file, int fontSize, int x, in
 }
 
 TTF_Font* Text::GetFont(){ return font; }
-int Text::GetWidth(){ return textBox.w; }
-int Text::GetHeight(){ return textBox.h; }
+int Text::GetW(){ return textBox.w; }
+int Text::GetH(){ return textBox.h; }
 int Text::GetX(){ return textBox.x; }
 int Text::GetY(){ return textBox.y; }
 
