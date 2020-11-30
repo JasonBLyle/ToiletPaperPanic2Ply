@@ -12,6 +12,7 @@
 #include "Player.h"
 #include "PushableObj.h"
 #include "HealthObj.h"
+#include "Text.h"
 
 class GameEngine{
     private:

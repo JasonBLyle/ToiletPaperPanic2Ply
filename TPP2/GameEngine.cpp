@@ -9,6 +9,7 @@
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
 #include <SDL2/SDL_timer.h>
+#include <SDL2/SDL_ttf.h>
 
 #include <iostream>
 #include <string>
@@ -25,11 +26,22 @@ auto player = std::make_shared<Player>();
 auto sanitizer2 = std::make_shared<HealthObj>();
 
 std::vector<std::shared_ptr<GameObject>> objs;
+
+
+/* ---------- TEXT  ---------- */
+auto healthLabel = std::make_shared<Text>();
+auto healthValue = std::make_shared<Text>();
+
+auto unpause_text = std::make_shared<Text>();
+auto exitToTitle_text = std::make_shared<Text>();
+auto pause_selection_controls = std::make_shared<Text>();
+
+std::vector<std::shared_ptr<Text>> textObjs;
+
+/* ---------- FOR THE MENUS  ---------- */
 SDL_Rect pause_dim;
-
-/* ----------------------------------- */
-
-
+auto pause_title_sprite = std::make_shared<GameObject>();
+/* ------------------------------------ */
 
 GameEngine::GameEngine(){
     screenW = 0;
@@ -73,6 +85,7 @@ void GameEngine::Init(const int w, const int h){
     screenH = h;
 
     if (SDL_Init(SDL_INIT_EVERYTHING) != 0) std::cout << "Error initializing SDL: " << SDL_GetError() << std::endl;
+    if (TTF_Init() != 0) std::cout << "Error initializing TTF: " << TTF_GetError() << std::endl;
     IMG_Init(IMG_INIT_PNG); // Enable gpu_enhanced textures
     window = SDL_CreateWindow("Toilet Paper Panic: 2-ply", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, screenW, screenH, 0);
     renderer = SDL_CreateRenderer(window, -1, 0);
@@ -120,7 +133,39 @@ void GameEngine::Init(const int w, const int h){
     pause_dim.w = screenW;
     pause_dim.h = screenH;
 
+    spriteFrameWidth = 737;
+    spriteFrameHeight = 235;
+    scale = 0.5;
+    pause_title_sprite->Init(renderer,"img/paused.png");
+    pause_title_sprite->GetSprite()->SetSrcRect(0, 0, spriteFrameWidth, spriteFrameHeight);
+    pause_title_sprite->GetSprite()->SetScreenRect(screenW/2 - (spriteFrameWidth/2 * scale), 10, spriteFrameWidth * scale, spriteFrameHeight * scale);
+
     objs = {player, cart, cart2, sanitizer2};
+
+    /* ---------------- TEXT ------------------- */
+    SDL_Color healthLabelColor = {0,0,0};
+    healthLabel->Init(renderer, "fonts/theboldfont.ttf", 24, 10, 10, healthLabelColor);
+    healthLabel->SetText("Health: ");
+    healthValue->Init(renderer, "fonts/theboldfont.ttf", 24, healthLabel->GetWidth() + 10, 10, healthLabelColor);
+    healthValue->SetText("100"); 
+
+    SDL_Color pauseTextColor = {255,255,255};
+    unpause_text->Init(renderer, "fonts/theboldfont.ttf", 48, 0, 0, pauseTextColor);
+    unpause_text->SetText("Resume");
+    unpause_text->SetX(screenW/2 - unpause_text->GetWidth()/2);
+    unpause_text->SetY(screenH/2 - 15);
+
+    exitToTitle_text->Init(renderer, "fonts/theboldfont.ttf", 48, 0, 0, pauseTextColor);
+    exitToTitle_text->SetText("Exit to title");
+    exitToTitle_text->SetX(screenW/2 - exitToTitle_text->GetWidth()/2);
+    exitToTitle_text->SetY(unpause_text->GetY() + unpause_text->GetHeight() + 50);
+
+    pause_selection_controls->Init(renderer, "fonts/Comfortaa-Regular.ttf", 18, 0, 0, pauseTextColor);
+    pause_selection_controls->SetText("use W and S to select, [SPACE] to confirm");
+    pause_selection_controls->SetX(screenW/2 - pause_selection_controls->GetWidth()/2);
+    pause_selection_controls->SetY(screenH - pause_selection_controls->GetHeight() - 10);
+
+    textObjs = {healthLabel, healthValue, unpause_text, exitToTitle_text, pause_selection_controls}; //mainly used in Quit() to close all the fonts
 
     /* ---------------- INITIALIZE GAME STATE ------------------- */
     runningState = true;
@@ -255,10 +300,19 @@ void GameEngine::Render(){
         }
     }
 
+    /* TEXT TO RENDER */
+    healthLabel->Render();
+    healthValue->Render();
+
     if(paused){
         SDL_SetRenderDrawColor(renderer, 0, 0, 0, 200);
         SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
         SDL_RenderFillRect(renderer, &pause_dim);
+
+        pause_title_sprite->Render();
+        unpause_text->Render();
+        exitToTitle_text->Render();
+        pause_selection_controls->Render();
     }
 
     SDL_RenderPresent(renderer);
@@ -269,10 +323,15 @@ void GameEngine::Render(){
 
 
 void GameEngine::Quit(){
+    for(auto text : textObjs){
+        TTF_CloseFont(text->GetFont());
+    }
+
     SDL_DestroyRenderer(renderer);
     SDL_DestroyWindow(window);
 
     IMG_Quit();
+    TTF_Quit();
     SDL_Quit();
 }
 
