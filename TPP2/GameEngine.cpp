@@ -190,7 +190,9 @@ void GameEngine::HandleEvents(){
                     } 
                     
                     else{
-                        player->SetPlayerState(PlayerState::JUMP); 
+			if(player->GetPlayerState() == PlayerState::IDLE && player->GetSprite()->GetY() > 0){
+				player->SetPlayerState(PlayerState::JUMP); 
+			}
                     }
 
                     break;

@@ -67,6 +67,9 @@ void Player::Update(){
             this->GetSprite()->UpdateFrame(animSpeed, moveAnimStartFrame, moveAnimTotalFrames);
 
             this->MoveX(moveSpeed * -1);
+	    if(ySpeed > 0) {
+		this->MoveY(ySpeed);
+	    }
         
             this->GetSprite()->SetFlip(SDL_FLIP_HORIZONTAL);
             break;
@@ -77,13 +80,22 @@ void Player::Update(){
             this->GetSprite()->UpdateFrame(animSpeed, moveAnimStartFrame, moveAnimTotalFrames);
 
             this->MoveX(moveSpeed);
+	    if(ySpeed > 0) {
+		this->MoveY(ySpeed);
+	    }
           
             this->GetSprite()->SetFlip(SDL_FLIP_NONE);
             break;            
         }
         
         case PlayerState::JUMP: {
-            //TODO
+            ySpeed = -6.0;
+	    this->GetSprite()->SetSrcY(moveAnimYOffset);
+            this->GetSprite()->UpdateFrame(animSpeed, moveAnimStartFrame, moveAnimTotalFrames);
+
+	    if(this->GetSprite()->GetY() > 0) {
+	    	this->MoveY(ySpeed);
+	    }
 
             break;
         }
@@ -91,7 +103,7 @@ void Player::Update(){
             this->GetSprite()->SetSrcY(0);
             this->GetSprite()->UpdateFrame(animSpeed, idleAnimStartFrame, idleAnimTotalFrames);
             this->MoveY(ySpeed);
-            ySpeed += 0.1;
+            ySpeed += 0.5;
 
             this->SetOnTop(false);
 
