@@ -12,6 +12,7 @@ Text::Text(){
     textColor.r = 0;
     textColor.g = 0;
     textColor.b = 0;
+    currText = "";
 }
 
 void Text::Init(SDL_Renderer *ren, const char *ttf_file, int fontSize, int x, int y, SDL_Color color){
@@ -32,19 +33,25 @@ int Text::GetX(){ return textBox.x; }
 int Text::GetY(){ return textBox.y; }
 
 void Text::SetText(const char *text){
-    SDL_Surface *surface;
-    if(!(surface = TTF_RenderText_Solid(font, text, textColor))){
-        std::cout << "Font Error" << std::endl;
-    } else{
-        texture = SDL_CreateTextureFromSurface(renderer, surface);
-        SDL_FreeSurface(surface);
+    //std::cout << std::string(text) << " " << currText << std::endl;
+    if(strcmp(currText.c_str(), text) != 0){
+        currText = std::string(text);
+        //std::cout << "strings not equal" << std::endl;
+        SDL_Surface *surface;
+        if(!(surface = TTF_RenderText_Solid(font, text, textColor))){
+            std::cout << "Font Error" << std::endl;
+        } else{
+            texture = SDL_CreateTextureFromSurface(renderer, surface);
+            SDL_FreeSurface(surface);
 
-        int w, h;
-        SDL_QueryTexture(texture, NULL, NULL, &w, &h);
+            int w, h;
+            SDL_QueryTexture(texture, NULL, NULL, &w, &h);
 
-        textBox.w = w;
-        textBox.h = h;
+            textBox.w = w;
+            textBox.h = h;
+        }
     }
+    
 }
 
 void Text::SetX(int x){ textBox.x = x;}

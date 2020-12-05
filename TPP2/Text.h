@@ -3,6 +3,7 @@
 
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_ttf.h>
+#include <string>
 
 class Text{
     private:
@@ -11,6 +12,7 @@ class Text{
         TTF_Font *font;
         SDL_Color textColor;
         SDL_Texture *texture;
+        std::string currText;
     public:
         Text();
         ~Text();
