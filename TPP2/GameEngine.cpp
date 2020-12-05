@@ -162,20 +162,13 @@ void GameEngine::HandleEvents(){
     SDL_Event my_input;
 
     /* ---------- KEYBOARD INPUT  ---------- */
+
     while (SDL_PollEvent(&my_input) > 0){
+	int jumping = 0;
         if(my_input.type == SDL_QUIT) runningState = false; //ends the game
         if(my_input.type == SDL_KEYDOWN){
             switch (my_input.key.keysym.sym){
-                case SDLK_a: {
-                    player->SetPlayerState(PlayerState::MOVE_LEFT);          
-                    break;
-                }
-                case SDLK_d: {
-                    player->SetPlayerState(PlayerState::MOVE_RIGHT);  
-    
-                    break;
-                }
-                case SDLK_SPACE: {
+		case SDLK_SPACE: {
                     if(paused){
                         switch(pauseMenuOptions->GetCurrentOption()){
                             case 0: {
@@ -191,12 +184,24 @@ void GameEngine::HandleEvents(){
                     
                     else{
 			if(player->GetPlayerState() == PlayerState::IDLE && player->GetSprite()->GetY() > 0){
-				player->SetPlayerState(PlayerState::JUMP); 
+			    std::cout << "Set state to jump\n";
+			    player->SetPlayerState(PlayerState::JUMP);
+			    jumping++;
 			}
                     }
 
                     break;
                 }
+                case SDLK_a: {
+                    player->SetPlayerState(PlayerState::MOVE_LEFT);          
+                    break;
+                }
+                case SDLK_d: {
+                    player->SetPlayerState(PlayerState::MOVE_RIGHT);  
+    
+                    break;
+                }
+                
                 case SDLK_w: {
                     if(paused){
                         pauseMenuOptions->SelectPrevOption();
@@ -218,11 +223,21 @@ void GameEngine::HandleEvents(){
                     break;
                 }
             }
-        }
+        } 
         else if(my_input.type == SDL_KEYUP){
+	    if (player->GetPlayerState() == PlayerState::JUMP) {
+	        std::cout << "Set state to fall\n";
+	        if(jumping > 0) {
+	            player->SetPlayerState(PlayerState::FALL);
+	        } else {
+		    jumping = 0;
+	        }
+	    }
+
             if(player->GetPlayerState() != PlayerState::FALL){
                 player->SetPlayerState(PlayerState::IDLE);
             }
+	    
         }
     }
     

@@ -68,7 +68,7 @@ void Player::Update(){
 
             this->MoveX(moveSpeed * -1);
 	    if(ySpeed > 0) {
-		this->MoveY(ySpeed);
+		//this->MoveY(ySpeed);
 	    }
         
             this->GetSprite()->SetFlip(SDL_FLIP_HORIZONTAL);
@@ -81,7 +81,7 @@ void Player::Update(){
 
             this->MoveX(moveSpeed);
 	    if(ySpeed > 0) {
-		this->MoveY(ySpeed);
+		//this->MoveY(ySpeed);
 	    }
           
             this->GetSprite()->SetFlip(SDL_FLIP_NONE);
@@ -89,6 +89,7 @@ void Player::Update(){
         }
         
         case PlayerState::JUMP: {
+	    //std::cout << "Jumping";
             ySpeed = -6.0;
 	    this->GetSprite()->SetSrcY(moveAnimYOffset);
             this->GetSprite()->UpdateFrame(animSpeed, moveAnimStartFrame, moveAnimTotalFrames);
@@ -100,6 +101,7 @@ void Player::Update(){
             break;
         }
         case PlayerState::FALL: {
+	    //std::cout << "Falling\n";
             this->GetSprite()->SetSrcY(0);
             this->GetSprite()->UpdateFrame(animSpeed, idleAnimStartFrame, idleAnimTotalFrames);
             this->MoveY(ySpeed);
