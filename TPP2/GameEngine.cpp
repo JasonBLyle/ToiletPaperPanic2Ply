@@ -184,9 +184,13 @@ void GameEngine::HandleEvents(){
                     
                     else{
 			if(player->GetPlayerState() == PlayerState::IDLE && player->GetSprite()->GetY() > 0){
-			    std::cout << "Set state to jump\n";
-			    player->SetPlayerState(PlayerState::JUMP);
-			    jumping++;
+			    //std::cout << "Set state to jump\n";
+			    if(jumping < 1) {
+				player->SetPlayerState(PlayerState::JUMP);
+				jumping++;
+			    } else {
+				player->SetPlayerState(PlayerState::FALL);				
+			    }
 			}
                     }
 
@@ -226,16 +230,15 @@ void GameEngine::HandleEvents(){
         } 
         else if(my_input.type == SDL_KEYUP){
 	    if (player->GetPlayerState() == PlayerState::JUMP) {
-	        std::cout << "Set state to fall\n";
+	        //std::cout << "Set state to fall\n";
 	        if(jumping > 0) {
 	            player->SetPlayerState(PlayerState::FALL);
-	        } else {
-		    jumping = 0;
 	        }
 	    }
 
             if(player->GetPlayerState() != PlayerState::FALL){
                 player->SetPlayerState(PlayerState::IDLE);
+		jumping = 0;
             }
 	    
         }
