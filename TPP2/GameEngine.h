@@ -27,6 +27,7 @@ class GameEngine{
         int floorY; //the y coord of the floor
         bool runningState;
         bool paused;
+        bool showTitleScreen;
         void InitText(SDL_Renderer *renderer, int screenW, int screenH);
 
     public:

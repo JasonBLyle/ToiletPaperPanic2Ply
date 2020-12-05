@@ -18,6 +18,7 @@
 #include <random>
 
 //#define DEBUG_SHOWCOLLIDERS
+#define DEBUG_BYPASSTITLESCREEN
 
 /* ---------- GAME OBJECTS  ---------- */
 auto cart = std::make_shared<PushableObj>();
@@ -27,6 +28,7 @@ auto sanitizer2 = std::make_shared<HealthObj>();
 
 std::vector<std::shared_ptr<GameObject>> objs;
 auto pauseMenuOptions = std::make_shared<MenuOptions>();
+auto titleMenuOptions = std::make_shared<MenuOptions>();
 
 /* ---------- TEXT  ---------- */
 auto healthLabel = std::make_shared<Text>();
@@ -34,13 +36,20 @@ auto healthValue = std::make_shared<Text>();
 
 auto unpause_text = std::make_shared<Text>();
 auto exitToTitle_text = std::make_shared<Text>();
-auto pause_selection_controls = std::make_shared<Text>();
+
+auto startGame_text = std::make_shared<Text>();
+auto howToPlayLabel_text = std::make_shared<Text>();
+auto quitGame_text = std::make_shared<Text>();
+
+auto selection_controls = std::make_shared<Text>();
 
 std::vector<std::shared_ptr<Text>> textObjs;
 
 /* ---------- FOR THE MENUS  ---------- */
 SDL_Rect pause_dim;
+SDL_Rect titleBgTemp;
 auto pause_title_sprite = std::make_shared<GameObject>();
+auto main_title_sprite = std::make_shared<GameObject>();
 /* ------------------------------------ */
 
 GameEngine::GameEngine(){
@@ -49,7 +58,16 @@ GameEngine::GameEngine(){
     floorY = 0;
     window = NULL;
     renderer = NULL;
+
+    /* ---------------- INITIALIZE GAME STATE ------------------- */
     runningState = true;
+    paused = false;
+    #ifdef DEBUG_BYPASSTITLESCREEN 
+        showTitleScreen = false;
+    #endif
+    #ifndef DEBUG_BYPASSTITLESCREEN 
+        showTitleScreen = true;
+    #endif
 };
 
 GameEngine *GameEngine::instance = NULL;
@@ -133,21 +151,29 @@ void GameEngine::Init(const int w, const int h){
     pause_dim.w = screenW;
     pause_dim.h = screenH;
 
+    titleBgTemp.x = 0;
+    titleBgTemp.y = 0;
+    titleBgTemp.w = screenW;
+    titleBgTemp.h = screenH;
+
     spriteFrameWidth = 737;
     spriteFrameHeight = 235;
     scale = 0.5;
     pause_title_sprite->Init(renderer,"img/paused.png");
     pause_title_sprite->GetSprite()->SetSrcRect(0, 0, spriteFrameWidth, spriteFrameHeight);
     pause_title_sprite->GetSprite()->SetScreenRect(screenW/2 - (spriteFrameWidth/2 * scale), 10, spriteFrameWidth * scale, spriteFrameHeight * scale);
+    
+    spriteFrameWidth = 726;
+    spriteFrameHeight = 695;
+    scale = 0.40;
+    main_title_sprite->Init(renderer,"img/title.png");
+    main_title_sprite->GetSprite()->SetSrcRect(0, 0, spriteFrameWidth, spriteFrameHeight);
+    main_title_sprite->GetSprite()->SetScreenRect(screenW/2 - (spriteFrameWidth/2 * scale), 10, spriteFrameWidth * scale, spriteFrameHeight * scale);
 
     objs = {player, cart, cart2, sanitizer2};
 
     /* ---------------- TEXT ------------------- */
     InitText(renderer, screenW, screenH);
-
-    /* ---------------- INITIALIZE GAME STATE ------------------- */
-    runningState = true;
-    paused = false;
 }
 
 
@@ -176,7 +202,7 @@ void GameEngine::HandleEvents(){
                     break;
                 }
                 case SDLK_SPACE: {
-                    if(paused){
+                    if(paused && !showTitleScreen){
                         switch(pauseMenuOptions->GetCurrentOption()){
                             case 0: {
                                 paused = false;
@@ -184,11 +210,30 @@ void GameEngine::HandleEvents(){
                             }
                             case 1: {
                                 //go to title screen
+                                showTitleScreen = true;
                                 break;
                             }
                         }
                     } 
                     
+                    else if(showTitleScreen){
+                        switch(titleMenuOptions->GetCurrentOption()){
+                            case 0: {
+                                showTitleScreen = false;
+                                paused = false;
+                                break;
+                            }
+                            case 1: {
+                                //show instructions page
+                                break;
+                            }
+                            case 2: {
+                                //quit game
+                                runningState = false;
+                                break;
+                            }
+                        }
+                    }
                     else{
                         player->SetPlayerState(PlayerState::JUMP); 
                     }
@@ -196,14 +241,19 @@ void GameEngine::HandleEvents(){
                     break;
                 }
                 case SDLK_w: {
-                    if(paused){
+                    if(paused && !showTitleScreen){
                         pauseMenuOptions->SelectPrevOption();
+                    }
+                    if (showTitleScreen){
+                        titleMenuOptions->SelectPrevOption();
                     }
                     break;
                 }
                 case SDLK_s: {
-                    
-                    if(paused){
+                    if (showTitleScreen){
+                        titleMenuOptions->SelectNextOption();
+                    }
+                    if(paused && !showTitleScreen){
                         pauseMenuOptions->SelectNextOption();
                     }
                     else if(player->GetSprite()->GetY() + player->GetSprite()->GetH() < GetScreenHeight() - floorY){
@@ -224,7 +274,7 @@ void GameEngine::HandleEvents(){
         }
     }
     
-    if(!paused){
+    if(!paused && !showTitleScreen){
         /* ---------- COLLISION CHECKING  ---------- */
         bool playerTest = false;
         for (auto obj1 : objs){
@@ -258,7 +308,7 @@ void GameEngine::HandleEvents(){
 
 
 void GameEngine::Update(){
-    if(!paused){
+    if(!paused && !showTitleScreen){
         for(auto obj : objs){
             switch(obj->GetType()){
                 case ObjType::Pushable: {
@@ -284,37 +334,48 @@ void GameEngine::Render(){
     SDL_RenderClear(renderer);
 
     /* OBJECTS TO RENDER */
-    for(auto obj : objs){
-        switch(obj->GetType()){
-            case ObjType::Player:{
-                player->Render(0, NULL, player->GetSprite()->GetFlip());
-                #ifdef DEBUG_SHOWCOLLIDERS 
-                player->RenderBoxCollider();
-                #endif
-                break;
-            }
-            default: {
-                obj->Render();
-                #ifdef DEBUG_SHOWCOLLIDERS 
-                obj->RenderBoxCollider(); 
-                #endif
-                break;
+    if(showTitleScreen){
+        SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
+        SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
+        SDL_RenderFillRect(renderer, &titleBgTemp);
+
+        main_title_sprite->Render();
+        selection_controls->Render();
+        titleMenuOptions->Render();
+    }
+    else{
+        for(auto obj : objs){
+            switch(obj->GetType()){
+                case ObjType::Player:{
+                    player->Render(0, NULL, player->GetSprite()->GetFlip());
+                    #ifdef DEBUG_SHOWCOLLIDERS 
+                    player->RenderBoxCollider();
+                    #endif
+                    break;
+                }
+                default: {
+                    obj->Render();
+                    #ifdef DEBUG_SHOWCOLLIDERS 
+                    obj->RenderBoxCollider(); 
+                    #endif
+                    break;
+                }
             }
         }
-    }
 
-    /* TEXT TO RENDER */
-    healthLabel->Render();
-    healthValue->Render();
+        /* TEXT TO RENDER */
+        healthLabel->Render();
+        healthValue->Render();
 
-    if(paused){
-        SDL_SetRenderDrawColor(renderer, 0, 0, 0, 200);
-        SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
-        SDL_RenderFillRect(renderer, &pause_dim);
+        if(paused){
+            SDL_SetRenderDrawColor(renderer, 0, 0, 0, 200);
+            SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
+            SDL_RenderFillRect(renderer, &pause_dim);
 
-        pause_title_sprite->Render();
-        pause_selection_controls->Render();
-        pauseMenuOptions->Render();
+            pause_title_sprite->Render();
+            selection_controls->Render();
+            pauseMenuOptions->Render();
+        }
     }
 
     SDL_RenderPresent(renderer);
@@ -368,33 +429,56 @@ bool GameEngine::IsColliding(SDL_Rect a, SDL_Rect b){
 
 void GameEngine::InitText(SDL_Renderer *renderer, int screenW, int screenH){
     //initialize each text object
-    SDL_Color healthLabelColor = {0,0,0};
-    healthLabel->Init(renderer, "fonts/theboldfont.ttf", 24, 10, 10, healthLabelColor);
+    SDL_Color black = {0,0,0};
+    healthLabel->Init(renderer, "fonts/theboldfont.ttf", 24, 10, 10, black);
     healthLabel->SetText("Health: ");
-    healthValue->Init(renderer, "fonts/theboldfont.ttf", 24, healthLabel->GetW() + 10, 10, healthLabelColor);
+    healthValue->Init(renderer, "fonts/theboldfont.ttf", 24, healthLabel->GetW() + 10, 10, black);
     healthValue->SetText("100");
 
-    SDL_Color pauseTextColor = {255,255,255};
-    unpause_text->Init(renderer, "fonts/theboldfont.ttf", 48, 0, 0, pauseTextColor);
+    SDL_Color white = {255,255,255};
+    //for pause menu
+    unpause_text->Init(renderer, "fonts/theboldfont.ttf", 48, 0, 0, white);
     unpause_text->SetText("Resume");
     unpause_text->SetX(screenW/2 - unpause_text->GetW()/2);
-    unpause_text->SetY(screenH/2 - 15);
+    unpause_text->SetY(pause_title_sprite->GetSprite()->GetY() +
+                        pause_title_sprite->GetSprite()->GetH() + 80);
 
-    exitToTitle_text->Init(renderer, "fonts/theboldfont.ttf", 48, 0, 0, pauseTextColor);
+    exitToTitle_text->Init(renderer, "fonts/theboldfont.ttf", 48, 0, 0, white);
     exitToTitle_text->SetText("Exit to title");
     exitToTitle_text->SetX(screenW/2 - exitToTitle_text->GetW()/2);
     exitToTitle_text->SetY(unpause_text->GetY() + unpause_text->GetH() + 50);
 
-    pause_selection_controls->Init(renderer, "fonts/Comfortaa-Regular.ttf", 18, 0, 0, pauseTextColor);
-    pause_selection_controls->SetText("Use W and S to select, [SPACE] to confirm");
-    pause_selection_controls->SetX(screenW/2 - pause_selection_controls->GetW()/2);
-    pause_selection_controls->SetY(screenH - pause_selection_controls->GetH() - 10);
+    //for title screen
+    startGame_text->Init(renderer, "fonts/theboldfont.ttf", 36, 0, 0, black);
+    startGame_text->SetText("Start New Game");
+    startGame_text->SetX(screenW/2 - startGame_text->GetW()/2);
+    startGame_text->SetY(main_title_sprite->GetSprite()->GetY() +
+                        main_title_sprite->GetSprite()->GetH() + 25);
+
+    howToPlayLabel_text->Init(renderer, "fonts/theboldfont.ttf", 36, 0, 0, black);
+    howToPlayLabel_text->SetText("How To Play");
+    howToPlayLabel_text->SetX(screenW/2 - howToPlayLabel_text->GetW()/2);
+    howToPlayLabel_text->SetY(startGame_text->GetY() + startGame_text->GetH() + 5);
+
+    quitGame_text->Init(renderer, "fonts/theboldfont.ttf", 36, 0, 0, black);
+    quitGame_text->SetText("Quit Game");
+    quitGame_text->SetX(screenW/2 - quitGame_text->GetW()/2);
+    quitGame_text->SetY(howToPlayLabel_text->GetY() + howToPlayLabel_text->GetH() + 5);
+
+    selection_controls->Init(renderer, "fonts/Comfortaa-Regular.ttf", 18, 0, 0, black);
+    selection_controls->SetText("Use W and S to select, [SPACE] to confirm");
+    selection_controls->SetX(screenW/2 - selection_controls->GetW()/2);
+    selection_controls->SetY(screenH - selection_controls->GetH() - 10);
 
     //create pause menu buttons
     std::vector<std::shared_ptr<Text>> temp;
     temp = {unpause_text, exitToTitle_text};
-    pauseMenuOptions->Init(renderer, "img/selector.png", 100, 100, 0.5, temp);
+    pauseMenuOptions->Init(renderer, "img/selector.png", 100, 100, 0.4, temp);
+
+    //create start menu buttons
+    temp = {startGame_text, howToPlayLabel_text, quitGame_text};
+    titleMenuOptions->Init(renderer, "img/selector.png", 100, 100, 0.3, temp);
     
     //only used in Quit() to close all the fonts
-    textObjs = {healthLabel, healthValue, unpause_text, exitToTitle_text, pause_selection_controls}; 
+    textObjs = {healthLabel, healthValue, unpause_text, exitToTitle_text, selection_controls}; 
 }
