@@ -16,8 +16,12 @@ Player::Player(){
     playerState = PlayerState::IDLE;
     ySpeed = 0;
     moveSpeed = 5;
+
+    jumping = 0;
+
     health = 100;
     maxHealth = 100;
+
 };
 
 GameEngine* game = GameEngine::GetInstance();
@@ -25,8 +29,12 @@ GameEngine* game = GameEngine::GetInstance();
 PlayerState Player::GetPlayerState(){return playerState;}
 int Player::GetMovementSpeed(){return moveSpeed;}
 int Player::GetYSpeed(){return ySpeed;}
+
+int Player::GetJumping(){return jumping;}
+
 double Player::GetHealth(){return health;}
 double Player::GetMaxHealth(){return maxHealth;}
+
 
 /*
     state = one of the valid states that Player can have. Valid states (defined in header file) are IDLE, MOVE_LEFT, MOVE_RIGHT, JUMP, FALL
@@ -38,8 +46,12 @@ void Player::SetMovementSpeed(int speed){moveSpeed = speed;}
 
 void Player::SetYSpeed(int speed){ySpeed = speed;}
 
+
+void Player::SetJumping(int jump){jumping = jump;}
+
 void Player::SetHealth(double h){health = h;}
 void Player::SetMaxHealth(double h){maxHealth = h;}
+
 
 
 //Updates player's position and sprite animation frame depending on player's state
@@ -74,6 +86,9 @@ void Player::Update(){
             this->GetSprite()->UpdateFrame(animSpeed, moveAnimStartFrame, moveAnimTotalFrames);
 
             this->MoveX(moveSpeed * -1);
+	    if(ySpeed > 0) {
+		//this->MoveY(ySpeed);
+	    }
         
             this->GetSprite()->SetFlip(SDL_FLIP_HORIZONTAL);
             break;
@@ -84,21 +99,35 @@ void Player::Update(){
             this->GetSprite()->UpdateFrame(animSpeed, moveAnimStartFrame, moveAnimTotalFrames);
 
             this->MoveX(moveSpeed);
+	    if(ySpeed > 0) {
+		//this->MoveY(ySpeed);
+	    }
           
             this->GetSprite()->SetFlip(SDL_FLIP_NONE);
             break;            
         }
         
         case PlayerState::JUMP: {
-            //TODO
+	    if(jumping < 1) {
+	        //std::cout << "Jumping";
+	        jumping++;
+            ySpeed = -7.0;
+	        this->GetSprite()->SetSrcY(moveAnimYOffset);
+            this->GetSprite()->UpdateFrame(animSpeed, moveAnimStartFrame, moveAnimTotalFrames);
+
+	        if(this->GetSprite()->GetY() > 0) {
+	    	    this->MoveY(ySpeed);
+	        }
+	    }
 
             break;
         }
         case PlayerState::FALL: {
+	    //std::cout << "Falling\n";
             this->GetSprite()->SetSrcY(0);
             this->GetSprite()->UpdateFrame(animSpeed, idleAnimStartFrame, idleAnimTotalFrames);
             this->MoveY(ySpeed);
-            ySpeed += 0.1;
+            ySpeed += 0.25;
 
             this->SetOnTop(false);
 

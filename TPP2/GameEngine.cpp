@@ -18,7 +18,7 @@
 #include <random>
 
 //#define DEBUG_SHOWCOLLIDERS
-//#define DEBUG_BYPASSTITLESCREEN
+#define DEBUG_BYPASSTITLESCREEN
 
 /* ---------- GAME OBJECTS  ---------- */
 auto cart = std::make_shared<PushableObj>();
@@ -170,23 +170,16 @@ void GameEngine::HandleEvents(){
     SDL_Event my_input;
 
     /* ---------- KEYBOARD INPUT  ---------- */
+
     while (SDL_PollEvent(&my_input) > 0){
+	//int jumping = 0;
         if(my_input.type == SDL_QUIT) runningState = false; //ends the game
         if(my_input.type == SDL_KEYDOWN){
             switch (my_input.key.keysym.sym){
-                case SDLK_k: { //TODO: Remove later. only used to test out game over screen when player health is 0
-                    if(!paused && !showTitleScreen && !gameOver) player->SetHealth(0);
-                    break;
-                }
-                case SDLK_a: {
-                    player->SetPlayerState(PlayerState::MOVE_LEFT);          
-                    break;
-                }
-                case SDLK_d: {
-                    player->SetPlayerState(PlayerState::MOVE_RIGHT);  
-    
-                    break;
-                }
+				case SDLK_k: { //TODO: Remove later. only used to test out game over screen when player health is 0
+            		if(!paused && !showTitleScreen && !gameOver) player->SetHealth(0);
+            		break;
+            	}
                 case SDLK_SPACE: {
                     if(paused && !showTitleScreen){
                         switch(pauseMenuOptions->GetCurrentOption()){
@@ -238,11 +231,29 @@ void GameEngine::HandleEvents(){
                         }
                     }
                     else{
-                        player->SetPlayerState(PlayerState::JUMP); 
+						if(player->GetPlayerState() == PlayerState::IDLE && player->GetSprite()->GetY() > 0){
+			    			if(player->GetJumping() < 1) {
+							//std::cout << "Set state to jump\n";
+							player->SetPlayerState(PlayerState::JUMP);
+							//jumping++;
+			    		    } 
+						} else if(player->GetPlayerState() == PlayerState::JUMP){
+			    			player->SetPlayerState(PlayerState::FALL);
+			    		} 
                     }
 
                     break;
                 }
+                case SDLK_a: {
+                    player->SetPlayerState(PlayerState::MOVE_LEFT);          
+                    break;
+                }
+                case SDLK_d: {
+                    player->SetPlayerState(PlayerState::MOVE_RIGHT);  
+    
+                    break;
+                }
+                
                 case SDLK_w: {
                     if(paused && !showTitleScreen){
                         pauseMenuOptions->SelectPrevOption();
@@ -275,12 +286,30 @@ void GameEngine::HandleEvents(){
                     break;
                 }
             }
-        }
+        } 
         else if(my_input.type == SDL_KEYUP){
+            if (player->GetPlayerState() == PlayerState::JUMP) {
+                //std::cout << "Set state to fall\n";
+                if(player->GetJumping() > 0) {
+                    player->SetPlayerState(PlayerState::FALL);
+                }
+            }
+
             if(player->GetPlayerState() != PlayerState::FALL){
                 player->SetPlayerState(PlayerState::IDLE);
+		        player->SetJumping(0);
             }
-        }
+	    
+        } /*else {
+	    if(player->GetPlayerState() == PlayerState::JUMP) {
+		if(player->GetJumping() < 1) {
+		    player->SetJumping(player->GetJumping() + 1);
+            	} else {
+		    std::cout << "Set state to fall";
+		    player->SetPlayerState(PlayerState::FALL);
+		}
+	    }
+	}*/
     }
     
     if(!paused && !showTitleScreen){
