@@ -13,6 +13,8 @@
 #include "Player.h"
 #include "PushableObj.h"
 #include "HealthObj.h"
+#include "Text.h"
+#include "MenuOptions.h"
 
 class GameEngine{
     private:
@@ -26,6 +28,10 @@ class GameEngine{
         int floorY; //the y coord of the floor
         bool runningState;
         bool paused;
+        bool showTitleScreen;
+        bool gameOver;
+        void InitText(SDL_Renderer *renderer, int screenW, int screenH);
+        void InitMenus(SDL_Renderer *renderer, int screenW, int screenH);
 
         //The music that will be played
         Mix_Music *menuMusic;
