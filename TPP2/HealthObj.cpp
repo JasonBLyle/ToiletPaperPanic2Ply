@@ -79,7 +79,7 @@ void HealthObj::DoCollisionResponse(std::shared_ptr<GameObject> objCollidedWith)
                 std::cout << "test";
                 SetObjState(HealthObjState::COLLECTED);
                 Mix_PlayChannel( -1, healthSound, 0 );
-                //Mix_FreeChunk( healthSound );
+                Mix_FreeChunk( healthSound );
                 break;
             }
         }
