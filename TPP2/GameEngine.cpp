@@ -18,7 +18,7 @@
 #include <random>
 
 //#define DEBUG_SHOWCOLLIDERS
-#define DEBUG_BYPASSTITLESCREEN
+//#define DEBUG_BYPASSTITLESCREEN
 
 /* ---------- GAME OBJECTS  ---------- */
 auto cart = std::make_shared<PushableObj>();
@@ -29,6 +29,7 @@ auto sanitizer2 = std::make_shared<HealthObj>();
 std::vector<std::shared_ptr<GameObject>> objs;
 auto pauseMenuOptions = std::make_shared<MenuOptions>();
 auto titleMenuOptions = std::make_shared<MenuOptions>();
+auto gameOverMenuOptions = std::make_shared<MenuOptions>();
 
 /* ---------- TEXT  ---------- */
 auto healthLabel = std::make_shared<Text>();
@@ -37,18 +38,21 @@ auto healthValue = std::make_shared<Text>();
 auto unpause_text = std::make_shared<Text>();
 auto exitToTitle_text = std::make_shared<Text>();
 
+
 auto startGame_text = std::make_shared<Text>();
 auto howToPlayLabel_text = std::make_shared<Text>();
 auto quitGame_text = std::make_shared<Text>();
 
-auto selection_controls = std::make_shared<Text>();
+auto tryagain_text = std::make_shared<Text>();
+auto exitToTitle2_text = std::make_shared<Text>();
 
-std::vector<std::shared_ptr<Text>> textObjs;
+auto selection_controls = std::make_shared<Text>();
 
 /* ---------- FOR THE MENUS  ---------- */
 SDL_Rect fullScreenRect;
 auto pause_title_sprite = std::make_shared<GameObject>();
 auto main_title_sprite = std::make_shared<GameObject>();
+auto gameover_sprite = std::make_shared<GameObject>();
 /* ------------------------------------ */
 
 GameEngine::GameEngine(){
@@ -146,29 +150,11 @@ void GameEngine::Init(const int w, const int h){
     sanitizer2->GetSprite()->SetY(screenH - sanitizer2->GetSprite()->GetH() - floorY);
     sanitizer2->SetBoxCollider(sanitizer2->GetSprite()->GetScreenRect());
     sanitizer2->SetHealthType(HealthType::SANITIZER);
-
-    fullScreenRect.x = 0;
-    fullScreenRect.y = 0;
-    fullScreenRect.w = screenW;
-    fullScreenRect.h = screenH;
-
-    spriteFrameWidth = 737;
-    spriteFrameHeight = 235;
-    scale = 0.5;
-    pause_title_sprite->Init(renderer,"img/paused.png");
-    pause_title_sprite->GetSprite()->SetSrcRect(0, 0, spriteFrameWidth, spriteFrameHeight);
-    pause_title_sprite->GetSprite()->SetScreenRect(screenW/2 - (spriteFrameWidth/2 * scale), 10, spriteFrameWidth * scale, spriteFrameHeight * scale);
     
-    spriteFrameWidth = 726;
-    spriteFrameHeight = 695;
-    scale = 0.40;
-    main_title_sprite->Init(renderer,"img/title.png");
-    main_title_sprite->GetSprite()->SetSrcRect(0, 0, spriteFrameWidth, spriteFrameHeight);
-    main_title_sprite->GetSprite()->SetScreenRect(screenW/2 - (spriteFrameWidth/2 * scale), 10, spriteFrameWidth * scale, spriteFrameHeight * scale);
-
     objs = {player, cart, cart2, sanitizer2};
 
     /* ---------------- TEXT ------------------- */
+    InitMenus(renderer, screenW, screenH);
     InitText(renderer, screenW, screenH);
 }
 
@@ -189,7 +175,7 @@ void GameEngine::HandleEvents(){
         if(my_input.type == SDL_KEYDOWN){
             switch (my_input.key.keysym.sym){
                 case SDLK_k: { //TODO: Remove later. only used to test out game over screen when player health is 0
-                    player->SetHealth(0);
+                    if(!paused && !showTitleScreen && !gameOver) player->SetHealth(0);
                     break;
                 }
                 case SDLK_a: {
@@ -221,6 +207,8 @@ void GameEngine::HandleEvents(){
                             case 0: {
                                 showTitleScreen = false;
                                 paused = false;
+                                player->SetHealth(96);
+                                //reset all objects to original states/positions
                                 break;
                             }
                             case 1: {
@@ -230,6 +218,21 @@ void GameEngine::HandleEvents(){
                             case 2: {
                                 //quit game
                                 runningState = false;
+                                break;
+                            }
+                        }
+                    }
+                    else if(gameOver){
+                        switch(gameOverMenuOptions->GetCurrentOption()){
+                            case 0: {
+                                showTitleScreen = false;
+                                paused = false;
+                                player->SetHealth(96);
+                                //reset all objects to original states/positions
+                                break;
+                            }
+                            case 1: {
+                                showTitleScreen = true;
                                 break;
                             }
                         }
@@ -247,6 +250,9 @@ void GameEngine::HandleEvents(){
                     if (showTitleScreen){
                         titleMenuOptions->SelectPrevOption();
                     }
+                    if (gameOver){
+                        gameOverMenuOptions->SelectPrevOption();
+                    }
                     break;
                 }
                 case SDLK_s: {
@@ -256,13 +262,16 @@ void GameEngine::HandleEvents(){
                     if(paused && !showTitleScreen){
                         pauseMenuOptions->SelectNextOption();
                     }
+                    if (gameOver){
+                        gameOverMenuOptions->SelectNextOption();
+                    }
                     else if(player->GetSprite()->GetY() + player->GetSprite()->GetH() < GetScreenHeight() - floorY){
                         player->SetPlayerState(PlayerState::FALL);
                     }
                     break;
                 }
                 case SDLK_ESCAPE:{
-                    paused = true;
+                    if(!gameOver) paused = true;
                     break;
                 }
             }
@@ -306,6 +315,7 @@ void GameEngine::HandleEvents(){
     if(player->GetHealth() <= 0){
         gameOver = true;
     }
+    else gameOver = false;
 }
 
 
@@ -331,6 +341,10 @@ void GameEngine::Update(){
                 }
             }
         }
+    }
+
+    if(gameOver){
+        healthValue->SetText("0");
     }
 }
 
@@ -385,9 +399,13 @@ void GameEngine::Render(){
             pauseMenuOptions->Render();
         }
         else if(gameOver){
-            SDL_SetRenderDrawColor(renderer, 255, 0, 0, 200);
+            SDL_SetRenderDrawColor(renderer, 150, 0, 0, 200);
             SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
             SDL_RenderFillRect(renderer, &fullScreenRect);
+
+            gameover_sprite->Render();
+            selection_controls->Render();
+            gameOverMenuOptions->Render();
         }
     }
 
@@ -399,10 +417,6 @@ void GameEngine::Render(){
 
 
 void GameEngine::Quit(){
-    for(auto text : textObjs){
-        TTF_CloseFont(text->GetFont());
-    }
-
     SDL_DestroyRenderer(renderer);
     SDL_DestroyWindow(window);
 
@@ -484,6 +498,18 @@ void GameEngine::InitText(SDL_Renderer *renderer, int screenW, int screenH){
     selection_controls->SetX(screenW/2 - selection_controls->GetW()/2);
     selection_controls->SetY(screenH - selection_controls->GetH() - 10);
 
+
+    tryagain_text->Init(renderer, "fonts/theboldfont.ttf", 48, 0, 0, white);
+    tryagain_text->SetText("Retry?");
+    tryagain_text->SetX(screenW/2 - unpause_text->GetW()/2);
+    tryagain_text->SetY(gameover_sprite->GetSprite()->GetY() +
+                        gameover_sprite->GetSprite()->GetH() + 60);
+
+    exitToTitle2_text->Init(renderer, "fonts/theboldfont.ttf", 48, 0, 0, white);
+    exitToTitle2_text->SetText("Exit to title");
+    exitToTitle2_text->SetX(screenW/2 - exitToTitle_text->GetW()/2);
+    exitToTitle2_text->SetY(unpause_text->GetY() + unpause_text->GetH() + 50);
+
     //create pause menu buttons
     std::vector<std::shared_ptr<Text>> temp;
     temp = {unpause_text, exitToTitle_text};
@@ -492,7 +518,36 @@ void GameEngine::InitText(SDL_Renderer *renderer, int screenW, int screenH){
     //create start menu buttons
     temp = {startGame_text, howToPlayLabel_text, quitGame_text};
     titleMenuOptions->Init(renderer, "img/selector.png", 100, 100, 0.3, temp);
+
+    //create game over menu buttons
+    temp = {tryagain_text, exitToTitle2_text};
+    gameOverMenuOptions->Init(renderer, "img/selector.png", 100, 100, 0.4, temp);
+}
+
+void GameEngine::InitMenus(SDL_Renderer *renderer, int screenW, int screenH){
+    fullScreenRect.x = 0;
+    fullScreenRect.y = 0;
+    fullScreenRect.w = screenW;
+    fullScreenRect.h = screenH;
+
+    int spriteFrameWidth = 737;
+    int spriteFrameHeight = 235;
+    double scale = 0.5;
+    pause_title_sprite->Init(renderer,"img/paused.png");
+    pause_title_sprite->GetSprite()->SetSrcRect(0, 0, spriteFrameWidth, spriteFrameHeight);
+    pause_title_sprite->GetSprite()->SetScreenRect(screenW/2 - (spriteFrameWidth/2 * scale), 10, spriteFrameWidth * scale, spriteFrameHeight * scale);
     
-    //only used in Quit() to close all the fonts
-    textObjs = {healthLabel, healthValue, unpause_text, exitToTitle_text, selection_controls}; 
+    spriteFrameWidth = 726;
+    spriteFrameHeight = 695;
+    scale = 0.40;
+    main_title_sprite->Init(renderer,"img/title.png");
+    main_title_sprite->GetSprite()->SetSrcRect(0, 0, spriteFrameWidth, spriteFrameHeight);
+    main_title_sprite->GetSprite()->SetScreenRect(screenW/2 - (spriteFrameWidth/2 * scale), 10, spriteFrameWidth * scale, spriteFrameHeight * scale);
+
+    spriteFrameWidth = 736;
+    spriteFrameHeight = 397;
+    scale = 0.40;
+    gameover_sprite->Init(renderer,"img/gameover.png");
+    gameover_sprite->GetSprite()->SetSrcRect(0, 0, spriteFrameWidth, spriteFrameHeight);
+    gameover_sprite->GetSprite()->SetScreenRect(screenW/2 - (spriteFrameWidth/2 * scale), 10, spriteFrameWidth * scale, spriteFrameHeight * scale);
 }

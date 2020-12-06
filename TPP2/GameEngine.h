@@ -30,6 +30,7 @@ class GameEngine{
         bool showTitleScreen;
         bool gameOver;
         void InitText(SDL_Renderer *renderer, int screenW, int screenH);
+        void InitMenus(SDL_Renderer *renderer, int screenW, int screenH);
 
     public:
         static GameEngine *GetInstance();
