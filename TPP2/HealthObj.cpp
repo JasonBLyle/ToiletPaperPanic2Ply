@@ -17,6 +17,8 @@ HealthObj::HealthObj(){
     objType = ObjType::Health;
     particleEmitter = std::make_unique<ParticleEmitter>();
     objState = HealthObjState::NOT_COLLECTED;
+    //Load sound effects
+    healthSound = Mix_LoadWAV( "sounds/Health_Get.wav" );
 };
 
 
@@ -73,8 +75,13 @@ void HealthObj::Render(){
 void HealthObj::DoCollisionResponse(std::shared_ptr<GameObject> objCollidedWith){
     switch(objCollidedWith->GetType()){
         case ObjType::Player: {
-            SetObjState(HealthObjState::COLLECTED);
-            break;
+            if(objState != HealthObjState::COLLECTED){
+                std::cout << "test";
+                SetObjState(HealthObjState::COLLECTED);
+                Mix_PlayChannel( -1, healthSound, 0 );
+                //Mix_FreeChunk( healthSound );
+                break;
+            }
         }
 
         default: {

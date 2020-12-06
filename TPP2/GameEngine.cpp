@@ -9,6 +9,7 @@
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
 #include <SDL2/SDL_timer.h>
+#include <SDL2/SDL_mixer.h>
 
 #include <iostream>
 #include <string>
@@ -122,6 +123,18 @@ void GameEngine::Init(const int w, const int h){
 
     objs = {player, cart, cart2, sanitizer2};
 
+    //Initialize SDL_mixer
+    if( Mix_OpenAudio( 44100, MIX_DEFAULT_FORMAT, 2, 2048 ) < 0 )
+    {
+        printf( "SDL_mixer could not initialize! SDL_mixer Error: %s\n", Mix_GetError() );
+
+    }
+
+
+    menuMusic = Mix_LoadMUS( "sounds/Toilet_Paper_Waltz_Final.wav" );;
+    gameMusic = Mix_LoadMUS( "sounds/TPP_3rd_Draft_Final.wav" );;
+
+
     /* ---------------- INITIALIZE GAME STATE ------------------- */
     runningState = true;
     paused = false;
@@ -210,6 +223,11 @@ void GameEngine::HandleEvents(){
 
 
 void GameEngine::Update(){
+    if( Mix_PlayingMusic() == 0 )
+    {
+        //Play the music
+        Mix_PlayMusic( gameMusic, -1 );
+    }
     if(!paused){
         for(auto obj : objs){
             switch(obj->GetType()){
@@ -275,9 +293,13 @@ void GameEngine::Render(){
 
 
 void GameEngine::Quit(){
+    Mix_FreeMusic(menuMusic);
+    Mix_FreeMusic(gameMusic);
+
     SDL_DestroyRenderer(renderer);
     SDL_DestroyWindow(window);
 
+    Mix_Quit();
     IMG_Quit();
     SDL_Quit();
 }

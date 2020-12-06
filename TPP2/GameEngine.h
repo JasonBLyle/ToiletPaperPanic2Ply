@@ -9,6 +9,7 @@
 #define GAMEENGINE_H
 
 #include <SDL2/SDL.h>
+#include <SDL2/SDL_mixer.h>
 #include "Player.h"
 #include "PushableObj.h"
 #include "HealthObj.h"
@@ -25,6 +26,12 @@ class GameEngine{
         int floorY; //the y coord of the floor
         bool runningState;
         bool paused;
+
+        //The music that will be played
+        Mix_Music *menuMusic;
+        Mix_Music *gameMusic;
+
+    
 
     public:
         static GameEngine *GetInstance();
