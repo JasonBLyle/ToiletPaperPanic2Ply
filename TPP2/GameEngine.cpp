@@ -18,7 +18,7 @@
 #include <random>
 
 //#define DEBUG_SHOWCOLLIDERS
-//#define DEBUG_BYPASSTITLESCREEN
+#define DEBUG_BYPASSTITLESCREEN
 
 /* ---------- GAME OBJECTS  ---------- */
 auto cart = std::make_shared<PushableObj>();
@@ -236,12 +236,10 @@ void GameEngine::HandleEvents(){
 							//std::cout << "Set state to jump\n";
 							player->SetPlayerState(PlayerState::JUMP);
 							//jumping++;
-			    		} else {
-							player->SetPlayerState(PlayerState::FALL);				
-			    		}
+			    		    } 
 						} else if(player->GetPlayerState() == PlayerState::JUMP){
 			    			player->SetPlayerState(PlayerState::FALL);
-						}
+			    		} 
                     }
 
                     break;
@@ -290,16 +288,16 @@ void GameEngine::HandleEvents(){
             }
         } 
         else if(my_input.type == SDL_KEYUP){
-	    if (player->GetPlayerState() == PlayerState::JUMP) {
-	        //std::cout << "Set state to fall\n";
-	        if(player->GetJumping() > 0) {
-	            player->SetPlayerState(PlayerState::FALL);
-	        }
-	    }
+            if (player->GetPlayerState() == PlayerState::JUMP) {
+                //std::cout << "Set state to fall\n";
+                if(player->GetJumping() > 0) {
+                    player->SetPlayerState(PlayerState::FALL);
+                }
+            }
 
             if(player->GetPlayerState() != PlayerState::FALL){
                 player->SetPlayerState(PlayerState::IDLE);
-		player->SetJumping(0);
+		        player->SetJumping(0);
             }
 	    
         } /*else {

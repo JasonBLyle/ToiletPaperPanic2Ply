@@ -111,9 +111,9 @@ void Player::Update(){
 	    if(jumping < 1) {
 	        //std::cout << "Jumping";
 	        jumping++;
-                ySpeed = -7.0;
+            ySpeed = -7.0;
 	        this->GetSprite()->SetSrcY(moveAnimYOffset);
-                this->GetSprite()->UpdateFrame(animSpeed, moveAnimStartFrame, moveAnimTotalFrames);
+            this->GetSprite()->UpdateFrame(animSpeed, moveAnimStartFrame, moveAnimTotalFrames);
 
 	        if(this->GetSprite()->GetY() > 0) {
 	    	    this->MoveY(ySpeed);
