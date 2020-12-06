@@ -241,7 +241,16 @@ void GameEngine::HandleEvents(){
 		jumping = 0;
             }
 	    
-        }
+        } else {
+	    if(player->GetPlayerState() == PlayerState::JUMP) {
+		if(jumping < 1) {
+		    jumping++;
+		} else {
+		    std::cout << "Set state to fall";
+		    player->SetPlayerState(PlayerState::FALL);
+		}
+	    }
+	}
     }
     
     if(!paused){
