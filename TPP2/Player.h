@@ -18,18 +18,30 @@ class Player: public GameObject{
         int moveSpeed;
         double ySpeed;
         PlayerState playerState;
-	int jumping;
+
+		int jumping;
+
+        double health;
+        double maxHealth;
+
     public:
         //Player(SDL_Renderer *ren, const char *file):GameObject(ren, file){};
         Player();
         PlayerState GetPlayerState();
         int GetMovementSpeed();
         int GetYSpeed();
-	int GetJumping();
-	void SetJumping(int jump);
+
+		int GetJumping();
+		void SetJumping(int jump);
+
+        double GetHealth();
+        double GetMaxHealth();
+
         void SetMovementSpeed(int speed);
         void SetYSpeed(int speed);
         void SetPlayerState(PlayerState state);
+        void SetHealth(double h);
+        void SetMaxHealth(double h);
 
         //overrides
         void Update() override;

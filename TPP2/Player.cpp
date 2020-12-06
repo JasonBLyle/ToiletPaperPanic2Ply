@@ -16,7 +16,12 @@ Player::Player(){
     playerState = PlayerState::IDLE;
     ySpeed = 0;
     moveSpeed = 5;
+
     jumping = 0;
+
+    health = 100;
+    maxHealth = 100;
+
 };
 
 GameEngine* game = GameEngine::GetInstance();
@@ -24,7 +29,12 @@ GameEngine* game = GameEngine::GetInstance();
 PlayerState Player::GetPlayerState(){return playerState;}
 int Player::GetMovementSpeed(){return moveSpeed;}
 int Player::GetYSpeed(){return ySpeed;}
+
 int Player::GetJumping(){return jumping;}
+
+double Player::GetHealth(){return health;}
+double Player::GetMaxHealth(){return maxHealth;}
+
 
 /*
     state = one of the valid states that Player can have. Valid states (defined in header file) are IDLE, MOVE_LEFT, MOVE_RIGHT, JUMP, FALL
@@ -36,7 +46,13 @@ void Player::SetMovementSpeed(int speed){moveSpeed = speed;}
 
 void Player::SetYSpeed(int speed){ySpeed = speed;}
 
+
 void Player::SetJumping(int jump){jumping = jump;}
+
+void Player::SetHealth(double h){health = h;}
+void Player::SetMaxHealth(double h){maxHealth = h;}
+
+
 
 //Updates player's position and sprite animation frame depending on player's state
 void Player::Update(){
@@ -135,6 +151,20 @@ void Player::DoCollisionResponse(std::shared_ptr<GameObject> objCollidedWith){
     if(this->GetPlayerState() == PlayerState::FALL && this->GetOnTopOf() != objCollidedWith){
         this->SetOnTopOf(objCollidedWith);
         this->SetPlayerState(PlayerState::IDLE);
+    }
+
+    switch(objCollidedWith->GetType()){
+        case ObjType::Health: {
+            health += 5;
+            if(health > maxHealth) health = maxHealth;
+            //std::cout << "health: " + std::to_string(health) << std::endl;
+            
+            break;
+        }
+
+        default: {
+            break;
+        }
     }
 }
 
