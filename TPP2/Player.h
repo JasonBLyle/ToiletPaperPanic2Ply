@@ -18,12 +18,15 @@ class Player: public GameObject{
         int moveSpeed;
         double ySpeed;
         PlayerState playerState;
+	int jumping;
     public:
         //Player(SDL_Renderer *ren, const char *file):GameObject(ren, file){};
         Player();
         PlayerState GetPlayerState();
         int GetMovementSpeed();
         int GetYSpeed();
+	int GetJumping();
+	void SetJumping(int jump);
         void SetMovementSpeed(int speed);
         void SetYSpeed(int speed);
         void SetPlayerState(PlayerState state);

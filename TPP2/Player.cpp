@@ -16,6 +16,7 @@ Player::Player(){
     playerState = PlayerState::IDLE;
     ySpeed = 0;
     moveSpeed = 5;
+    jumping = 0;
 };
 
 GameEngine* game = GameEngine::GetInstance();
@@ -23,6 +24,7 @@ GameEngine* game = GameEngine::GetInstance();
 PlayerState Player::GetPlayerState(){return playerState;}
 int Player::GetMovementSpeed(){return moveSpeed;}
 int Player::GetYSpeed(){return ySpeed;}
+int Player::GetJumping(){return jumping;}
 
 /*
     state = one of the valid states that Player can have. Valid states (defined in header file) are IDLE, MOVE_LEFT, MOVE_RIGHT, JUMP, FALL
@@ -34,6 +36,7 @@ void Player::SetMovementSpeed(int speed){moveSpeed = speed;}
 
 void Player::SetYSpeed(int speed){ySpeed = speed;}
 
+void Player::SetJumping(int jump){jumping = jump;}
 
 //Updates player's position and sprite animation frame depending on player's state
 void Player::Update(){
@@ -89,13 +92,16 @@ void Player::Update(){
         }
         
         case PlayerState::JUMP: {
-	    //std::cout << "Jumping";
-            ySpeed = -6.0;
-	    this->GetSprite()->SetSrcY(moveAnimYOffset);
-            this->GetSprite()->UpdateFrame(animSpeed, moveAnimStartFrame, moveAnimTotalFrames);
+	    if(jumping < 1) {
+	        //std::cout << "Jumping";
+	        jumping++;
+                ySpeed = -7.0;
+	        this->GetSprite()->SetSrcY(moveAnimYOffset);
+                this->GetSprite()->UpdateFrame(animSpeed, moveAnimStartFrame, moveAnimTotalFrames);
 
-	    if(this->GetSprite()->GetY() > 0) {
-	    	this->MoveY(ySpeed);
+	        if(this->GetSprite()->GetY() > 0) {
+	    	    this->MoveY(ySpeed);
+	        }
 	    }
 
             break;
@@ -105,7 +111,7 @@ void Player::Update(){
             this->GetSprite()->SetSrcY(0);
             this->GetSprite()->UpdateFrame(animSpeed, idleAnimStartFrame, idleAnimTotalFrames);
             this->MoveY(ySpeed);
-            ySpeed += 0.5;
+            ySpeed += 0.25;
 
             this->SetOnTop(false);
 

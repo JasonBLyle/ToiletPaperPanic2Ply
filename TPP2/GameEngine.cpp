@@ -164,11 +164,12 @@ void GameEngine::HandleEvents(){
     /* ---------- KEYBOARD INPUT  ---------- */
 
     while (SDL_PollEvent(&my_input) > 0){
-	int jumping = 0;
+	//int jumping = 0;
         if(my_input.type == SDL_QUIT) runningState = false; //ends the game
         if(my_input.type == SDL_KEYDOWN){
             switch (my_input.key.keysym.sym){
 		case SDLK_SPACE: {
+		    //std::cout << "spacebar";
                     if(paused){
                         switch(pauseMenuOptions->GetCurrentOption()){
                             case 0: {
@@ -184,13 +185,15 @@ void GameEngine::HandleEvents(){
                     
                     else{
 			if(player->GetPlayerState() == PlayerState::IDLE && player->GetSprite()->GetY() > 0){
-			    //std::cout << "Set state to jump\n";
-			    if(jumping < 1) {
+			    if(player->GetJumping() < 1) {
+				//std::cout << "Set state to jump\n";
 				player->SetPlayerState(PlayerState::JUMP);
-				jumping++;
+				//jumping++;
 			    } else {
 				player->SetPlayerState(PlayerState::FALL);				
 			    }
+			} else if(player->GetPlayerState() == PlayerState::JUMP){
+			    player->SetPlayerState(PlayerState::FALL);
 			}
                     }
 
@@ -231,26 +234,26 @@ void GameEngine::HandleEvents(){
         else if(my_input.type == SDL_KEYUP){
 	    if (player->GetPlayerState() == PlayerState::JUMP) {
 	        //std::cout << "Set state to fall\n";
-	        if(jumping > 0) {
+	        if(player->GetJumping() > 0) {
 	            player->SetPlayerState(PlayerState::FALL);
 	        }
 	    }
 
             if(player->GetPlayerState() != PlayerState::FALL){
                 player->SetPlayerState(PlayerState::IDLE);
-		jumping = 0;
+		player->SetJumping(0);
             }
 	    
-        } else {
+        } /*else {
 	    if(player->GetPlayerState() == PlayerState::JUMP) {
-		if(jumping < 1) {
-		    jumping++;
-		} else {
+		if(player->GetJumping() < 1) {
+		    player->SetJumping(player->GetJumping() + 1);
+            	} else {
 		    std::cout << "Set state to fall";
 		    player->SetPlayerState(PlayerState::FALL);
 		}
 	    }
-	}
+	}*/
     }
     
     if(!paused){
