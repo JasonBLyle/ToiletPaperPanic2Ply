@@ -22,24 +22,24 @@ HealthObj::HealthObj(){
 
 HealthObjState HealthObj::GetObjState(){ return objState; }
 HealthType HealthObj::GetHealthType(){ return healthType; }
-std::shared_ptr<ParticleEmitter> HealthObj::GetParticleEmitter(){ return particleEmitter;} 
+std::shared_ptr<ParticleEmitter> HealthObj::GetParticleEmitter(){ return particleEmitter;}
 
 void HealthObj::SetObjState(HealthObjState state){ objState = state; }
 void HealthObj::SetHealthType(HealthType type){
-    healthType = type; 
+    healthType = type;
 
     int spriteFrameWidth, spriteFrameHeight;
     double scale = 0.1;
     if(healthType == HealthType::SANITIZER){
         spriteFrameWidth = 247*scale;
         spriteFrameHeight = 247*scale;
-        particleEmitter->Init(GetRenderer(), "img/healthsparkle.png", GetSprite()->GetX() + GetSprite()->GetW()/2 - spriteFrameWidth/2, 
+        particleEmitter->Init(GetRenderer(), "img/healthsparkle.png", GetSprite()->GetX() + GetSprite()->GetW()/2 - spriteFrameWidth/2,
                                                 GetSprite()->GetY() + GetSprite()->GetH() - spriteFrameHeight,
                                                 GetSprite()->GetW()/2, GetSprite()->GetH() - spriteFrameHeight,
                                                 spriteFrameWidth, spriteFrameHeight, ParticleType::RISE_FADEOUT);
     }
     else if(healthType == HealthType::WIPES){
-    
+
     }
 }
 
@@ -68,7 +68,10 @@ void HealthObj::Render(){
         }
     }
 
-    SDL_RenderCopy(GetRenderer(), GetSprite()->GetTexture(), GetSprite()->GetSrcRect(), GetSprite()->GetScreenRect());
+  SDL_Rect* temp = GetSprite()->GetScreenRect();//Background change
+  temp->x = temp->x- GameObject::GetScreenRecX();//Background change
+  SDL_RenderCopy(GetRenderer(), GetSprite()->GetTexture(), GetSprite()->GetSrcRect(), temp);//Background change
+  temp->x = temp->x+ GameObject::GetScreenRecX();//Background change
 }
 
 void HealthObj::DoCollisionResponse(std::shared_ptr<GameObject> objCollidedWith){

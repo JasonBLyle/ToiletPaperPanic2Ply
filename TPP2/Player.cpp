@@ -89,7 +89,6 @@ void Player::Update(){
 	    if(ySpeed > 0) {
 		//this->MoveY(ySpeed);
 	    }
-        
             this->GetSprite()->SetFlip(SDL_FLIP_HORIZONTAL);
             break;
         }
@@ -102,11 +101,10 @@ void Player::Update(){
 	    if(ySpeed > 0) {
 		//this->MoveY(ySpeed);
 	    }
-          
             this->GetSprite()->SetFlip(SDL_FLIP_NONE);
-            break;            
+            break;
         }
-        
+
         case PlayerState::JUMP: {
 	    if(jumping < 1) {
 	        //std::cout << "Jumping";
@@ -134,12 +132,12 @@ void Player::Update(){
             break;
         }
     }
-    
+
     //adhere to screen bounds
     if(this->GetSprite()->GetX() < 0){this->GetSprite()->SetX(0);}
 
-    if(this->GetSprite()->GetX() > game->GetScreenWidth() - this->GetSprite()->GetW()){
-        this->GetSprite()->SetX(game->GetScreenWidth() - this->GetSprite()->GetW());
+    if(this->GetSprite()->GetX() > game->getBgWidth()- this->GetSprite()->GetW()){//Background change
+        this->GetSprite()->SetX(game->getBgWidth() - this->GetSprite()->GetW());//Background change
     }
 
     return;
@@ -158,7 +156,6 @@ void Player::DoCollisionResponse(std::shared_ptr<GameObject> objCollidedWith){
             health += 5;
             if(health > maxHealth) health = maxHealth;
             //std::cout << "health: " + std::to_string(health) << std::endl;
-            
             break;
         }
 
