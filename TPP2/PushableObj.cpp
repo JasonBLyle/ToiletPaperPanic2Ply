@@ -23,6 +23,7 @@ GameEngine* game2 = GameEngine::GetInstance();
 
 PushableObjState PushableObj::GetObjState(){return objState;}
 double PushableObj::GetPushForce(){return pushForce;}
+double PushableObj::GetVelocity(){return velocity;}
 
 
 /*
@@ -38,7 +39,7 @@ void PushableObj::SetPushForce(int force){pushForce = force;}
 void PushableObj::Update(){
     //dampen = amount of slow-down when the object goes from moving to idle
     // closer to 0 means more abrupt stop
-    double dampen = 0.15; 
+    double dampen = 0.15;
 
     switch(objState){
         case PushableObjState::IDLE: {
@@ -64,19 +65,19 @@ void PushableObj::Update(){
             break;
         }
     }
-   
+
     //prevent object from crossing left bound (left edge of screen)
-    if(this->GetSprite()->GetX() < 0){this->GetSprite()->SetX(0);} 
+    if(this->GetSprite()->GetX() < 0){this->GetSprite()->SetX(0);}
 
     //prevent object from crossing right bound (right edge of screen)
-    if(this->GetSprite()->GetX() > game2->GetScreenWidth() - this->GetSprite()->GetW()){
-        this->GetSprite()->SetX(game2->GetScreenWidth() - this->GetSprite()->GetW());
+    if(this->GetSprite()->GetX() > game2->getBgWidth() - this->GetSprite()->GetW()){//Background change
+        this->GetSprite()->SetX(game2->getBgWidth() - this->GetSprite()->GetW());//Background change
     }
 
     //link box collider position to object position
     this->SetBoxColliderPos(this->GetSprite()->GetX(), this->GetSprite()->GetY());
     return;
-}  
+}
 
 void PushableObj::DoCollisionResponse(std::shared_ptr<GameObject> objCollidedWith){
     switch(objCollidedWith->GetType()){
@@ -89,7 +90,7 @@ void PushableObj::DoCollisionResponse(std::shared_ptr<GameObject> objCollidedWit
             else if(player->GetPlayerState() == PlayerState::MOVE_RIGHT){
                 SetObjState(PushableObjState::PUSHED_FROM_RIGHT);
             }
-            
+
             break;
         }
 
