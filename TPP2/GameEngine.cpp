@@ -461,7 +461,9 @@ void GameEngine::Render(){
             SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
             SDL_RenderFillRect(renderer, &fullScreenRect);
 
+            gameover_sprite->GetSprite()->AddX(GetCameraX());//background change
             gameover_sprite->Render();
+            gameover_sprite->GetSprite()->AddX(-GetCameraX());//background change
             selection_controls->Render();
             gameOverMenuOptions->Render();
         }
