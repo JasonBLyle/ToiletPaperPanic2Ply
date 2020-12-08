@@ -42,6 +42,7 @@ class GameEngine{
         //The music that will be played
         Mix_Music *menuMusic;
         Mix_Music *gameMusic;
+        Mix_Music *gameOverMusic;
 
     
 
