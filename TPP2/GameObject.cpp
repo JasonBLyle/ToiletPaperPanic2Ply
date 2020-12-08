@@ -29,12 +29,13 @@ void GameObject::Update(){};
     ren = renderer
     file = path of image file used for the sprite (example: "./spritesheet.png")
 */
-void GameObject::Init(SDL_Renderer *ren, const char *file){
+void GameObject::Init(SDL_Renderer *ren, const char *file,SDL_Rect* camera){//Background change
     renderer = ren;
     sprite = new Sprite(renderer, file);
     SDL_Rect temp{0,0,0,0};
     boxCollider = temp;
     alpha = 255;
+    screen_rect = camera;//Background change
 }
 
 /*
@@ -46,11 +47,21 @@ void GameObject::Init(SDL_Renderer *ren, const char *file){
     flip: a SDL_RendererFlip value (SDL_FLIP_NONE, SDL_FLIP_HORIZONTAL, SDL_FLIP_VERTICAL) stating which flipping actions should be performed on the texture
 */
 void GameObject::Render(double angle, SDL_Point* center, SDL_RendererFlip flip){
-    SDL_RenderCopyEx(renderer, sprite->GetTexture(), sprite->GetSrcRect(), sprite->GetScreenRect(), angle, center, flip);
+  SDL_Rect temp;//Background change
+  temp.x = sprite->GetScreenRect()->x - screen_rect->x;//Background change
+  temp.y = sprite->GetScreenRect()->y;//Background change
+  temp.w = sprite->GetScreenRect()->w;//Background change
+  temp.h = sprite->GetScreenRect()->h;//Background change
+  SDL_RenderCopyEx(renderer, sprite->GetTexture(), sprite->GetSrcRect(), &temp, angle, center, flip);//Background change
 }
 
 void GameObject::Render(){
-    SDL_RenderCopy(renderer, sprite->GetTexture(), sprite->GetSrcRect(), sprite->GetScreenRect());
+  SDL_Rect temp;//Background change
+  temp.x = sprite->GetScreenRect()->x - screen_rect->x;//Background change
+  temp.y = sprite->GetScreenRect()->y;//Background change
+  temp.w = sprite->GetScreenRect()->w;//Background change
+  temp.h = sprite->GetScreenRect()->h;//Background change
+  SDL_RenderCopy(renderer, sprite->GetTexture(), sprite->GetSrcRect(), &temp);//Background change
 }
 
 void GameObject::RenderBoxCollider(){
@@ -61,6 +72,7 @@ void GameObject::RenderBoxCollider(){
 
 
 //GETTERS
+int GameObject::GetScreenRecX(){return screen_rect->x;}//Background change
 Sprite* GameObject::GetSprite(){ return sprite; }
 ObjType GameObject::GetType(){ return objType; }
 SDL_Rect GameObject::GetBoxCollider(){ return boxCollider; }
