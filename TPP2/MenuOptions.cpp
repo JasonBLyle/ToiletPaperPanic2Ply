@@ -7,10 +7,10 @@ MenuOptions::MenuOptions(){
     currOptionIndex = 0;
 }
 
-void MenuOptions::Init(SDL_Renderer *ren,
-                       const char *selector_img,
-                       int selector_w,
-                       int selector_h,
+void MenuOptions::Init(SDL_Renderer *ren, 
+                       const char *selector_img, 
+                       int selector_w, 
+                       int selector_h, 
                        double img_scale,
                        std::vector<std::shared_ptr<Text>> vector){
     optionsText = vector;
@@ -50,5 +50,4 @@ void MenuOptions::Render(){
         text->Render();
     }
     SDL_RenderCopy(renderer, selector->GetTexture(), selector->GetSrcRect(), selector->GetScreenRect());
-
 }

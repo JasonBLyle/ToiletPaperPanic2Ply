@@ -124,7 +124,7 @@ void GameObject::SetAlpha(int a){
 }
 
 void GameObject::SetOnTopOf(std::shared_ptr<GameObject> below){
-    onTop = true;
+    onTop = true;  
     onTopOf = below;
 }
 

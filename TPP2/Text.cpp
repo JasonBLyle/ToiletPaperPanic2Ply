@@ -51,7 +51,6 @@ void Text::SetText(const char *text){
             textBox.h = h;
         }
     }
-
 }
 
 void Text::SetX(int x){ textBox.x = x;}

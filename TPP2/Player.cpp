@@ -89,7 +89,6 @@ void Player::Update(){
 	    if(ySpeed > 0) {
 		//this->MoveY(ySpeed);
 	    }
-
             this->GetSprite()->SetFlip(SDL_FLIP_HORIZONTAL);
             break;
         }
@@ -102,7 +101,6 @@ void Player::Update(){
 	    if(ySpeed > 0) {
 		//this->MoveY(ySpeed);
 	    }
-
             this->GetSprite()->SetFlip(SDL_FLIP_NONE);
             break;
         }
@@ -145,8 +143,8 @@ void Player::Update(){
     return;
 }
 
-void Player::DoCollisionResponse(std::shared_ptr<GameObject> objCollidedWith){
-    //If player y velocity is positive (meaning they are moving down) and they are now colliding with
+void Player::DoCollisionResponse(std::shared_ptr<GameObject> objCollidedWith){ 
+    //If player y velocity is positive (meaning they are moving down) and they are now colliding with 
     //an object's top, set the y velocity to 0
     if(this->GetPlayerState() == PlayerState::FALL && this->GetOnTopOf() != objCollidedWith){
         this->SetOnTopOf(objCollidedWith);
@@ -158,7 +156,6 @@ void Player::DoCollisionResponse(std::shared_ptr<GameObject> objCollidedWith){
             health += 5;
             if(health > maxHealth) health = maxHealth;
             //std::cout << "health: " + std::to_string(health) << std::endl;
-
             break;
         }
 

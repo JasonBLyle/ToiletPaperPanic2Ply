@@ -22,6 +22,7 @@ class GameObject{
         //variables for when one object is on top of another
         bool onTop;
         std::shared_ptr<GameObject> onTopOf;
+
         SDL_Rect* screen_rect;//Background change
 
     protected:

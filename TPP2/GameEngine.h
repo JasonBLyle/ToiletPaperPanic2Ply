@@ -9,12 +9,14 @@
 #define GAMEENGINE_H
 
 #include <SDL2/SDL.h>
+#include <SDL2/SDL_mixer.h>
 #include "Player.h"
 #include "PushableObj.h"
 #include "HealthObj.h"
 #include "Text.h"
 #include "MenuOptions.h"
 #include "Background.h"
+
 class GameEngine{
     private:
         static GameEngine *instance;
@@ -25,15 +27,23 @@ class GameEngine{
         int screenW; //width of the game window
         int screenH; //height of the game window
         int floorY; //the y coord of the floor
+
         Background GameBG;//Background change
         Background TitleBG;
         SDL_Rect camera;//Background change
+
         bool runningState;
         bool paused;
         bool showTitleScreen;
         bool gameOver;
         void InitText(SDL_Renderer *renderer, int screenW, int screenH);
         void InitMenus(SDL_Renderer *renderer, int screenW, int screenH);
+
+        //The music that will be played
+        Mix_Music *menuMusic;
+        Mix_Music *gameMusic;
+
+    
 
     public:
         static GameEngine *GetInstance();

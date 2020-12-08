@@ -9,6 +9,7 @@
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
 #include <SDL2/SDL_timer.h>
+#include <SDL2/SDL_mixer.h>
 #include <SDL2/SDL_ttf.h>
 
 #include <iostream>
@@ -66,10 +67,12 @@ GameEngine::GameEngine(){
     runningState = true;
     paused = false;
     gameOver = false;
-    #ifdef DEBUG_BYPASSTITLESCREEN
+
+    #ifdef DEBUG_BYPASSTITLESCREEN 
         showTitleScreen = false;
     #endif
-    #ifndef DEBUG_BYPASSTITLESCREEN
+    #ifndef DEBUG_BYPASSTITLESCREEN 
+
         showTitleScreen = true;
     #endif
 };
@@ -136,6 +139,7 @@ void GameEngine::Init(const int w, const int h){
     player->Init(renderer, "img/player.png",&camera);
     player->GetSprite()->SetSrcRect(0, 0, spriteFrameWidth, spriteFrameHeight); //set the area of the texture to be rendered
     player->GetSprite()->SetScreenRect(screenW/2, 0, spriteFrameWidth * scale, spriteFrameHeight * scale); //set the area of the screen that renders src_rect
+
     player->GetSprite()->SetY(screenH - player->GetSprite()->GetH() - floorY);
     player->SetBoxCollider(player->GetSprite()->GetScreenRect());
     player->SetHealth(96.0);
@@ -177,6 +181,18 @@ void GameEngine::Init(const int w, const int h){
 
     objs = {player, cart, cart2, sanitizer2};
 
+
+    //Initialize SDL_mixer
+    if( Mix_OpenAudio( 44100, MIX_DEFAULT_FORMAT, 2, 2048 ) < 0 )
+    {
+        printf( "SDL_mixer could not initialize! SDL_mixer Error: %s\n", Mix_GetError() );
+
+    }
+
+
+    menuMusic = Mix_LoadMUS( "sounds/Toilet_Paper_Waltz_Final.wav" );;
+    gameMusic = Mix_LoadMUS( "sounds/TPP_3rd_Draft_Final.wav" );;
+
     /* ---------------- TEXT ------------------- */
     InitMenus(renderer, screenW, screenH);
     InitText(renderer, screenW, screenH);
@@ -206,6 +222,7 @@ void GameEngine::HandleEvents(){
             	}
                 case SDLK_SPACE: {
                     if(paused && !showTitleScreen){
+
                         switch(pauseMenuOptions->GetCurrentOption()){//need to update to track
                             case 0: {
                                 paused = false;
@@ -218,7 +235,6 @@ void GameEngine::HandleEvents(){
                             }
                         }
                     }
-
                     else if(showTitleScreen){
                         switch(titleMenuOptions->GetCurrentOption()){
                             case 0: {
@@ -248,6 +264,7 @@ void GameEngine::HandleEvents(){
                                 //reset all objects to original states/positions
                                 break;
                             }
+
                             case 1: {//probably need to add a background change at somepoint
                                 showTitleScreen = true;
                                 break;
@@ -260,10 +277,11 @@ void GameEngine::HandleEvents(){
 							//std::cout << "Set state to jump\n";
 							player->SetPlayerState(PlayerState::JUMP);
 							//jumping++;
-			    		    }
+			    		    } 
 						} else if(player->GetPlayerState() == PlayerState::JUMP){
 			    			player->SetPlayerState(PlayerState::FALL);
-			    		}
+			    		} 
+
                     }
 
                     break;
@@ -310,7 +328,7 @@ void GameEngine::HandleEvents(){
                     break;
                 }
             }
-        }
+        } 
         else if(my_input.type == SDL_KEYUP){
             if (player->GetPlayerState() == PlayerState::JUMP) {
                 //std::cout << "Set state to fall\n";
@@ -376,6 +394,11 @@ void GameEngine::HandleEvents(){
 
 
 void GameEngine::Update(){
+    if( Mix_PlayingMusic() == 0 ){
+        //Play the music
+        Mix_PlayMusic( gameMusic, -1 );
+    }
+
     if(!paused && !showTitleScreen && !gameOver){
         const char *health = std::to_string((int)player->GetHealth()).c_str();
         healthValue->SetText(health);
@@ -413,29 +436,34 @@ void GameEngine::Render(){
         SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
         SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
         SDL_RenderFillRect(renderer, &fullScreenRect);
+
         setCameraX(0);//background change
         setCameraY(0);//background change
         TitleBG.render();
+
         main_title_sprite->Render();
         selection_controls->Render();
         titleMenuOptions->Render();
     }
     else{
+
       GameBG.moveScreenX(player->GetBoxCollider());//Background change
       GameBG.render();//Background change
         for(auto obj : objs){
             switch(obj->GetType()){
                 case ObjType::Player:{
                     player->Render(0, NULL, player->GetSprite()->GetFlip());
-                    #ifdef DEBUG_SHOWCOLLIDERS
+
+                    #ifdef DEBUG_SHOWCOLLIDERS 
                     player->RenderBoxCollider();
                     #endif
                     break;
                 }
                 default: {
                     obj->Render();
-                    #ifdef DEBUG_SHOWCOLLIDERS
-                    obj->RenderBoxCollider();
+
+                    #ifdef DEBUG_SHOWCOLLIDERS 
+                    obj->RenderBoxCollider(); 
                     #endif
                     break;
                 }
@@ -450,9 +478,11 @@ void GameEngine::Render(){
             SDL_SetRenderDrawColor(renderer, 0, 0, 0, 200);
             SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
             SDL_RenderFillRect(renderer, &fullScreenRect);
+
             pause_title_sprite->GetSprite()->AddX(GetCameraX());//background change
             pause_title_sprite->Render();
             pause_title_sprite->GetSprite()->AddX(-GetCameraX());//background change
+
             selection_controls->Render();
             pauseMenuOptions->Render();
         }
@@ -464,6 +494,7 @@ void GameEngine::Render(){
             gameover_sprite->GetSprite()->AddX(GetCameraX());//background change
             gameover_sprite->Render();
             gameover_sprite->GetSprite()->AddX(-GetCameraX());//background change
+
             selection_controls->Render();
             gameOverMenuOptions->Render();
         }
@@ -477,9 +508,13 @@ void GameEngine::Render(){
 
 
 void GameEngine::Quit(){
+    Mix_FreeMusic(menuMusic);
+    Mix_FreeMusic(gameMusic);
+
     SDL_DestroyRenderer(renderer);
     SDL_DestroyWindow(window);
 
+    Mix_Quit();
     IMG_Quit();
     TTF_Quit();
     SDL_Quit();
@@ -593,6 +628,7 @@ void GameEngine::InitMenus(SDL_Renderer *renderer, int screenW, int screenH){
     int spriteFrameWidth = 737;
     int spriteFrameHeight = 235;
     double scale = 0.5;
+
     pause_title_sprite->Init(renderer,"img/paused.png",&camera);//background change
     pause_title_sprite->GetSprite()->SetSrcRect(0, 0, spriteFrameWidth, spriteFrameHeight);
     pause_title_sprite->GetSprite()->SetScreenRect(screenW/2 - (spriteFrameWidth/2 * scale), 10, spriteFrameWidth * scale, spriteFrameHeight * scale);
@@ -607,7 +643,9 @@ void GameEngine::InitMenus(SDL_Renderer *renderer, int screenW, int screenH){
     spriteFrameWidth = 736;
     spriteFrameHeight = 397;
     scale = 0.40;
+
     gameover_sprite->Init(renderer,"img/gameover.png",&camera);//background change
+
     gameover_sprite->GetSprite()->SetSrcRect(0, 0, spriteFrameWidth, spriteFrameHeight);
     gameover_sprite->GetSprite()->SetScreenRect(screenW/2 - (spriteFrameWidth/2 * scale), 10, spriteFrameWidth * scale, spriteFrameHeight * scale);
 }
