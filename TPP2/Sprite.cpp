@@ -46,7 +46,7 @@ void Sprite::SetTexture(SDL_Renderer *renderer, const char *file){
     SDL_FreeSurface(surface);
 }
 
-/* 
+/*
     Update the sprite to show the next animation frame
 
     Parameters:
@@ -60,7 +60,7 @@ void Sprite::SetTexture(SDL_Renderer *renderer, const char *file){
 */
 int Sprite::UpdateFrame(int frame_duration, int start_frame, int totalFrameCount){
     src_rect.x += src_rect.w * start_frame; //set the frame the animation starts on
-    
+
     int frame_time = (int)(SDL_GetTicks()/frame_duration) % totalFrameCount;
     static int last_frame_time = 0;
 
@@ -73,7 +73,8 @@ int Sprite::UpdateFrame(int frame_duration, int start_frame, int totalFrameCount
 
     return frame_time;
 }
-
+//I needed this to move the spite for the menu items without losing thier original position
+void Sprite::AddX(int x){screen_rect.x = screen_rect.x+x;};//background change
 //set the dimensions of the rectangle that will be rendered onto the screen
 void Sprite::SetX(int x){screen_rect.x = x;}
 void Sprite::SetY(int y){screen_rect.y = y;}

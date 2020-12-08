@@ -19,15 +19,16 @@ class Sprite{
     public:
         Sprite();
         ~Sprite();
-        
+
         Sprite(SDL_Renderer *renderer, const char *file);
         int UpdateFrame(int frame_duration, int start_frame, int totalFrameCount);
-        
+
         void SetSrcRect(int x, int y, int w, int h);
-        void SetScreenRect(int x, int y, int w, int h); 
+        void SetScreenRect(int x, int y, int w, int h);
         void SetTexture(SDL_Renderer *renderer, const char *file);
         void SetFlip(SDL_RendererFlip f);
 
+        void AddX(int x);//background change
         void SetX(int x);
         void SetY(int y);
         void SetW(int w);

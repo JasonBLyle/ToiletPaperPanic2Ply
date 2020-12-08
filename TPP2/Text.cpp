@@ -1,7 +1,7 @@
 #include "Text.h"
 #include <iostream>
 
-Text::Text(){ 
+Text::Text(){
     font = NULL;
     renderer = NULL;
     texture = NULL;
@@ -51,7 +51,6 @@ void Text::SetText(const char *text){
             textBox.h = h;
         }
     }
-    
 }
 
 void Text::SetX(int x){ textBox.x = x;}

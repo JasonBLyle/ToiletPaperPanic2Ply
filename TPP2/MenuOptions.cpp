@@ -50,5 +50,4 @@ void MenuOptions::Render(){
         text->Render();
     }
     SDL_RenderCopy(renderer, selector->GetTexture(), selector->GetSrcRect(), selector->GetScreenRect());
-
 }
