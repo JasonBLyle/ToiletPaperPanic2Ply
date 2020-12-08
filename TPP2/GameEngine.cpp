@@ -156,15 +156,16 @@ void GameEngine::Init(const int w, const int h){
 
 
     //Initialize SDL_mixer
-    if( Mix_OpenAudio( 44100, MIX_DEFAULT_FORMAT, 2, 2048 ) < 0 )
+    if( Mix_OpenAudio( 44100, MIX_DEFAULT_FORMAT, 2, 32 ) < 0 )
     {
         printf( "SDL_mixer could not initialize! SDL_mixer Error: %s\n", Mix_GetError() );
 
     }
 
 
-    menuMusic = Mix_LoadMUS( "sounds/Toilet_Paper_Waltz_Final.wav" );;
-    gameMusic = Mix_LoadMUS( "sounds/TPP_3rd_Draft_Final.wav" );;
+    menuMusic = Mix_LoadMUS( "sounds/Toilet_Paper_Waltz_Final.wav" );
+    gameMusic = Mix_LoadMUS( "sounds/TPP_3rd_Draft_Final.wav" );
+    gameOverMusic = Mix_LoadMUS( "sounds/Game_Over.wav" );
 
     /* ---------------- TEXT ------------------- */
     InitMenus(renderer, screenW, screenH);
@@ -190,7 +191,10 @@ void GameEngine::HandleEvents(){
         if(my_input.type == SDL_KEYDOWN){
             switch (my_input.key.keysym.sym){
 				case SDLK_k: { //TODO: Remove later. only used to test out game over screen when player health is 0
-            		if(!paused && !showTitleScreen && !gameOver) player->SetHealth(0);
+            		if(!paused && !showTitleScreen && !gameOver){
+                        player->SetHealth(0);
+                        Mix_PlayMusic(gameOverMusic, -1);
+                    }
             		break;
             	}
                 case SDLK_SPACE: {
@@ -202,6 +206,7 @@ void GameEngine::HandleEvents(){
                             }
                             case 1: {
                                 //go to title screen
+                                Mix_PlayMusic( menuMusic, -1 );
                                 showTitleScreen = true;
                                 break;
                             }
@@ -214,6 +219,7 @@ void GameEngine::HandleEvents(){
                                 showTitleScreen = false;
                                 paused = false;
                                 player->SetHealth(96);
+                                Mix_PlayMusic( gameMusic, -1 );
                                 //reset all objects to original states/positions
                                 break;
                             }
@@ -234,10 +240,12 @@ void GameEngine::HandleEvents(){
                                 showTitleScreen = false;
                                 paused = false;
                                 player->SetHealth(96);
+                                Mix_PlayMusic( gameMusic, -1 );
                                 //reset all objects to original states/positions
                                 break;
                             }
                             case 1: {
+                                Mix_PlayMusic( menuMusic, -1 );
                                 showTitleScreen = true;
                                 break;
                             }
@@ -366,7 +374,6 @@ void GameEngine::HandleEvents(){
 
 void GameEngine::Update(){
     if( Mix_PlayingMusic() == 0 ){
-        //Play the music
         Mix_PlayMusic( gameMusic, -1 );
     }
 
@@ -466,6 +473,7 @@ void GameEngine::Render(){
 void GameEngine::Quit(){
     Mix_FreeMusic(menuMusic);
     Mix_FreeMusic(gameMusic);
+    Mix_FreeMusic(gameOverMusic);
 
     SDL_DestroyRenderer(renderer);
     SDL_DestroyWindow(window);

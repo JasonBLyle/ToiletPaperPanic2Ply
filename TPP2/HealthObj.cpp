@@ -18,8 +18,20 @@ HealthObj::HealthObj(){
     particleEmitter = std::make_unique<ParticleEmitter>();
     objState = HealthObjState::NOT_COLLECTED;
     //Load sound effects
+        //Initialize SDL_mixer
+    if( Mix_OpenAudio( 44100, MIX_DEFAULT_FORMAT, 2, 256 ) < 0 )
+    {
+        printf( "SDL_mixer could not initialize! SDL_mixer Error: %s\n", Mix_GetError() );
+
+    }
     healthSound = Mix_LoadWAV( "sounds/Health_Get.wav" );
+    if(healthSound == NULL) { printf("Unable to load WAV file: %s\n", Mix_GetError()); } 
 };
+
+HealthObj::~HealthObj(){
+    Mix_FreeChunk( healthSound );
+    Mix_Quit();
+}
 
 
 HealthObjState HealthObj::GetObjState(){ return objState; }
@@ -77,10 +89,8 @@ void HealthObj::DoCollisionResponse(std::shared_ptr<GameObject> objCollidedWith)
     switch(objCollidedWith->GetType()){
         case ObjType::Player: {
             if(objState != HealthObjState::COLLECTED){
-                std::cout << "test";
                 SetObjState(HealthObjState::COLLECTED);
                 Mix_PlayChannel( -1, healthSound, 0 );
-                Mix_FreeChunk( healthSound );
                 break;
             }
         }
