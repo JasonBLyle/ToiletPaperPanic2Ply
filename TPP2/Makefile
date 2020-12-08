@@ -4,7 +4,8 @@
 CC = g++
 
 # set the compiler flags
-CFLAGS = `sdl2-config --libs --cflags` -std=c++14 -ggdb3 -O0 -Wall -lSDL2_image -lSDL2_ttf -lm
+CFLAGS = `sdl2-config --libs --cflags` -std=c++14 -ggdb3 -O0 -Wall -lSDL2_image -lSDL2_ttf -lSDL2_mixer -lm
+
 
 # add header files here
 HDRS = $(wildcard *.h) #GameObject.h Sprite.h GameEngine.h Player.h PushableObj.h Particle.h ParticleEmitter.h

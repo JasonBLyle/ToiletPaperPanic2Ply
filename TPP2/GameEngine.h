@@ -9,6 +9,7 @@
 #define GAMEENGINE_H
 
 #include <SDL2/SDL.h>
+#include <SDL2/SDL_mixer.h>
 #include "Player.h"
 #include "PushableObj.h"
 #include "HealthObj.h"
@@ -37,6 +38,12 @@ class GameEngine{
         bool gameOver;
         void InitText(SDL_Renderer *renderer, int screenW, int screenH);
         void InitMenus(SDL_Renderer *renderer, int screenW, int screenH);
+
+        //The music that will be played
+        Mix_Music *menuMusic;
+        Mix_Music *gameMusic;
+
+    
 
     public:
         static GameEngine *GetInstance();

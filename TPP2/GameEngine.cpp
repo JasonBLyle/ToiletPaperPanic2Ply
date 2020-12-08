@@ -9,6 +9,7 @@
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
 #include <SDL2/SDL_timer.h>
+#include <SDL2/SDL_mixer.h>
 #include <SDL2/SDL_ttf.h>
 
 #include <iostream>
@@ -179,6 +180,18 @@ void GameEngine::Init(const int w, const int h){
     sanitizer2->SetHealthType(HealthType::SANITIZER);
 
     objs = {player, cart, cart2, sanitizer2};
+
+
+    //Initialize SDL_mixer
+    if( Mix_OpenAudio( 44100, MIX_DEFAULT_FORMAT, 2, 2048 ) < 0 )
+    {
+        printf( "SDL_mixer could not initialize! SDL_mixer Error: %s\n", Mix_GetError() );
+
+    }
+
+
+    menuMusic = Mix_LoadMUS( "sounds/Toilet_Paper_Waltz_Final.wav" );;
+    gameMusic = Mix_LoadMUS( "sounds/TPP_3rd_Draft_Final.wav" );;
 
     /* ---------------- TEXT ------------------- */
     InitMenus(renderer, screenW, screenH);
@@ -381,6 +394,11 @@ void GameEngine::HandleEvents(){
 
 
 void GameEngine::Update(){
+    if( Mix_PlayingMusic() == 0 ){
+        //Play the music
+        Mix_PlayMusic( gameMusic, -1 );
+    }
+
     if(!paused && !showTitleScreen && !gameOver){
         const char *health = std::to_string((int)player->GetHealth()).c_str();
         healthValue->SetText(health);
@@ -490,9 +508,13 @@ void GameEngine::Render(){
 
 
 void GameEngine::Quit(){
+    Mix_FreeMusic(menuMusic);
+    Mix_FreeMusic(gameMusic);
+
     SDL_DestroyRenderer(renderer);
     SDL_DestroyWindow(window);
 
+    Mix_Quit();
     IMG_Quit();
     TTF_Quit();
     SDL_Quit();

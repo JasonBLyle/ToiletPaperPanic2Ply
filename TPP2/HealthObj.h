@@ -9,6 +9,7 @@
 
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
+#include <SDL2/SDL_mixer.h>
 #include "GameObject.h"
 #include "ParticleEmitter.h"
 
@@ -20,6 +21,8 @@ class HealthObj: public GameObject{
         std::shared_ptr<ParticleEmitter> particleEmitter;
         HealthObjState objState;
         HealthType healthType;
+        Mix_Chunk *healthSound;
+
     public:
         HealthObj();
 
