@@ -252,7 +252,15 @@ void GameEngine::HandleEvents(){
         if(my_input.type == SDL_QUIT) runningState = false; //ends the game
         if(my_input.type == SDL_KEYDOWN){
             switch (my_input.key.keysym.sym){
-                case SDLK_SPACE: {
+		case SDLK_a: {
+                    player->SetPlayerState(PlayerState::MOVE_LEFT);
+                    break;
+                }
+                case SDLK_d: {
+                    player->SetPlayerState(PlayerState::MOVE_RIGHT);
+                    break;
+                }                
+		case SDLK_SPACE: {
                     if(paused && !showTitleScreen){
                         switch(pauseMenuOptions->GetCurrentOption()){//need to update to track
                             case 0: { //Unpause
@@ -305,26 +313,18 @@ void GameEngine::HandleEvents(){
                         }
                     }
                     else{
-						if(player->GetPlayerState() == PlayerState::IDLE && player->GetSprite()->GetY() > 0){
-			    			if(player->GetJumping() < 1) {
-							//std::cout << "Set state to jump\n";
-							player->SetPlayerState(PlayerState::JUMP);
-							//jumping++;
-			    		    }
-						} else if(player->GetPlayerState() == PlayerState::JUMP){
-			    			player->SetPlayerState(PlayerState::FALL);
-			    		}
+			if(player->GetPlayerState() == PlayerState::IDLE && player->GetSprite()->GetY() > 0){
+			    if(player->GetJumping() < 1) {
+				//std::cout << "Set state to jump\n";
+				player->SetPlayerState(PlayerState::JUMP);
+				//jumping++;
+			    }
+			} else if(player->GetPlayerState() == PlayerState::JUMP){
+			    player->SetPlayerState(PlayerState::FALL);
+			}
 
                     }
 
-                    break;
-                }
-                case SDLK_a: {
-                    player->SetPlayerState(PlayerState::MOVE_LEFT);
-                    break;
-                }
-                case SDLK_d: {
-                    player->SetPlayerState(PlayerState::MOVE_RIGHT);
                     break;
                 }
                 case SDLK_w: {
@@ -357,7 +357,7 @@ void GameEngine::HandleEvents(){
 
             if(player->GetPlayerState() != PlayerState::FALL){
                 player->SetPlayerState(PlayerState::IDLE);
-		        player->SetJumping(0);
+		player->SetJumping(0);
             }
 
         }
@@ -379,6 +379,7 @@ void GameEngine::HandleEvents(){
                         //std::cout << "obj1: " << obj1->PrintObjType() << " obj2: " << obj2->PrintObjType() << "   NOT COLLIDING" << std::endl;
 
                         if(obj1->GetType() == ObjType::Player && obj2->GetType() == ObjType::Pushable){
+			    //std::cout << "set to idle1\n";
                             obj2->SetIdle();
                         }
                     }

@@ -74,7 +74,7 @@ void Player::Update(){
         this->GetSprite()->SetY(game->GetScreenHeight() - this->GetSprite()->GetH() - game->GetFloorY());
         this->SetPlayerState(PlayerState::IDLE);
     }
-    else if(this->GetOnTop() == false && this->GetSprite()->GetY() + this->GetSprite()->GetH() < game->GetScreenHeight() - game->GetFloorY()){
+    else if(this->GetOnTop() == false && this->GetSprite()->GetY() + this->GetSprite()->GetH() < game->GetScreenHeight() - game->GetFloorY() && playerState != PlayerState::MOVE_RIGHT && playerState != PlayerState::MOVE_LEFT){
         this->SetPlayerState(PlayerState::FALL);
     }
     else if(this->GetYSpeed() < 0 && this->GetSprite()->GetY() + this->GetSprite()->GetH() == game->GetScreenHeight() - game->GetFloorY()){
@@ -115,9 +115,9 @@ void Player::Update(){
 	    if(jumping < 1) {
 	        //std::cout << "Jumping";
 	        jumping++;
-            ySpeed = -9.0;
+            	ySpeed = -9.0;
 	        this->GetSprite()->SetSrcY(moveAnimYOffset);
-            this->GetSprite()->UpdateFrame(animSpeed, moveAnimStartFrame, moveAnimTotalFrames);
+            	this->GetSprite()->UpdateFrame(animSpeed, moveAnimStartFrame, moveAnimTotalFrames);
 
 	        if(this->GetSprite()->GetY() > 0) {
 	    	    this->MoveY(ySpeed);
