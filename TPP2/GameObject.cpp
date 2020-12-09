@@ -10,7 +10,9 @@
 #include <SDL2/SDL_image.h>
 #include <iostream>
 
-GameObject::GameObject(){};
+GameObject::GameObject(){
+    sprite = NULL;
+};
 
 //VIRTUAL FUNCTIONS
 //NEEDS TO BE OVERWRITTEN BY CHILD
@@ -31,7 +33,7 @@ void GameObject::Update(){};
 */
 void GameObject::Init(SDL_Renderer *ren, const char *file,SDL_Rect* camera){//Background change
     renderer = ren;
-    sprite = new Sprite(renderer, file);
+    if(sprite == NULL) sprite = new Sprite(renderer, file);
     SDL_Rect temp{0,0,0,0};
     boxCollider = temp;
     alpha = 255;
