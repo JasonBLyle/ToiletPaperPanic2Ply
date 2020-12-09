@@ -38,7 +38,7 @@ class GameEngine{
         bool gameOver;
         void InitText(SDL_Renderer *renderer, int screenW, int screenH);
         void InitMenus(SDL_Renderer *renderer, int screenW, int screenH);
-        void reset();
+        void InitObjects();
 
         //The music that will be played
         Mix_Music *menuMusic;
