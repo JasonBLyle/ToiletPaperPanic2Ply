@@ -9,7 +9,7 @@
 Enemy::Enemy(){
     objType = ObjType::Enemy;
     enemyState = EnemyState::IDLE;
-    moveSpeed = 5;
+    moveSpeed = 2;
     damagePerHit = 0.2;
 };
 
@@ -43,7 +43,7 @@ void Enemy::Update(){
 
     //link collider to Enemy pos
     SetBoxColliderPos(GetSprite()->GetX(), GetSprite()->GetY());
-
+    
     switch(enemyState){
         case EnemyState::IDLE: {
             GetSprite()->SetSrcY(0);
