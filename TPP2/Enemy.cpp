@@ -11,6 +11,9 @@ Enemy::Enemy(){
     enemyState = EnemyState::IDLE;
     moveSpeed = 2;
     damagePerHit = 0.2;
+    aggro = false;
+    srand(time(NULL));
+    destination = rand() % 1000;
 };
 
 GameEngine* game4 = GameEngine::GetInstance();
@@ -18,6 +21,8 @@ GameEngine* game4 = GameEngine::GetInstance();
 EnemyState Enemy::GetEnemyState(){return enemyState;}
 int Enemy::GetMovementSpeed(){return moveSpeed;}
 double Enemy::GetDamagePerHit(){return damagePerHit;}
+bool Enemy::GetAggro(){return aggro;}
+int Enemy::GetDestination(){return destination;}
 
 
 /*
@@ -27,6 +32,8 @@ double Enemy::GetDamagePerHit(){return damagePerHit;}
 void Enemy::SetEnemyState(EnemyState state){enemyState = state;}
 void Enemy::SetMovementSpeed(int speed){moveSpeed = speed;}
 void Enemy::SetDamagePerHit(double d){damagePerHit = d;}
+void Enemy::SetAggro(bool a){aggro = a;}
+void Enemy::SetDestination(int d){destination = d;}
 
 
 
