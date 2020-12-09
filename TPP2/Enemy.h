@@ -18,16 +18,22 @@ class Enemy: public GameObject{
         int moveSpeed;
         EnemyState enemyState;
         double damagePerHit;
+        bool aggro;
+        int destination;
 
     public:
         Enemy();
         EnemyState GetEnemyState();
         int GetMovementSpeed();
         double GetDamagePerHit();
+        bool GetAggro();
+        int GetDestination();
 
         void SetMovementSpeed(int speed);
         void SetEnemyState(EnemyState state);
         void SetDamagePerHit(double d);
+        void SetAggro(bool a);
+        void SetDestination(int d);
 
         int UpdateFrame(int frame_duration, int start_frame, int totalFrameCount);
 

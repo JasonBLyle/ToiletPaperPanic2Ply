@@ -65,6 +65,7 @@ GameEngine::GameEngine(){
     floorY = 0;
     window = NULL;
     renderer = NULL;
+    srand(time(NULL));
 
     /* ---------------- INITIALIZE GAME STATE ------------------- */
     runningState = true;
@@ -427,17 +428,35 @@ void GameEngine::Update(){
                 }
                 case ObjType::Enemy: { 
                     auto enemy = std::dynamic_pointer_cast<Enemy>(obj);
-                    if(abs(player->GetSprite()->GetX() - enemy->GetSprite()->GetX()) <= 5){
-                        enemy->SetIdle();
+                    if(enemy->GetAggro()){
+                        if(abs(player->GetSprite()->GetX() - enemy->GetSprite()->GetX()) <= 5){
+                            enemy->SetIdle();
+                        }
+                        else if(player->GetSprite()->GetX() < enemy->GetSprite()->GetX() && enemy->GetSprite()->GetX() < GameBG.getScreenx() + GetScreenWidth()){
+                            enemy->SetEnemyState(EnemyState::MOVE_LEFT);
+                        }
+                        else if(player->GetSprite()->GetX() > enemy->GetSprite()->GetX() && enemy->GetSprite()->GetX() + enemy->GetSprite()->GetW() > GameBG.getScreenx()){
+                            enemy->SetEnemyState(EnemyState::MOVE_RIGHT);
+                        }
+                        else {
+                            enemy->SetIdle();
+                        }
                     }
-                    else if(player->GetSprite()->GetX() < enemy->GetSprite()->GetX() && enemy->GetSprite()->GetX() < GameBG.getScreenx() + GetScreenWidth()){
-                        enemy->SetEnemyState(EnemyState::MOVE_LEFT);
-                    }
-                    else if(player->GetSprite()->GetX() > enemy->GetSprite()->GetX() && enemy->GetSprite()->GetX() + enemy->GetSprite()->GetW() > GameBG.getScreenx()){
-                        enemy->SetEnemyState(EnemyState::MOVE_RIGHT);
-                    }
-                    else {
-                        enemy->SetIdle();
+                    else{
+                        if(abs(enemy->GetSprite()->GetX() - enemy->GetDestination()) > 5){
+                            if(enemy->GetSprite()->GetX() > enemy->GetDestination()){
+                                enemy->SetEnemyState(EnemyState::MOVE_LEFT);
+                            }
+                            else if(enemy->GetSprite()->GetX() < enemy->GetDestination()){
+                                enemy->SetEnemyState(EnemyState::MOVE_RIGHT);
+                            }
+                        }
+                        else{
+                            if(rand() % 300 == 0){
+                                enemy->SetDestination(rand() % (getBgWidth() - enemy->GetSprite()->GetW()));
+                            }
+                            enemy->SetIdle();
+                        }
                     }
                 }
                 default: {
