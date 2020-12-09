@@ -161,7 +161,7 @@ void GameEngine::InitObjects(){
     scale = 0.5;
     cart->Init(renderer,"img/shoppingcart.png",&camera);//background change
     cart->GetSprite()->SetSrcRect(0, 0, spriteFrameWidth, spriteFrameHeight);
-    cart->GetSprite()->SetScreenRect(screenW/2 - 200, screenH - spriteFrameHeight * scale - floorY, spriteFrameWidth * scale, spriteFrameHeight * scale);
+    cart->GetSprite()->SetScreenRect(screenW/2 - 150, screenH - spriteFrameHeight * scale - floorY, spriteFrameWidth * scale, spriteFrameHeight * scale);
     cart->SetBoxCollider(cart->GetSprite()->GetScreenRect());
     cart->SetObjState(PushableObjState::IDLE);
     cart->SetVelocity(0);
@@ -260,7 +260,7 @@ void GameEngine::HandleEvents(){
                 case SDLK_d: {
                     player->SetPlayerState(PlayerState::MOVE_RIGHT);
                     break;
-                }                
+                }
 		case SDLK_SPACE: {
                     if(paused && !showTitleScreen){
                         switch(pauseMenuOptions->GetCurrentOption()){//need to update to track
@@ -426,7 +426,7 @@ void GameEngine::Update(){
                     pushable->Update();
                     break;
                 }
-                case ObjType::Enemy: { 
+                case ObjType::Enemy: {
                     auto enemy = std::dynamic_pointer_cast<Enemy>(obj);
                     if(enemy->GetAggro()){
                         if(abs(player->GetSprite()->GetX() - enemy->GetSprite()->GetX()) <= 5){
