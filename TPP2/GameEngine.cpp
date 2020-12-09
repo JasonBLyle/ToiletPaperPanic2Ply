@@ -68,10 +68,10 @@ GameEngine::GameEngine(){
     paused = false;
     gameOver = false;
 
-    #ifdef DEBUG_BYPASSTITLESCREEN 
+    #ifdef DEBUG_BYPASSTITLESCREEN
         showTitleScreen = false;
     #endif
-    #ifndef DEBUG_BYPASSTITLESCREEN 
+    #ifndef DEBUG_BYPASSTITLESCREEN
 
         showTitleScreen = true;
     #endif
@@ -109,6 +109,56 @@ void GameEngine::setCameraY(int y){camera.y=y;}//Background change
 
 
 
+void GameEngine::reset(){
+
+  setCameraX(0);
+  setCameraY(0);
+
+  floorY = 25;
+
+  int spriteFrameWidth = 220;
+  int spriteFrameHeight = 370;
+  double scale = 0.5;
+  setCameraX(0);
+  setCameraY(0);
+  player->GetSprite()->SetSrcRect(0, 0, spriteFrameWidth, spriteFrameHeight); //set the area of the texture to be rendered
+  player->GetSprite()->SetScreenRect(screenW/2, 0, spriteFrameWidth * scale, spriteFrameHeight * scale); //set the area of the screen that renders src_rect
+
+  player->GetSprite()->SetY(screenH - player->GetSprite()->GetH() - floorY);
+  player->SetBoxCollider(player->GetSprite()->GetScreenRect());
+  player->SetHealth(96.0);
+  player->SetPlayerState(PlayerState::IDLE);
+
+  spriteFrameWidth = 263;
+  spriteFrameHeight = 250;
+  scale = 0.5;
+
+  cart->GetSprite()->SetSrcRect(0, 0, spriteFrameWidth, spriteFrameHeight);
+  cart->GetSprite()->SetScreenRect(screenW/2 + 10, 0, spriteFrameWidth * scale, spriteFrameHeight * scale);
+  cart->GetSprite()->SetY(screenH - cart->GetSprite()->GetH() - floorY);
+  cart->SetBoxCollider(cart->GetSprite()->GetScreenRect());
+  cart->SetObjState(PushableObjState::IDLE);
+  cart->SetVelocity(0);
+
+  cart2->GetSprite()->SetSrcRect(0, 0, spriteFrameWidth, spriteFrameHeight);
+  cart2->GetSprite()->SetScreenRect(screenW/2 - 300, 0, spriteFrameWidth * scale, spriteFrameHeight * scale);
+  cart2->GetSprite()->SetY(screenH - cart2->GetSprite()->GetH() - floorY);
+  cart2->SetBoxCollider(cart2->GetSprite()->GetScreenRect());
+  cart2->SetObjState(PushableObjState::IDLE);
+  cart2->SetVelocity(0);
+
+  spriteFrameWidth = 239;
+  spriteFrameHeight = 500;
+  scale = 0.15;
+//  sanitizer2->Init(renderer,"img/sanitizer.png",&camera);//background change
+  sanitizer2->GetSprite()->SetSrcRect(0, 0, spriteFrameWidth, spriteFrameHeight);
+  sanitizer2->GetSprite()->SetScreenRect(screenW/2 + -50, 0, spriteFrameWidth * scale, spriteFrameHeight * scale);
+  sanitizer2->GetSprite()->SetY(screenH - sanitizer2->GetSprite()->GetH() - floorY);
+  sanitizer2->SetBoxCollider(sanitizer2->GetSprite()->GetScreenRect());
+  sanitizer2->SetHealthType(HealthType::SANITIZER);
+  sanitizer2->SetObjState(HealthObjState::NOT_COLLECTED);
+
+}
 
 
 /*
@@ -245,7 +295,7 @@ void GameEngine::HandleEvents(){
                             case 0: {
                                 showTitleScreen = false;
                                 paused = false;
-                                player->SetHealth(96);
+                                reset();
                                 Mix_PlayMusic( gameMusic, -1 );
                                 //reset all objects to original states/positions
                                 break;
@@ -266,7 +316,7 @@ void GameEngine::HandleEvents(){
                             case 0: {
                                 showTitleScreen = false;
                                 paused = false;
-                                player->SetHealth(96);
+                                reset();
                                 Mix_PlayMusic( gameMusic, -1 );
                                 //reset all objects to original states/positions
                                 break;
@@ -284,10 +334,10 @@ void GameEngine::HandleEvents(){
 							//std::cout << "Set state to jump\n";
 							player->SetPlayerState(PlayerState::JUMP);
 							//jumping++;
-			    		    } 
+			    		    }
 						} else if(player->GetPlayerState() == PlayerState::JUMP){
 			    			player->SetPlayerState(PlayerState::FALL);
-			    		} 
+			    		}
 
                     }
 
@@ -335,7 +385,7 @@ void GameEngine::HandleEvents(){
                     break;
                 }
             }
-        } 
+        }
         else if(my_input.type == SDL_KEYUP){
             if (player->GetPlayerState() == PlayerState::JUMP) {
                 //std::cout << "Set state to fall\n";
@@ -460,7 +510,7 @@ void GameEngine::Render(){
                 case ObjType::Player:{
                     player->Render(0, NULL, player->GetSprite()->GetFlip());
 
-                    #ifdef DEBUG_SHOWCOLLIDERS 
+                    #ifdef DEBUG_SHOWCOLLIDERS
                     player->RenderBoxCollider();
                     #endif
                     break;
@@ -468,8 +518,8 @@ void GameEngine::Render(){
                 default: {
                     obj->Render();
 
-                    #ifdef DEBUG_SHOWCOLLIDERS 
-                    obj->RenderBoxCollider(); 
+                    #ifdef DEBUG_SHOWCOLLIDERS
+                    obj->RenderBoxCollider();
                     #endif
                     break;
                 }

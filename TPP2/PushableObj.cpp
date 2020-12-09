@@ -30,7 +30,7 @@ double PushableObj::GetVelocity(){return velocity;}
     state = one of the valid states that Player can have. Valid states (defined in header file) are IDLE, PUSHED_FROM_LEFT, PUSHED_FROM_RIGHT
 */
 void PushableObj::SetObjState(PushableObjState state){objState = state;}
-
+void PushableObj::SetVelocity(int speed){velocity=speed;}
 void PushableObj::SetPushForce(int force){pushForce = force;}
 
 
