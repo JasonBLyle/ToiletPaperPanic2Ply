@@ -16,6 +16,7 @@
 #include "Text.h"
 #include "MenuOptions.h"
 #include "Background.h"
+#include "Enemy.h"
 
 class GameEngine{
     private:

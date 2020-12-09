@@ -52,7 +52,7 @@ void Player::SetJumping(int jump){jumping = jump;}
 void Player::SetHealth(double h){health = h;}
 void Player::SetMaxHealth(double h){maxHealth = h;}
 
-
+void Player::ChangeHealth(int i){ health += i; }
 
 //Updates player's position and sprite animation frame depending on player's state
 void Player::Update(){

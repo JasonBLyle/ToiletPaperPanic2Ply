@@ -25,6 +25,7 @@
 auto cart = std::make_shared<PushableObj>();
 auto cart2 = std::make_shared<PushableObj>();
 auto player = std::make_shared<Player>();
+auto enemy = std::make_shared<Enemy>();
 auto sanitizer = std::make_shared<HealthObj>();
 
 std::vector<std::shared_ptr<GameObject>> objs;
@@ -118,23 +119,33 @@ void GameEngine::InitObjects(){
 
     floorY = 25;
 
+    /* ----------------------------------- */
     int spriteFrameWidth = 220;
     int spriteFrameHeight = 370;
     double scale = 0.5;
     player->Init(renderer, "img/player.png",&camera);
     player->GetSprite()->SetSrcRect(0, 0, spriteFrameWidth, spriteFrameHeight); //set the area of the texture to be rendered
-    player->GetSprite()->SetScreenRect(screenW/2, 0, spriteFrameWidth * scale, spriteFrameHeight * scale); //set the area of the screen that renders src_rect
-    player->GetSprite()->SetY(screenH - player->GetSprite()->GetH() - floorY);
+    player->GetSprite()->SetScreenRect(screenW/2, screenH - spriteFrameHeight * scale - floorY, spriteFrameWidth * scale, spriteFrameHeight * scale); //set the area of the screen that renders src_rect
     player->SetBoxCollider(player->GetSprite()->GetScreenRect());
     player->SetHealth(96.0);
     player->SetPlayerState(PlayerState::IDLE);
+
+    spriteFrameWidth = 212;
+    spriteFrameHeight = 351;
+    enemy->Init(renderer, "img/enemy.png", &camera);
+    enemy->GetSprite()->SetSrcRect(0, 0, spriteFrameWidth, spriteFrameHeight); //set the area of the texture to be rendered
+    enemy->GetSprite()->SetScreenRect(screenW/2 + 300, screenH - spriteFrameHeight * scale - floorY, spriteFrameWidth * scale, spriteFrameHeight * scale); //set the area of the screen that renders src_rect
+    enemy->SetBoxCollider(enemy->GetSprite()->GetScreenRect());
+    enemy->SetEnemyState(EnemyState::IDLE);
+
+    /* ----------------------------------- */
 
     spriteFrameWidth = 263;
     spriteFrameHeight = 250;
     scale = 0.5;
     cart->Init(renderer,"img/shoppingcart.png",&camera);//background change
     cart->GetSprite()->SetSrcRect(0, 0, spriteFrameWidth, spriteFrameHeight);
-    cart->GetSprite()->SetScreenRect(screenW/2 + 10, screenH - spriteFrameHeight * scale - floorY, spriteFrameWidth * scale, spriteFrameHeight * scale);
+    cart->GetSprite()->SetScreenRect(screenW/2 - 200, screenH - spriteFrameHeight * scale - floorY, spriteFrameWidth * scale, spriteFrameHeight * scale);
     cart->SetBoxCollider(cart->GetSprite()->GetScreenRect());
     cart->SetObjState(PushableObjState::IDLE);
     cart->SetVelocity(0);
@@ -190,7 +201,7 @@ void GameEngine::Init(const int w, const int h){
 
     //Initialize Game Objects
     InitObjects();
-    objs = {player, cart, cart2, sanitizer};
+    objs = {player, enemy, cart, cart2, sanitizer};
 
 
     /* ---------------- MUSIC ------------------- */
@@ -214,7 +225,7 @@ void GameEngine::Init(const int w, const int h){
 
 
 
-
+int playingGameOver = 0;
 // Listens for input and sets states accordingly
 void GameEngine::HandleEvents(){
     SDL_Event my_input;
@@ -226,13 +237,6 @@ void GameEngine::HandleEvents(){
         if(my_input.type == SDL_QUIT) runningState = false; //ends the game
         if(my_input.type == SDL_KEYDOWN){
             switch (my_input.key.keysym.sym){
-				case SDLK_k: { //TODO: Remove later. only used to test out game over screen when player health is 0
-            		if(!paused && !showTitleScreen && !gameOver){
-                        player->SetHealth(0);
-                        Mix_PlayMusic(gameOverMusic, -1);
-                    }
-            		break;
-            	}
                 case SDLK_SPACE: {
                     if(paused && !showTitleScreen){
 
@@ -391,8 +395,13 @@ void GameEngine::HandleEvents(){
     //check if game over
     if(player->GetHealth() <= 0){
         gameOver = true;
+        playingGameOver++;
+        if(playingGameOver == 1) Mix_PlayMusic(gameOverMusic, -1);
     }
-    else gameOver = false;
+    else {
+        gameOver = false;
+        playingGameOver = 0;
+    }
 }
 
 
@@ -461,6 +470,14 @@ void GameEngine::Render(){
 
                     #ifdef DEBUG_SHOWCOLLIDERS
                     player->RenderBoxCollider();
+                    #endif
+                    break;
+                }
+                case ObjType::Enemy:{
+                    enemy->Render(0, NULL, enemy->GetSprite()->GetFlip());
+
+                    #ifdef DEBUG_SHOWCOLLIDERS
+                    enemy->RenderBoxCollider();
                     #endif
                     break;
                 }

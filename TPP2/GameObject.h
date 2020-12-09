@@ -1,17 +1,10 @@
-/*
-    Nikita Tran
-    CPSC 4160 2D Game Engine Construction
-    Assignment 3
-    October 23 2020
-*/
-
 #ifndef GAMEOBJECT_H
 #define GAMEOBJECT_H
 
 #include <SDL2/SDL.h>
 #include <memory>
 #include "Sprite.h"
-enum class ObjType { Player, Pushable, Health };
+enum class ObjType { Player, Pushable, Health, Enemy };
 
 class GameObject{
     private:

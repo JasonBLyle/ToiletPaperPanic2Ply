@@ -43,6 +43,8 @@ class Player: public GameObject{
         void SetHealth(double h);
         void SetMaxHealth(double h);
 
+        void ChangeHealth(int i);
+
         //overrides
         void Update() override;
         void DoCollisionResponse(std::shared_ptr<GameObject> objCollidedWith) override;
