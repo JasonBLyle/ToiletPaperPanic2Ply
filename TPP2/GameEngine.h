@@ -16,6 +16,7 @@
 #include "Text.h"
 #include "MenuOptions.h"
 #include "Background.h"
+#include "Enemy.h"
 
 class GameEngine{
     private:
@@ -38,13 +39,14 @@ class GameEngine{
         bool gameOver;
         void InitText(SDL_Renderer *renderer, int screenW, int screenH);
         void InitMenus(SDL_Renderer *renderer, int screenW, int screenH);
+        void InitObjects();
 
         //The music that will be played
         Mix_Music *menuMusic;
         Mix_Music *gameMusic;
         Mix_Music *gameOverMusic;
 
-    
+
 
     public:
         static GameEngine *GetInstance();

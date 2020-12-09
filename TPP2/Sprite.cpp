@@ -24,6 +24,7 @@ Sprite::Sprite(SDL_Renderer *renderer, const char *file){
     SDL_Surface *surface = IMG_Load(file);
     texture = SDL_CreateTextureFromSurface(renderer, surface);
     SDL_FreeSurface(surface);
+    flip = SDL_FLIP_NONE;
 }
 
 void Sprite::SetSrcRect(int x, int y, int w, int h){
