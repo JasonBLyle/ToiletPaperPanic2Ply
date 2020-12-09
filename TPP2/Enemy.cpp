@@ -10,14 +10,14 @@ Enemy::Enemy(){
     objType = ObjType::Enemy;
     enemyState = EnemyState::IDLE;
     moveSpeed = 5;
-    damageGiven = 5;
+    damagePerHit = 0.2;
 };
 
 GameEngine* game4 = GameEngine::GetInstance();
 
 EnemyState Enemy::GetEnemyState(){return enemyState;}
 int Enemy::GetMovementSpeed(){return moveSpeed;}
-int Enemy::GetDamageGiven(){return damageGiven;}
+double Enemy::GetDamagePerHit(){return damagePerHit;}
 
 
 /*
@@ -26,13 +26,13 @@ int Enemy::GetDamageGiven(){return damageGiven;}
 */
 void Enemy::SetEnemyState(EnemyState state){enemyState = state;}
 void Enemy::SetMovementSpeed(int speed){moveSpeed = speed;}
-void Enemy::SetDamageGiven(int d){damageGiven = d;}
+void Enemy::SetDamagePerHit(double d){damagePerHit = d;}
 
 
 
 //Updates Enemy's position and sprite animation frame depending on Enemy's state
 void Enemy::Update(){
-    int moveAnimYOffset = this->GetSprite()->GetSrcH(); //used to set sprite's src_rect to the next row of sprites in the sprite sheet
+    int moveAnimYOffset = GetSprite()->GetSrcH(); //used to set sprite's src_rect to the next row of sprites in the sprite sheet
     int moveAnimTotalFrames = 4;
     int moveAnimStartFrame = 0; //which animation frame you want to start at
 
@@ -42,32 +42,34 @@ void Enemy::Update(){
     int idleAnimStartFrame = 0;
 
     //link collider to Enemy pos
-    this->SetBoxColliderPos(this->GetSprite()->GetX(), this->GetSprite()->GetY());
+    SetBoxColliderPos(GetSprite()->GetX(), GetSprite()->GetY());
 
     switch(enemyState){
         case EnemyState::IDLE: {
-            this->GetSprite()->SetSrcY(0);
-            this->GetSprite()->UpdateFrame(animSpeed, idleAnimStartFrame, idleAnimTotalFrames);
+            GetSprite()->SetSrcY(0);
+            UpdateFrame(animSpeed, idleAnimStartFrame, idleAnimTotalFrames);
+            
+            
             break;
         }
 
         case EnemyState::MOVE_LEFT: {
-            this->GetSprite()->SetSrcY(moveAnimYOffset);
-            this->GetSprite()->UpdateFrame(animSpeed, moveAnimStartFrame, moveAnimTotalFrames);
+            GetSprite()->SetSrcY(moveAnimYOffset);
+            UpdateFrame(animSpeed, moveAnimStartFrame, moveAnimTotalFrames);
 
-            this->MoveX(moveSpeed * -1);
+            MoveX(moveSpeed * -1);
 	    
-            this->GetSprite()->SetFlip(SDL_FLIP_HORIZONTAL);
+            GetSprite()->SetFlip(SDL_FLIP_HORIZONTAL);
             break;
         }
 
         case EnemyState::MOVE_RIGHT: {
-            this->GetSprite()->SetSrcY(moveAnimYOffset);
-            this->GetSprite()->UpdateFrame(animSpeed, moveAnimStartFrame, moveAnimTotalFrames);
+            GetSprite()->SetSrcY(moveAnimYOffset);
+            UpdateFrame(animSpeed, moveAnimStartFrame, moveAnimTotalFrames);
 
-            this->MoveX(moveSpeed);
+            MoveX(moveSpeed);
 	   
-            this->GetSprite()->SetFlip(SDL_FLIP_NONE);
+            GetSprite()->SetFlip(SDL_FLIP_NONE);
             break;
         }
 
@@ -88,8 +90,7 @@ void Enemy::DoCollisionResponse(std::shared_ptr<GameObject> objCollidedWith){
         case ObjType::Player: {
             //cast to Player
             auto player = std::dynamic_pointer_cast<Player>(objCollidedWith);
-            player->ChangeHealth(damageGiven * -1);
-            //add some sort of buffer here since health drains too fast
+            player->ChangeHealth(damagePerHit * -1);
             break;
         }
 
@@ -105,4 +106,11 @@ void Enemy::SetIdle(){
 
 std::string Enemy::PrintObjType(){
     return "Enemy";
+}
+
+int Enemy::UpdateFrame(int frame_duration, int start_frame, int totalFrameCount){
+    int frame = (SDL_GetTicks() / frame_duration) % totalFrameCount;
+    GetSprite()->SetSrcX(frame * GetSprite()->GetSrcW());
+
+    return frame;
 }

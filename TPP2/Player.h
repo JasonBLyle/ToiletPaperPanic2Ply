@@ -43,7 +43,7 @@ class Player: public GameObject{
         void SetHealth(double h);
         void SetMaxHealth(double h);
 
-        void ChangeHealth(int i);
+        void ChangeHealth(double i);
 
         //overrides
         void Update() override;

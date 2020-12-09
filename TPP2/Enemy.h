@@ -17,17 +17,19 @@ class Enemy: public GameObject{
     private:
         int moveSpeed;
         EnemyState enemyState;
-        int damageGiven;
+        double damagePerHit;
 
     public:
         Enemy();
         EnemyState GetEnemyState();
         int GetMovementSpeed();
-        int GetDamageGiven();
+        double GetDamagePerHit();
 
         void SetMovementSpeed(int speed);
         void SetEnemyState(EnemyState state);
-        void SetDamageGiven(int d);
+        void SetDamagePerHit(double d);
+
+        int UpdateFrame(int frame_duration, int start_frame, int totalFrameCount);
 
         //overrides
         void Update() override;

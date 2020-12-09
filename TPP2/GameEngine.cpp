@@ -26,6 +26,8 @@ auto cart = std::make_shared<PushableObj>();
 auto cart2 = std::make_shared<PushableObj>();
 auto player = std::make_shared<Player>();
 auto enemy = std::make_shared<Enemy>();
+auto enemy2 = std::make_shared<Enemy>();
+auto enemy3 = std::make_shared<Enemy>();
 auto sanitizer = std::make_shared<HealthObj>();
 
 std::vector<std::shared_ptr<GameObject>> objs;
@@ -138,6 +140,19 @@ void GameEngine::InitObjects(){
     enemy->SetBoxCollider(enemy->GetSprite()->GetScreenRect());
     enemy->SetEnemyState(EnemyState::IDLE);
 
+
+    enemy2->Init(renderer, "img/enemy.png", &camera);
+    enemy2->GetSprite()->SetSrcRect(0, 0, spriteFrameWidth, spriteFrameHeight); //set the area of the texture to be rendered
+    enemy2->GetSprite()->SetScreenRect(screenW/2 + 400, screenH - spriteFrameHeight * scale - floorY, spriteFrameWidth * scale, spriteFrameHeight * scale); //set the area of the screen that renders src_rect
+    enemy2->SetBoxCollider(enemy2->GetSprite()->GetScreenRect());
+    enemy2->SetEnemyState(EnemyState::IDLE);
+
+    enemy3->Init(renderer, "img/enemy.png", &camera);
+    enemy3->GetSprite()->SetSrcRect(0, 0, spriteFrameWidth, spriteFrameHeight); //set the area of the texture to be rendered
+    enemy3->GetSprite()->SetScreenRect(screenW/2 + 500, screenH - spriteFrameHeight * scale - floorY, spriteFrameWidth * scale, spriteFrameHeight * scale); //set the area of the screen that renders src_rect
+    enemy3->SetBoxCollider(enemy3->GetSprite()->GetScreenRect());
+    enemy3->SetEnemyState(EnemyState::IDLE);
+
     /* ----------------------------------- */
 
     spriteFrameWidth = 263;
@@ -201,7 +216,7 @@ void GameEngine::Init(const int w, const int h){
 
     //Initialize Game Objects
     InitObjects();
-    objs = {player, enemy, cart, cart2, sanitizer};
+    objs = {player, enemy, enemy2, enemy3, cart, cart2, sanitizer};
 
 
     /* ---------------- MUSIC ------------------- */
@@ -239,7 +254,6 @@ void GameEngine::HandleEvents(){
             switch (my_input.key.keysym.sym){
                 case SDLK_SPACE: {
                     if(paused && !showTitleScreen){
-
                         switch(pauseMenuOptions->GetCurrentOption()){//need to update to track
                             case 0: { //Unpause
                                 paused = false;
@@ -311,32 +325,18 @@ void GameEngine::HandleEvents(){
                 }
                 case SDLK_d: {
                     player->SetPlayerState(PlayerState::MOVE_RIGHT);
-
                     break;
                 }
-
                 case SDLK_w: {
-                    if(paused && !showTitleScreen){
-                        pauseMenuOptions->SelectPrevOption();
-                    }
-                    if (showTitleScreen){
-                        titleMenuOptions->SelectPrevOption();
-                    }
-                    if (gameOver){
-                        gameOverMenuOptions->SelectPrevOption();
-                    }
+                    if(paused && !showTitleScreen){ pauseMenuOptions->SelectPrevOption();}
+                    if (showTitleScreen){titleMenuOptions->SelectPrevOption();}
+                    if (gameOver){gameOverMenuOptions->SelectPrevOption();}
                     break;
                 }
                 case SDLK_s: {
-                    if (showTitleScreen){
-                        titleMenuOptions->SelectNextOption();
-                    }
-                    if(paused && !showTitleScreen){
-                        pauseMenuOptions->SelectNextOption();
-                    }
-                    if (gameOver){
-                        gameOverMenuOptions->SelectNextOption();
-                    }
+                    if (showTitleScreen){titleMenuOptions->SelectNextOption();}
+                    if(paused && !showTitleScreen){pauseMenuOptions->SelectNextOption();}
+                    if (gameOver){gameOverMenuOptions->SelectNextOption();}
                     else if(player->GetSprite()->GetY() + player->GetSprite()->GetH() < GetScreenHeight() - floorY){
                         player->SetPlayerState(PlayerState::FALL);
                     }
@@ -350,7 +350,6 @@ void GameEngine::HandleEvents(){
         }
         else if(my_input.type == SDL_KEYUP){
             if (player->GetPlayerState() == PlayerState::JUMP) {
-                //std::cout << "Set state to fall\n";
                 if(player->GetJumping() > 0) {
                     player->SetPlayerState(PlayerState::FALL);
                 }
@@ -474,10 +473,10 @@ void GameEngine::Render(){
                     break;
                 }
                 case ObjType::Enemy:{
-                    enemy->Render(0, NULL, enemy->GetSprite()->GetFlip());
+                    obj->Render(0, NULL, obj->GetSprite()->GetFlip());
 
                     #ifdef DEBUG_SHOWCOLLIDERS
-                    enemy->RenderBoxCollider();
+                    obj->RenderBoxCollider();
                     #endif
                     break;
                 }
