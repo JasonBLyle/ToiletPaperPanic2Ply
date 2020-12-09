@@ -77,9 +77,7 @@ void Player::Update(){
     else if(this->GetOnTop() == false && this->GetSprite()->GetY() + this->GetSprite()->GetH() < game->GetScreenHeight() - game->GetFloorY() && playerState != PlayerState::MOVE_RIGHT && playerState != PlayerState::MOVE_LEFT){
         this->SetPlayerState(PlayerState::FALL);
     }
-    else if(this->GetYSpeed() < 0 && this->GetSprite()->GetY() + this->GetSprite()->GetH() == game->GetScreenHeight() - game->GetFloorY()){
-        
-    }
+
     switch(playerState){
         case PlayerState::IDLE: {
             this->GetSprite()->SetSrcY(0);
