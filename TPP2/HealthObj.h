@@ -29,10 +29,11 @@ class HealthObj: public GameObject{
 
         HealthObjState GetObjState();
         HealthType GetHealthType();
-        std::shared_ptr<ParticleEmitter> GetParticleEmitter(); 
-     
+        std::shared_ptr<ParticleEmitter> GetParticleEmitter();
+
         void SetObjState(HealthObjState state);
         void SetHealthType(HealthType type);
+        void ResetSprite();
 
         //overrides
         void Update() override;

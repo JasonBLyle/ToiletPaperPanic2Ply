@@ -25,7 +25,7 @@ HealthObj::HealthObj(){
 
     }
     healthSound = Mix_LoadWAV( "sounds/Health_Get.wav" );
-    if(healthSound == NULL) { printf("Unable to load WAV file: %s\n", Mix_GetError()); } 
+    if(healthSound == NULL) { printf("Unable to load WAV file: %s\n", Mix_GetError()); }
 };
 
 HealthObj::~HealthObj(){
@@ -56,7 +56,10 @@ void HealthObj::SetHealthType(HealthType type){
 
     }
 }
-
+void HealthObj::ResetSprite(){
+  ChangeAlpha(255);
+  SDL_SetTextureAlphaMod(GetSprite()->GetTexture(),GetAlpha());
+}
 //overrides
 void HealthObj::Update(){
     if(objState == HealthObjState::COLLECTED){

@@ -150,13 +150,13 @@ void GameEngine::reset(){
   spriteFrameWidth = 239;
   spriteFrameHeight = 500;
   scale = 0.15;
-//  sanitizer2->Init(renderer,"img/sanitizer.png",&camera);//background change
+
   sanitizer2->GetSprite()->SetSrcRect(0, 0, spriteFrameWidth, spriteFrameHeight);
   sanitizer2->GetSprite()->SetScreenRect(screenW/2 + -50, 0, spriteFrameWidth * scale, spriteFrameHeight * scale);
   sanitizer2->GetSprite()->SetY(screenH - sanitizer2->GetSprite()->GetH() - floorY);
   sanitizer2->SetBoxCollider(sanitizer2->GetSprite()->GetScreenRect());
-  sanitizer2->SetHealthType(HealthType::SANITIZER);
   sanitizer2->SetObjState(HealthObjState::NOT_COLLECTED);
+  sanitizer2->ResetSprite();
 
 }
 
