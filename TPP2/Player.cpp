@@ -74,6 +74,12 @@ void Player::Update(){
         this->GetSprite()->SetY(game->GetScreenHeight() - this->GetSprite()->GetH() - game->GetFloorY());
         this->SetPlayerState(PlayerState::IDLE);
     }
+    else if(this->GetOnTop() == false && this->GetSprite()->GetY() + this->GetSprite()->GetH() < game->GetScreenHeight() - game->GetFloorY()){
+        this->SetPlayerState(PlayerState::FALL);
+    }
+    else if(this->GetYSpeed() < 0 && this->GetSprite()->GetY() + this->GetSprite()->GetH() == game->GetScreenHeight() - game->GetFloorY()){
+        
+    }
     switch(playerState){
         case PlayerState::IDLE: {
             this->GetSprite()->SetSrcY(0);
@@ -109,7 +115,7 @@ void Player::Update(){
 	    if(jumping < 1) {
 	        //std::cout << "Jumping";
 	        jumping++;
-            ySpeed = -7.0;
+            ySpeed = -9.0;
 	        this->GetSprite()->SetSrcY(moveAnimYOffset);
             this->GetSprite()->UpdateFrame(animSpeed, moveAnimStartFrame, moveAnimTotalFrames);
 
@@ -126,8 +132,9 @@ void Player::Update(){
             this->GetSprite()->UpdateFrame(animSpeed, idleAnimStartFrame, idleAnimTotalFrames);
             this->MoveY(ySpeed);
             ySpeed += 0.25;
-
-            this->SetOnTop(false);
+            if(this->GetYSpeed() < 0){
+                this->SetOnTopOf(NULL);
+            }
 
             break;
         }
@@ -146,7 +153,7 @@ void Player::Update(){
 void Player::DoCollisionResponse(std::shared_ptr<GameObject> objCollidedWith){ 
     //If player y velocity is positive (meaning they are moving down) and they are now colliding with 
     //an object's top, set the y velocity to 0
-    if(this->GetPlayerState() == PlayerState::FALL && this->GetOnTopOf() != objCollidedWith){
+    if(this->GetYSpeed() > 0 && this->GetOnTopOf() == NULL){
         this->SetOnTopOf(objCollidedWith);
         this->SetPlayerState(PlayerState::IDLE);
     }

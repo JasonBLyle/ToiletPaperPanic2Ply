@@ -25,6 +25,7 @@ class HealthObj: public GameObject{
 
     public:
         HealthObj();
+        ~HealthObj();
 
         HealthObjState GetObjState();
         HealthType GetHealthType();

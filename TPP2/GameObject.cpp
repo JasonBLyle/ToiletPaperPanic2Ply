@@ -36,6 +36,7 @@ void GameObject::Init(SDL_Renderer *ren, const char *file,SDL_Rect* camera){//Ba
     boxCollider = temp;
     alpha = 255;
     screen_rect = camera;//Background change
+    onTopOf = NULL;
 }
 
 /*
@@ -124,7 +125,12 @@ void GameObject::SetAlpha(int a){
 }
 
 void GameObject::SetOnTopOf(std::shared_ptr<GameObject> below){
-    onTop = true;  
+    if(below == NULL){
+        onTop = false;  
+    }
+    else{
+        onTop = true;
+    }
     onTopOf = below;
 }
 
