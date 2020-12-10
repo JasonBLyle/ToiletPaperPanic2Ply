@@ -137,6 +137,7 @@ void GameObject::SetOnTopOf(std::shared_ptr<GameObject> below){
 }
 
 void GameObject::SetOnTop(bool x){ onTop = x; }
+void GameObject::SetType(ObjType type){ objType = type;}
 
 /*
     This function increment/decrements alpha value by var

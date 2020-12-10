@@ -22,6 +22,7 @@ Player::Player(){
     health = 100;
     maxHealth = 100;
 
+    gotTP = 0;
 };
 
 GameEngine* game = GameEngine::GetInstance();
@@ -29,11 +30,10 @@ GameEngine* game = GameEngine::GetInstance();
 PlayerState Player::GetPlayerState(){return playerState;}
 int Player::GetMovementSpeed(){return moveSpeed;}
 int Player::GetYSpeed(){return ySpeed;}
-
 int Player::GetJumping(){return jumping;}
-
 double Player::GetHealth(){return health;}
 double Player::GetMaxHealth(){return maxHealth;}
+bool Player::GotTP(){ return gotTP; }
 
 
 /*
@@ -41,22 +41,18 @@ double Player::GetMaxHealth(){return maxHealth;}
     (jump state can be set but it doesn't do anything yet in this build)
 */
 void Player::SetPlayerState(PlayerState state){playerState = state;}
-
 void Player::SetMovementSpeed(int speed){moveSpeed = speed;}
-
 void Player::SetYSpeed(int speed){ySpeed = speed;}
-
-
 void Player::SetJumping(int jump){jumping = jump;}
-
 void Player::SetHealth(double h){health = h;}
 void Player::SetMaxHealth(double h){maxHealth = h;}
+void Player::GotTP(bool b){ gotTP = b; }
 
 void Player::ChangeHealth(double i){ health += i; }
 
 //Updates player's position and sprite animation frame depending on player's state
 void Player::Update(){
-    int moveAnimYOffset = this->GetSprite()->GetSrcH();; //used to set sprite's src_rect to the next row of sprites in the sprite sheet
+    int moveAnimYOffset = GetSprite()->GetSrcH();; //used to set sprite's src_rect to the next row of sprites in the sprite sheet
     int moveAnimTotalFrames = 4;
     int moveAnimStartFrame = 0; //which animation frame you want to start at
 
@@ -66,46 +62,50 @@ void Player::Update(){
     int idleAnimStartFrame = 0;
 
     //link collider to player pos
-    this->SetBoxColliderPos(this->GetSprite()->GetX(), this->GetSprite()->GetY());
+    SetBoxColliderPos(GetSprite()->GetX(), GetSprite()->GetY());
 
     //Keep player from falling through floor, bring them back to floor
-    if(this->GetSprite()->GetY() + this->GetSprite()->GetH() > game->GetScreenHeight() - game->GetFloorY()){
+    if(GetSprite()->GetY() + GetSprite()->GetH() > game->GetScreenHeight() - game->GetFloorY()){
         ySpeed = 0;
-        this->GetSprite()->SetY(game->GetScreenHeight() - this->GetSprite()->GetH() - game->GetFloorY());
-        this->SetPlayerState(PlayerState::IDLE);
+        GetSprite()->SetY(game->GetScreenHeight() - GetSprite()->GetH() - game->GetFloorY());
+        SetPlayerState(PlayerState::IDLE);
     }
-    else if(this->GetOnTop() == false && this->GetSprite()->GetY() + this->GetSprite()->GetH() < game->GetScreenHeight() - game->GetFloorY() && playerState != PlayerState::MOVE_RIGHT && playerState != PlayerState::MOVE_LEFT){
-        this->SetPlayerState(PlayerState::FALL);
+    else if(GetOnTop() == false && GetSprite()->GetY() + GetSprite()->GetH() < game->GetScreenHeight() - game->GetFloorY() && playerState != PlayerState::MOVE_RIGHT && playerState != PlayerState::MOVE_LEFT){
+        SetPlayerState(PlayerState::FALL);
     }
 
     switch(playerState){
         case PlayerState::IDLE: {
-            this->GetSprite()->SetSrcY(0);
-            this->GetSprite()->UpdateFrame(animSpeed, idleAnimStartFrame, idleAnimTotalFrames);
+            if(gotTP) GetSprite()->SetSrcY(moveAnimYOffset * 2);
+            else GetSprite()->SetSrcY(moveAnimYOffset * 0);
+
+            GetSprite()->UpdateFrame(animSpeed, idleAnimStartFrame, idleAnimTotalFrames);
             break;
         }
 
         case PlayerState::MOVE_LEFT: {
-            this->GetSprite()->SetSrcY(moveAnimYOffset);
-            this->GetSprite()->UpdateFrame(animSpeed, moveAnimStartFrame, moveAnimTotalFrames);
+            if(gotTP) GetSprite()->SetSrcY(moveAnimYOffset * 3);
+            else GetSprite()->SetSrcY(moveAnimYOffset * 1);
+            GetSprite()->UpdateFrame(animSpeed, moveAnimStartFrame, moveAnimTotalFrames);
 
-            this->MoveX(moveSpeed * -1);
+            MoveX(moveSpeed * -1);
 	    if(ySpeed > 0) {
-		//this->MoveY(ySpeed);
+		//MoveY(ySpeed);
 	    }
-            this->GetSprite()->SetFlip(SDL_FLIP_HORIZONTAL);
+            GetSprite()->SetFlip(SDL_FLIP_HORIZONTAL);
             break;
         }
 
         case PlayerState::MOVE_RIGHT: {
-            this->GetSprite()->SetSrcY(moveAnimYOffset);
-            this->GetSprite()->UpdateFrame(animSpeed, moveAnimStartFrame, moveAnimTotalFrames);
+            if(gotTP) GetSprite()->SetSrcY(moveAnimYOffset * 3);
+            else GetSprite()->SetSrcY(moveAnimYOffset * 1);
+            GetSprite()->UpdateFrame(animSpeed, moveAnimStartFrame, moveAnimTotalFrames);
 
-            this->MoveX(moveSpeed);
+            MoveX(moveSpeed);
 	    if(ySpeed > 0) {
-		//this->MoveY(ySpeed);
+		//MoveY(ySpeed);
 	    }
-            this->GetSprite()->SetFlip(SDL_FLIP_NONE);
+            GetSprite()->SetFlip(SDL_FLIP_NONE);
             break;
         }
 
@@ -113,12 +113,13 @@ void Player::Update(){
 	    if(jumping < 1) {
 	        //std::cout << "Jumping";
 	        jumping++;
-            	ySpeed = -9.0;
-	        this->GetSprite()->SetSrcY(moveAnimYOffset);
-            	this->GetSprite()->UpdateFrame(animSpeed, moveAnimStartFrame, moveAnimTotalFrames);
+            ySpeed = -9.0;
+	        if(gotTP) GetSprite()->SetSrcY(moveAnimYOffset * 3);
+            else GetSprite()->SetSrcY(moveAnimYOffset * 1);
+            GetSprite()->UpdateFrame(animSpeed, moveAnimStartFrame, moveAnimTotalFrames);
 
-	        if(this->GetSprite()->GetY() > 0) {
-	    	    this->MoveY(ySpeed);
+	        if(GetSprite()->GetY() > 0) {
+	    	    MoveY(ySpeed);
 	        }
 	    }
 
@@ -126,12 +127,13 @@ void Player::Update(){
         }
         case PlayerState::FALL: {
 	    //std::cout << "Falling\n";
-            this->GetSprite()->SetSrcY(0);
-            this->GetSprite()->UpdateFrame(animSpeed, idleAnimStartFrame, idleAnimTotalFrames);
-            this->MoveY(ySpeed);
+            if(gotTP) GetSprite()->SetSrcY(moveAnimYOffset * 2);
+            else GetSprite()->SetSrcY(moveAnimYOffset * 0);
+            GetSprite()->UpdateFrame(animSpeed, idleAnimStartFrame, idleAnimTotalFrames);
+            MoveY(ySpeed);
             ySpeed += 0.25;
-            if(this->GetYSpeed() < 0){
-                this->SetOnTopOf(NULL);
+            if(GetYSpeed() < 0){
+                SetOnTopOf(NULL);
             }
 
             break;
@@ -139,10 +141,10 @@ void Player::Update(){
     }
 
     //adhere to screen bounds
-    if(this->GetSprite()->GetX() < 0){this->GetSprite()->SetX(0);}
+    if(GetSprite()->GetX() < 0){GetSprite()->SetX(0);}
 
-    if(this->GetSprite()->GetX() > game->getBgWidth()- this->GetSprite()->GetW()){//Background change
-        this->GetSprite()->SetX(game->getBgWidth() - this->GetSprite()->GetW());//Background change
+    if(GetSprite()->GetX() > game->getBgWidth()- GetSprite()->GetW()){//Background change
+        GetSprite()->SetX(game->getBgWidth() - GetSprite()->GetW());//Background change
     }
 
     return;
@@ -151,9 +153,9 @@ void Player::Update(){
 void Player::DoCollisionResponse(std::shared_ptr<GameObject> objCollidedWith){ 
     //If player y velocity is positive (meaning they are moving down) and they are now colliding with 
     //an object's top, set the y velocity to 0
-    if(this->GetYSpeed() > 0 && this->GetOnTopOf() == NULL){
-        this->SetOnTopOf(objCollidedWith);
-        this->SetPlayerState(PlayerState::IDLE);
+    if(GetYSpeed() > 0 && GetOnTopOf() == NULL){
+        SetOnTopOf(objCollidedWith);
+        SetPlayerState(PlayerState::IDLE);
     }
 
     switch(objCollidedWith->GetType()){
