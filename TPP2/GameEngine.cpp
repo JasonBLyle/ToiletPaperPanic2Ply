@@ -229,8 +229,8 @@ void GameEngine::Init(const int w, const int h){
 
     /* ---------------- BACKGROUND ------------------- */
     int spriteFrameWidth = 2000;//Background change
-    int spriteFrameHeight = 960;//Background change
-    Background temp(renderer, "img/woodenbackground.png",0, 0, spriteFrameWidth, spriteFrameHeight,&camera);//Background change
+    int spriteFrameHeight = 480;//Background change
+    Background temp(renderer, "img/background.png",0, 0, spriteFrameWidth, spriteFrameHeight,&camera);//Background change
     GameBG = temp;//Background change
 
     spriteFrameWidth = 2000;//Background change
