@@ -19,7 +19,7 @@
 #include <random>
 
 //#define DEBUG_SHOWCOLLIDERS
-//#define DEBUG_BYPASSTITLESCREEN
+#define DEBUG_BYPASSTITLESCREEN
 //#define DEBUG_MUTEAUDIO
 
 /* ---------- GAME OBJECTS  ---------- */
@@ -57,7 +57,8 @@ auto exitToTitle2_text = std::make_shared<Text>();
 auto playagain_text = std::make_shared<Text>();
 auto exitToTitle3_text= std::make_shared<Text>();
 
-auto selection_controls = std::make_shared<Text>();
+auto selection_controlsW = std::make_shared<Text>();
+auto selection_controlsB = std::make_shared<Text>();
 
 /* ---------- FOR THE MENUS  ---------- */
 SDL_Rect fullScreenRect;
@@ -561,7 +562,7 @@ void GameEngine::Render(){
             TitleBG.render();
 
             main_title_sprite->Render();
-            selection_controls->Render();
+            selection_controlsB->Render();
             titleMenuOptions->Render();
         }
     }
@@ -611,7 +612,7 @@ void GameEngine::Render(){
             pause_title_sprite->Render();
             pause_title_sprite->GetSprite()->AddX(-GetCameraX());//background change
 
-            selection_controls->Render();
+            selection_controlsW->Render();
             pauseMenuOptions->Render();
         }
         else if(gameOver){
@@ -623,7 +624,7 @@ void GameEngine::Render(){
             gameover_sprite->Render();
             gameover_sprite->GetSprite()->AddX(-GetCameraX());//background change
 
-            selection_controls->Render();
+            selection_controlsW->Render();
             gameOverMenuOptions->Render();
         }
         else if(win){
@@ -635,7 +636,7 @@ void GameEngine::Render(){
             win_sprite->Render();
             win_sprite->GetSprite()->AddX(-GetCameraX());//background change
 
-            selection_controls->Render();
+            selection_controlsB->Render();
             winMenuOptions->Render();
         }
     }
@@ -734,11 +735,15 @@ void GameEngine::InitText(SDL_Renderer *renderer, int screenW, int screenH){
     quitGame_text->SetX(screenW/2 - quitGame_text->GetW()/2);
     quitGame_text->SetY(howToPlayLabel_text->GetY() + howToPlayLabel_text->GetH() + 5);
 
-    selection_controls->Init(renderer, "fonts/Comfortaa-Regular.ttf", 18, 0, 0, black);
-    selection_controls->SetText("Use W and S to select, [SPACE] to confirm");
-    selection_controls->SetX(screenW/2 - selection_controls->GetW()/2);
-    selection_controls->SetY(screenH - selection_controls->GetH() - 10);
+    selection_controlsW->Init(renderer, "fonts/Comfortaa-Regular.ttf", 18, 0, 0, white);
+    selection_controlsW->SetText("Use W and S to select, [SPACE] to confirm");
+    selection_controlsW->SetX(screenW/2 - selection_controlsW->GetW()/2);
+    selection_controlsW->SetY(screenH - selection_controlsW->GetH() - 10);
 
+    selection_controlsB->Init(renderer, "fonts/Comfortaa-Regular.ttf", 18, 0, 0, black);
+    selection_controlsB->SetText("Use W and S to select, [SPACE] to confirm");
+    selection_controlsB->SetX(screenW/2 - selection_controlsB->GetW()/2);
+    selection_controlsB->SetY(screenH - selection_controlsB->GetH() - 10);
 
     tryagain_text->Init(renderer, "fonts/theboldfont.ttf", 48, 0, 0, white);
     tryagain_text->SetText("Try again?");

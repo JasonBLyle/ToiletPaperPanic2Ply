@@ -1,20 +1,29 @@
-Nikita Tran
+Nikita Tran, Cameron Larson, Jason Lyle, Quinn Hubbarth
 CPSC 4140
-Assignment 4
-November 12, 2020
+Assignment 5
+December 11, 2020
 
-Inputs: A (move left), D (move right)
+Gameplay inputs: 
+A/D = move left/right
+SPACE = jump
+S = fall to floor (if standing on top of object)
+ESC - pause
 
-Collision handling is in GameEngine.cpp (IsColliding function, called in HandleEvents). I only use box colliders, no circle distance.
-Particle system classes are Particle.cpp and ParticleEmitter.cpp, ParticleEmitter is used in GameEngine.cpp
+Menu inputs: 
+W/S = change option selected
+SPACE = confirm selected option
 
-Colliding with the shopping cart pushes it in the direction the player is moving. Colliding with the hand sanitizer triggers particle effect.
-The hand sanitizer will be a collectable to restore health which is why it disappears after being collided with. 
-If I implement a health bar, I want to use the same green sparkle effect when health is being regained so it looks like the hand sanitizer disappeared into the health bar.
+Assn 5 options chosen:
+1 -- AI with finite state machine (The yellow enemies)
+4 -- Start/Finish screens (Title screen, Game Over screen, You Win screen)
+5 -- In-play UI (Pause screen)
+6 -- TTF fonts (menu selection options, health label and value)
 
-Art sources:
-- Player sprites, shopping cart, sparkle particle drawn by me
+Sources:
 - Hand sanitizer sprite source: https://clipartpng.com/?3267,green-hand-sanitizer-png-clipart
+- All other art/animation drawn by Nikita
+- Music and SFX by Cameron
 
-
-Makefile is edited from the starter code makefile; "make clean" then "make" then "make run" to compile and run game from command line
+Commands to compile and run (Makefile works with Mac & Linux): 
+make clean && make
+make run
