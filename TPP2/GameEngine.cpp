@@ -1,9 +1,3 @@
-/*
-    Nikita Tran
-    CPSC 4160 2D Game Engine Construction
-    Fall 2020
-*/
-
 #include "GameEngine.h"
 
 #include <SDL2/SDL.h>
@@ -429,7 +423,6 @@ void GameEngine::HandleEvents(){
             for(auto obj2 : objs){
                 if(obj1 != obj2){ //make sure the object isn't being compared with itself
                     if(IsColliding(obj1->GetBoxCollider(), obj2->GetBoxCollider())){
-                        //std::cout << "obj1: " << obj1->PrintObjType() << " obj2: " << obj2->PrintObjType() << "   COLLIDING" << std::endl;
                         if(obj1->GetType() == ObjType::Player || obj2->GetType() == ObjType::Player){ playerTest = true; }
                         
                         //if player has the TP and is at the checkout, you win!
@@ -442,10 +435,7 @@ void GameEngine::HandleEvents(){
                     }
 
                     else{
-                        //std::cout << "obj1: " << obj1->PrintObjType() << " obj2: " << obj2->PrintObjType() << "   NOT COLLIDING" << std::endl;
-
                         if(obj1->GetType() == ObjType::Player && obj2->GetType() == ObjType::Pushable){
-			    //std::cout << "set to idle1\n";
                             obj2->SetIdle();
                         }
                     }

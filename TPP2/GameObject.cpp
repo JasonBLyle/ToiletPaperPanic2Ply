@@ -1,9 +1,3 @@
-/*
-    Nikita Tran
-    CPSC 4160 2D Game Engine Construction
-    Fall 2020
-*/
-
 #include "GameObject.h"
 
 #include <string>
@@ -14,13 +8,12 @@ GameObject::GameObject(){
     sprite = NULL;
 };
 
-//VIRTUAL FUNCTIONS
-//NEEDS TO BE OVERWRITTEN BY CHILD
+
 GameObject::~GameObject(){};
 void GameObject::DoCollisionResponse(std::shared_ptr<GameObject> objCollidedWith){};
 void GameObject::SetIdle(){};
 void GameObject::Update(){};
-/* ------------------------------------- */
+
 
 
 
@@ -80,7 +73,6 @@ void GameObject::RenderBoxCollider(){
 }
 
 
-//GETTERS
 int GameObject::GetScreenRecX(){return screen_rect->x;}//Background change
 Sprite* GameObject::GetSprite(){ return sprite; }
 ObjType GameObject::GetType(){ return objType; }
@@ -88,7 +80,6 @@ SDL_Rect GameObject::GetBoxCollider(){ return boxCollider; }
 int GameObject::GetAlpha(){ return alpha; }
 bool GameObject::GetOnTop() { return onTop; }
 std::shared_ptr<GameObject> GameObject::GetOnTopOf() { return onTopOf; }
-/* ------------------------------------- */
 
 
 // Move x position of object by i pixels on screen

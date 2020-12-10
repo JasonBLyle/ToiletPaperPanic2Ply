@@ -1,10 +1,3 @@
-/*
-    Nikita Tran
-    CPSC 4160 2D Game Engine Construction
-    Assignment 3
-    October 23 2020
-*/
-
 #ifndef GAMEENGINE_H
 #define GAMEENGINE_H
 

@@ -18,13 +18,10 @@ HealthObj::HealthObj(){
     particleEmitter = std::make_unique<ParticleEmitter>();
     objState = HealthObjState::NOT_COLLECTED;
     //Load sound effects
-        //Initialize SDL_mixer
-    if( Mix_OpenAudio( 44100, MIX_DEFAULT_FORMAT, 2, 256 ) < 0 )
-    {
+    if(Mix_OpenAudio( 44100, MIX_DEFAULT_FORMAT, 2, 256) < 0 ){
         printf( "SDL_mixer could not initialize! SDL_mixer Error: %s\n", Mix_GetError() );
-
     }
-    healthSound = Mix_LoadWAV( "sounds/Health_Get.wav" );
+    healthSound = Mix_LoadWAV("sounds/Health_Get.wav");
     if(healthSound == NULL) { printf("Unable to load WAV file: %s\n", Mix_GetError()); }
 };
 
@@ -57,9 +54,10 @@ void HealthObj::SetHealthType(HealthType type){
     }
 }
 void HealthObj::ResetSprite(){
-  ChangeAlpha(255);
-  SDL_SetTextureAlphaMod(GetSprite()->GetTexture(),GetAlpha());
+    ChangeAlpha(255);
+    SDL_SetTextureAlphaMod(GetSprite()->GetTexture(),GetAlpha());
 }
+
 //overrides
 void HealthObj::Update(){
     if(objState == HealthObjState::COLLECTED){
@@ -85,10 +83,10 @@ void HealthObj::Render(){
         }
     }
 
-  SDL_Rect* temp = GetSprite()->GetScreenRect();//Background change
-  temp->x = temp->x- GameObject::GetScreenRecX();//Background change
-  SDL_RenderCopy(GetRenderer(), GetSprite()->GetTexture(), GetSprite()->GetSrcRect(), temp);//Background change
-  temp->x = temp->x+ GameObject::GetScreenRecX();//Background change
+    SDL_Rect* temp = GetSprite()->GetScreenRect();//Background change
+    temp->x = temp->x- GameObject::GetScreenRecX();//Background change
+    SDL_RenderCopy(GetRenderer(), GetSprite()->GetTexture(), GetSprite()->GetSrcRect(), temp);//Background change
+    temp->x = temp->x+ GameObject::GetScreenRecX();//Background change
 }
 
 void HealthObj::DoCollisionResponse(std::shared_ptr<GameObject> objCollidedWith){
