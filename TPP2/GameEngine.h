@@ -47,6 +47,7 @@ class GameEngine{
         Mix_Music *menuMusic;
         Mix_Music *gameMusic;
         Mix_Music *gameOverMusic;
+        Mix_Music *winMusic;
 
 
 
