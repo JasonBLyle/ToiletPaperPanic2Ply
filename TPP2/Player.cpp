@@ -80,13 +80,13 @@ void Player::Update(){
 
     switch(playerState){
         case PlayerState::IDLE: {
-            this->GetSprite()->SetSrcY(0);
+            this->GetSprite()->SetSrcY(moveAnimYOffset * 0);
             this->GetSprite()->UpdateFrame(animSpeed, idleAnimStartFrame, idleAnimTotalFrames);
             break;
         }
 
         case PlayerState::MOVE_LEFT: {
-            this->GetSprite()->SetSrcY(moveAnimYOffset);
+            this->GetSprite()->SetSrcY(moveAnimYOffset * 1);
             this->GetSprite()->UpdateFrame(animSpeed, moveAnimStartFrame, moveAnimTotalFrames);
 
             this->MoveX(moveSpeed * -1);
@@ -98,7 +98,7 @@ void Player::Update(){
         }
 
         case PlayerState::MOVE_RIGHT: {
-            this->GetSprite()->SetSrcY(moveAnimYOffset);
+            this->GetSprite()->SetSrcY(moveAnimYOffset * 1);
             this->GetSprite()->UpdateFrame(animSpeed, moveAnimStartFrame, moveAnimTotalFrames);
 
             this->MoveX(moveSpeed);
