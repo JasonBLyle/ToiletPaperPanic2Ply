@@ -37,6 +37,7 @@ class GameEngine{
         bool runningState;
         bool paused;
         bool showTitleScreen;
+        bool showHowToPlay;
         bool gameOver;
         bool win;
         void InitText(SDL_Renderer *renderer, int screenW, int screenH);

@@ -19,7 +19,7 @@
 #include <random>
 
 //#define DEBUG_SHOWCOLLIDERS
-#define DEBUG_BYPASSTITLESCREEN
+//#define DEBUG_BYPASSTITLESCREEN
 //#define DEBUG_MUTEAUDIO
 
 /* ---------- GAME OBJECTS  ---------- */
@@ -65,6 +65,7 @@ auto pause_title_sprite = std::make_shared<GameObject>();
 auto main_title_sprite = std::make_shared<GameObject>();
 auto gameover_sprite = std::make_shared<GameObject>();
 auto win_sprite = std::make_shared<GameObject>();
+auto howtoplay_img = std::make_shared<GameObject>();
 /* ------------------------------------ */
 
 GameEngine::GameEngine(){
@@ -80,6 +81,7 @@ GameEngine::GameEngine(){
     paused = false;
     gameOver = false;
     win = false;
+    showHowToPlay = false;
 
     #ifdef DEBUG_BYPASSTITLESCREEN
         showTitleScreen = false;
@@ -250,8 +252,7 @@ void GameEngine::Init(const int w, const int h){
 
     //Initialize Game Objects
     InitObjects();
-    objs = {player, enemy, enemy2, enemy3, cart, cart2, sanitizer, tp, checkout};
-    //objs = {player, tp, checkout};
+    objs = {checkout, enemy, enemy2, enemy3, cart, cart2, sanitizer, tp, player};
 
 
     /* ---------------- MUSIC ------------------- */
@@ -328,6 +329,7 @@ void GameEngine::HandleEvents(){
                             }
                             case 1: {
                                 //show instructions page
+                                showHowToPlay = true;
                                 break;
                             }
                             case 2: {
@@ -399,6 +401,7 @@ void GameEngine::HandleEvents(){
                 }
                 case SDLK_ESCAPE:{
                     if(!gameOver && !showTitleScreen && !win) paused = true;
+                    if(showHowToPlay) showHowToPlay = false;
                     break;
                 }
             }
@@ -542,17 +545,25 @@ void GameEngine::Render(){
 
     /* OBJECTS TO RENDER */
     if(showTitleScreen){
-        SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
-        SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
-        SDL_RenderFillRect(renderer, &fullScreenRect);
+        if (showHowToPlay){
+            SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
+            SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
+            SDL_RenderFillRect(renderer, &fullScreenRect);
 
-        setCameraX(0);//background change
-        setCameraY(0);//background change
-        TitleBG.render();
+            howtoplay_img->Render();
+        } else{
+            SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
+            SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
+            SDL_RenderFillRect(renderer, &fullScreenRect);
 
-        main_title_sprite->Render();
-        selection_controls->Render();
-        titleMenuOptions->Render();
+            setCameraX(0);//background change
+            setCameraY(0);//background change
+            TitleBG.render();
+
+            main_title_sprite->Render();
+            selection_controls->Render();
+            titleMenuOptions->Render();
+        }
     }
     else{
 
@@ -802,4 +813,11 @@ void GameEngine::InitMenus(SDL_Renderer *renderer, int screenW, int screenH){
     win_sprite->Init(renderer,"img/youwin.png",&camera);//background change
     win_sprite->GetSprite()->SetSrcRect(0, 0, spriteFrameWidth, spriteFrameHeight);
     win_sprite->GetSprite()->SetScreenRect(screenW/2 - (spriteFrameWidth/2 * scale), 10, spriteFrameWidth * scale, spriteFrameHeight * scale);
+    
+    spriteFrameWidth = 640;
+    spriteFrameHeight = 480;
+    scale = 1;
+    howtoplay_img->Init(renderer,"img/instructions.png",&camera);//background change
+    howtoplay_img->GetSprite()->SetSrcRect(0, 0, spriteFrameWidth, spriteFrameHeight);
+    howtoplay_img->GetSprite()->SetScreenRect(0, 0, spriteFrameWidth * scale, spriteFrameHeight * scale);
 }

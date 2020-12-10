@@ -13,8 +13,8 @@ Background::Background(SDL_Renderer *render, const char *file,int x, int y, int 
   BG_rect.y = y;
   BG_rect.w = w;
   BG_rect.h = h;
-  screen_rect=camera;
-  bgfile=file;
+  screen_rect = camera;
+  bgfile = file;
 }
 
 int Background::getMapWidth(){return BG_rect.w;}

@@ -126,15 +126,12 @@ void Player::Update(){
             break;
         }
         case PlayerState::FALL: {
-	    //std::cout << "Falling\n";
             if(gotTP) GetSprite()->SetSrcY(moveAnimYOffset * 2);
             else GetSprite()->SetSrcY(moveAnimYOffset * 0);
             GetSprite()->UpdateFrame(animSpeed, idleAnimStartFrame, idleAnimTotalFrames);
             MoveY(ySpeed);
             ySpeed += 0.25;
-            if(GetYSpeed() < 0){
-                SetOnTopOf(NULL);
-            }
+            if(GetYSpeed() < 0){ SetOnTopOf(NULL);}
 
             break;
         }
