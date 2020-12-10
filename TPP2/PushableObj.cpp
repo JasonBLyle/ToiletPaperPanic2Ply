@@ -15,21 +15,42 @@
 PushableObj::PushableObj(){
     objType = ObjType::Pushable;
     objState = PushableObjState::IDLE;
+    LastMovementState = PushableObjState::IDLE;
     pushForce = 0;
     velocity = 0;
+    PushedThisTick=0;
 };
 
 GameEngine* game2 = GameEngine::GetInstance();
 
 PushableObjState PushableObj::GetObjState(){return objState;}
+PushableObjState PushableObj::GetLastMovementState(){return LastMovementState;}
 double PushableObj::GetPushForce(){return pushForce;}
 double PushableObj::GetVelocity(){return velocity;}
-
+int PushableObj::GetPushedtick(){return PushedThisTick;}
+int PushableObj::GetSpeed(){
+  if(velocity>0){
+    return velocity;
+  }
+  else{
+    return -velocity;
+  }
+}
 
 /*
     state = one of the valid states that Player can have. Valid states (defined in header file) are IDLE, PUSHED_FROM_LEFT, PUSHED_FROM_RIGHT
 */
-void PushableObj::SetObjState(PushableObjState state){objState = state;}
+void PushableObj::SetPushedTick(int pushed){PushedThisTick=pushed;}
+void PushableObj::SetObjState(PushableObjState state){
+  objState = state;
+//SetPushedTick(0);
+  if(velocity==0){
+    LastMovementState=state;
+  }
+  else if(state!=PushableObjState::IDLE){
+    LastMovementState=state;
+  }
+}
 void PushableObj::SetVelocity(int speed){velocity=speed;}
 void PushableObj::SetPushForce(int force){pushForce = force;}
 
@@ -50,18 +71,23 @@ void PushableObj::Update(){
 
             MoveX(velocity);
             //std::cout << velocity << std::endl;
+            if(GetPushedtick()>0){
+              SetPushedTick(GetPushedtick()-1);
+            }
             break;
         }
 
         case PushableObjState::PUSHED_FROM_LEFT: {
             velocity = pushForce * -1;
             MoveX(velocity);
+            SetIdle();
             break;
         }
 
          case PushableObjState::PUSHED_FROM_RIGHT: {
             velocity = pushForce;
             MoveX(velocity);
+            SetIdle();
             break;
         }
     }
@@ -81,14 +107,51 @@ void PushableObj::Update(){
 
 void PushableObj::DoCollisionResponse(std::shared_ptr<GameObject> objCollidedWith){
     switch(objCollidedWith->GetType()){
+        case ObjType::Pushable: {//test
+          //cast to Pushable
+          auto pushob = std::dynamic_pointer_cast<PushableObj>(objCollidedWith);
+          if(GetSpeed()<pushob->GetSpeed()){
+            if(GetPushedtick()<=0){
+            if(pushob->GetObjState() == PushableObjState::PUSHED_FROM_RIGHT){
+                SetObjState(PushableObjState::PUSHED_FROM_RIGHT);
+                pushob->SetObjState(PushableObjState::PUSHED_FROM_LEFT);
+                SetPushedTick(1);
+                pushob->SetPushedTick(1);
+            }
+            else if(pushob->GetLastMovementState()== PushableObjState::PUSHED_FROM_RIGHT){
+              SetObjState(PushableObjState::PUSHED_FROM_RIGHT);
+              pushob->SetObjState(PushableObjState::PUSHED_FROM_LEFT);
+              SetPushedTick(1);
+              pushob->SetPushedTick(1);
+            }
+            else if(pushob->GetObjState() == PushableObjState::PUSHED_FROM_LEFT){
+              SetObjState(PushableObjState::PUSHED_FROM_LEFT);
+              pushob->SetObjState(PushableObjState::PUSHED_FROM_RIGHT);
+              SetPushedTick(1);
+              pushob->SetPushedTick(1);
+            }
+            else if(pushob->GetLastMovementState() == PushableObjState::PUSHED_FROM_LEFT){
+              SetObjState(PushableObjState::PUSHED_FROM_LEFT);
+              pushob->SetObjState(PushableObjState::PUSHED_FROM_RIGHT);
+              SetPushedTick(1);
+              pushob->SetPushedTick(1);
+            }
+          }
+        }
+        break;
+      }
         case ObjType::Player: {
             //cast to Player
             auto player = std::dynamic_pointer_cast<Player>(objCollidedWith);
-            if(player->GetPlayerState() == PlayerState::MOVE_LEFT){
-                SetObjState(PushableObjState::PUSHED_FROM_LEFT);
-            }
-            else if(player->GetPlayerState() == PlayerState::MOVE_RIGHT){
-                SetObjState(PushableObjState::PUSHED_FROM_RIGHT);
+            if(GetPushedtick()==0){
+              if(player->GetPlayerState() == PlayerState::MOVE_LEFT){
+                  SetObjState(PushableObjState::PUSHED_FROM_LEFT);
+                  LastMovementState=PushableObjState::PUSHED_FROM_LEFT;
+              }
+              else if(player->GetPlayerState() == PlayerState::MOVE_RIGHT){
+                  SetObjState(PushableObjState::PUSHED_FROM_RIGHT);
+                  LastMovementState=PushableObjState::PUSHED_FROM_RIGHT;
+              }
             }
 
             break;
@@ -101,7 +164,10 @@ void PushableObj::DoCollisionResponse(std::shared_ptr<GameObject> objCollidedWit
 }
 
 void PushableObj::SetIdle(){
+  SetObjState(PushableObjState::IDLE);
+  if(velocity==0){
     SetObjState(PushableObjState::IDLE);
+  }
 }
 
 std::string PushableObj::PrintObjType(){ return "PushableObj"; }

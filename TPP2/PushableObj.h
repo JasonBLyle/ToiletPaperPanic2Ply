@@ -17,13 +17,19 @@ class PushableObj: public GameObject{
     private:
         int pushForce;
         PushableObjState objState;
+        PushableObjState LastMovementState;
+        int PushedThisTick;
         double velocity;
     public:
         PushableObj();
         PushableObjState GetObjState();
+        PushableObjState GetLastMovementState();
         double GetPushForce();
         double GetVelocity();
+        int GetPushedtick();
+        int GetSpeed();
 
+        void SetPushedTick(int pushed); 
         void SetVelocity(int speed);
         void SetPushForce(int force);
         void SetObjState(PushableObjState state);
