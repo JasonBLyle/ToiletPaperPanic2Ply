@@ -17,6 +17,7 @@
 #include "MenuOptions.h"
 #include "Background.h"
 #include "Enemy.h"
+#include "ToiletPaper.h"
 
 class GameEngine{
     private:
@@ -37,6 +38,7 @@ class GameEngine{
         bool paused;
         bool showTitleScreen;
         bool gameOver;
+        bool win;
         void InitText(SDL_Renderer *renderer, int screenW, int screenH);
         void InitMenus(SDL_Renderer *renderer, int screenW, int screenH);
         void InitObjects();

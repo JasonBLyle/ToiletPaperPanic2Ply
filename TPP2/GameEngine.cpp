@@ -29,6 +29,8 @@ auto enemy = std::make_shared<Enemy>();
 auto enemy2 = std::make_shared<Enemy>();
 auto enemy3 = std::make_shared<Enemy>();
 auto sanitizer = std::make_shared<HealthObj>();
+auto tp = std::make_shared<ToiletPaper>();
+auto checkout = std::make_shared<GameObject>();
 
 std::vector<std::shared_ptr<GameObject>> objs;
 auto pauseMenuOptions = std::make_shared<MenuOptions>();
@@ -71,6 +73,7 @@ GameEngine::GameEngine(){
     runningState = true;
     paused = false;
     gameOver = false;
+    win = false;
 
     #ifdef DEBUG_BYPASSTITLESCREEN
         showTitleScreen = false;
@@ -131,7 +134,8 @@ void GameEngine::InitObjects(){
     player->GetSprite()->SetScreenRect(screenW/2, screenH - spriteFrameHeight * scale - floorY, spriteFrameWidth * scale, spriteFrameHeight * scale); //set the area of the screen that renders src_rect
     player->SetBoxCollider(player->GetSprite()->GetScreenRect());
     player->SetHealth(96.0);
-    player->SetPlayerState(PlayerState::IDLE);
+    player->SetIdle();
+    player->GotTP(false);
 
     spriteFrameWidth = 212;
     spriteFrameHeight = 351;
@@ -139,20 +143,20 @@ void GameEngine::InitObjects(){
     enemy->GetSprite()->SetSrcRect(0, 0, spriteFrameWidth, spriteFrameHeight); //set the area of the texture to be rendered
     enemy->GetSprite()->SetScreenRect(screenW/2 + 300, screenH - spriteFrameHeight * scale - floorY, spriteFrameWidth * scale, spriteFrameHeight * scale); //set the area of the screen that renders src_rect
     enemy->SetBoxCollider(enemy->GetSprite()->GetScreenRect());
-    enemy->SetEnemyState(EnemyState::IDLE);
+    enemy->SetIdle();
 
 
     enemy2->Init(renderer, "img/enemy.png", &camera);
     enemy2->GetSprite()->SetSrcRect(0, 0, spriteFrameWidth, spriteFrameHeight); //set the area of the texture to be rendered
     enemy2->GetSprite()->SetScreenRect(screenW/2 + 400, screenH - spriteFrameHeight * scale - floorY, spriteFrameWidth * scale, spriteFrameHeight * scale); //set the area of the screen that renders src_rect
     enemy2->SetBoxCollider(enemy2->GetSprite()->GetScreenRect());
-    enemy2->SetEnemyState(EnemyState::IDLE);
+    enemy2->SetIdle();
 
     enemy3->Init(renderer, "img/enemy.png", &camera);
     enemy3->GetSprite()->SetSrcRect(0, 0, spriteFrameWidth, spriteFrameHeight); //set the area of the texture to be rendered
     enemy3->GetSprite()->SetScreenRect(screenW/2 + 500, screenH - spriteFrameHeight * scale - floorY, spriteFrameWidth * scale, spriteFrameHeight * scale); //set the area of the screen that renders src_rect
     enemy3->SetBoxCollider(enemy3->GetSprite()->GetScreenRect());
-    enemy3->SetEnemyState(EnemyState::IDLE);
+    enemy3->SetIdle();
 
     /* ----------------------------------- */
 
@@ -161,14 +165,14 @@ void GameEngine::InitObjects(){
     scale = 0.5;
     cart->Init(renderer,"img/shoppingcart.png",&camera);//background change
     cart->GetSprite()->SetSrcRect(0, 0, spriteFrameWidth, spriteFrameHeight);
-    cart->GetSprite()->SetScreenRect(screenW/2 - 150, screenH - spriteFrameHeight * scale - floorY, spriteFrameWidth * scale, spriteFrameHeight * scale);
+    cart->GetSprite()->SetScreenRect(screenW/2 + 600, screenH - spriteFrameHeight * scale - floorY, spriteFrameWidth * scale, spriteFrameHeight * scale);
     cart->SetBoxCollider(cart->GetSprite()->GetScreenRect());
     cart->SetObjState(PushableObjState::IDLE);
     cart->SetVelocity(0);
 
     cart2->Init(renderer,"img/shoppingcart.png",&camera);//background change
     cart2->GetSprite()->SetSrcRect(0, 0, spriteFrameWidth, spriteFrameHeight);
-    cart2->GetSprite()->SetScreenRect(screenW/2 - 300, screenH - (spriteFrameHeight * scale) - floorY, spriteFrameWidth * scale, spriteFrameHeight * scale);
+    cart2->GetSprite()->SetScreenRect(screenW/2 + 200, screenH - (spriteFrameHeight * scale) - floorY, spriteFrameWidth * scale, spriteFrameHeight * scale);
     cart2->SetBoxCollider(cart2->GetSprite()->GetScreenRect());
     cart2->SetObjState(PushableObjState::IDLE);
     cart2->SetVelocity(0);
@@ -183,6 +187,25 @@ void GameEngine::InitObjects(){
     sanitizer->SetHealthType(HealthType::SANITIZER);
     sanitizer->SetObjState(HealthObjState::NOT_COLLECTED);
     sanitizer->ResetSprite();
+
+    spriteFrameWidth = 240;
+    spriteFrameHeight = 249;
+    scale = 0.2;
+    tp->Init(renderer,"img/tp.png",&camera);//background change
+    tp->GetSprite()->SetSrcRect(0, 0, spriteFrameWidth, spriteFrameHeight);
+    tp->GetSprite()->SetScreenRect(screenW/2 + 300, screenH - spriteFrameHeight * scale - floorY, spriteFrameWidth * scale, spriteFrameHeight * scale);
+    tp->SetBoxCollider(tp->GetSprite()->GetScreenRect());
+    tp->SetObjState(TPObjState::NOT_COLLECTED);
+    tp->ResetSprite();
+
+    spriteFrameWidth = 32;
+    spriteFrameHeight = 32;
+    scale = 1;
+    checkout->Init(renderer,"img/test.png",&camera);//background change
+    checkout->GetSprite()->SetSrcRect(0, 0, spriteFrameWidth, spriteFrameHeight);
+    checkout->GetSprite()->SetScreenRect(0, screenH - spriteFrameHeight * scale - floorY, spriteFrameWidth * scale, spriteFrameHeight * scale);
+    checkout->SetBoxCollider(checkout->GetSprite()->GetScreenRect());
+    checkout->SetType(ObjType::Checkout);
 }
 
 
@@ -217,7 +240,8 @@ void GameEngine::Init(const int w, const int h){
 
     //Initialize Game Objects
     InitObjects();
-    objs = {player, enemy, enemy2, enemy3, cart, cart2, sanitizer};
+    objs = {player, enemy, enemy2, enemy3, cart, cart2, sanitizer, tp, checkout};
+    //objs = {player, tp, checkout};
 
 
     /* ---------------- MUSIC ------------------- */
@@ -229,6 +253,8 @@ void GameEngine::Init(const int w, const int h){
     menuMusic = Mix_LoadMUS( "sounds/Toilet_Paper_Waltz_Final.wav" );
     gameMusic = Mix_LoadMUS( "sounds/TPP_3rd_Draft_Final.wav" );
     gameOverMusic = Mix_LoadMUS( "sounds/Game_Over.wav" );
+
+    Mix_VolumeMusic(0); //max volume is 128
 
     /* ---------------- TEXT ------------------- */
     InitMenus(renderer, screenW, screenH);
@@ -344,7 +370,7 @@ void GameEngine::HandleEvents(){
                     break;
                 }
                 case SDLK_ESCAPE:{
-                    if(!gameOver) paused = true;
+                    if(!gameOver && !showTitleScreen && !win) paused = true;
                     break;
                 }
             }
@@ -373,6 +399,10 @@ void GameEngine::HandleEvents(){
                     if(IsColliding(obj1->GetBoxCollider(), obj2->GetBoxCollider())){
                         //std::cout << "obj1: " << obj1->PrintObjType() << " obj2: " << obj2->PrintObjType() << "   COLLIDING" << std::endl;
                         if(obj1->GetType() == ObjType::Player || obj2->GetType() == ObjType::Player){ playerTest = true; }
+                        
+                        //if player has the TP and is at the checkout, you win!
+                        if(obj1->GetType() == ObjType::Player && obj2->GetType() == ObjType::Checkout && player->GotTP()){ win = true; }
+                        
                         obj1->DoCollisionResponse(obj2);
                     }
 
@@ -414,7 +444,7 @@ void GameEngine::Update(){
         Mix_PlayMusic( gameMusic, -1 );
     }
 
-    if(!paused && !showTitleScreen && !gameOver){
+    if(!paused && !showTitleScreen && !gameOver && !win){
         const char *health = std::to_string((int)player->GetHealth()).c_str();
         healthValue->SetText(health);
 
@@ -553,6 +583,11 @@ void GameEngine::Render(){
 
             selection_controls->Render();
             gameOverMenuOptions->Render();
+        }
+        else if(win){
+            SDL_SetRenderDrawColor(renderer, 255, 255, 255, 200);
+            SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
+            SDL_RenderFillRect(renderer, &fullScreenRect);
         }
     }
 
