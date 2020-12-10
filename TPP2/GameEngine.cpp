@@ -198,12 +198,12 @@ void GameEngine::InitObjects(){
     tp->SetObjState(TPObjState::NOT_COLLECTED);
     tp->ResetSprite();
 
-    spriteFrameWidth = 32;
-    spriteFrameHeight = 32;
-    scale = 1;
-    checkout->Init(renderer,"img/test.png",&camera);//background change
+    spriteFrameWidth = 271;
+    spriteFrameHeight = 372;
+    scale = 0.85;
+    checkout->Init(renderer,"img/checkout.png",&camera);//background change
     checkout->GetSprite()->SetSrcRect(0, 0, spriteFrameWidth, spriteFrameHeight);
-    checkout->GetSprite()->SetScreenRect(0, screenH - spriteFrameHeight * scale - floorY, spriteFrameWidth * scale, spriteFrameHeight * scale);
+    checkout->GetSprite()->SetScreenRect(-50, screenH - spriteFrameHeight * scale - floorY, spriteFrameWidth * scale, spriteFrameHeight * scale);
     checkout->SetBoxCollider(checkout->GetSprite()->GetScreenRect());
     checkout->SetType(ObjType::Checkout);
 }
@@ -254,7 +254,7 @@ void GameEngine::Init(const int w, const int h){
     gameMusic = Mix_LoadMUS( "sounds/TPP_3rd_Draft_Final.wav" );
     gameOverMusic = Mix_LoadMUS( "sounds/Game_Over.wav" );
 
-    Mix_VolumeMusic(0); //max volume is 128
+    Mix_VolumeMusic(60); //max volume is 128
 
     /* ---------------- TEXT ------------------- */
     InitMenus(renderer, screenW, screenH);
