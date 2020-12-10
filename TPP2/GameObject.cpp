@@ -70,7 +70,13 @@ void GameObject::Render(){
 void GameObject::RenderBoxCollider(){
     SDL_SetRenderDrawColor(renderer, 255, 0, 0, 128);
     SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
-    SDL_RenderFillRect(renderer, &boxCollider);
+
+    SDL_Rect temp;//Background change
+    temp.x = boxCollider.x - screen_rect->x;//Background change
+    temp.y = boxCollider.y;//Background change
+    temp.w = boxCollider.w;//Background change
+    temp.h = boxCollider.h;//Background change
+    SDL_RenderFillRect(renderer, &temp);
 }
 
 
