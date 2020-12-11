@@ -15,7 +15,7 @@ Player::Player(){
     objType = ObjType::Player;
     playerState = PlayerState::IDLE;
     ySpeed = 0;
-    moveSpeed = 4;
+    moveSpeed = 5;
 
     jumping = 0;
 

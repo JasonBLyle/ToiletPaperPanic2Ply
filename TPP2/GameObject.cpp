@@ -6,6 +6,11 @@
 
 GameObject::GameObject(){
     sprite = NULL;
+    objType = ObjType::None;
+    SDL_Rect temp{0,0,0,0};
+    boxCollider = temp;
+    alpha = 255;
+    onTopOf = NULL;
 };
 
 
@@ -27,11 +32,7 @@ void GameObject::Update(){};
 void GameObject::Init(SDL_Renderer *ren, const char *file,SDL_Rect* camera){//Background change
     renderer = ren;
     if(sprite == NULL) sprite = new Sprite(renderer, file);
-    SDL_Rect temp{0,0,0,0};
-    boxCollider = temp;
-    alpha = 255;
     screen_rect = camera;//Background change
-    onTopOf = NULL;
 }
 
 /*
@@ -146,15 +147,5 @@ void GameObject::ChangeAlpha(int var){
 }
 
 std::string GameObject::PrintObjType(){
-    switch (GetType()){
-        case ObjType::Player:{
-            return "Player Obj";
-        }
-        case ObjType::Pushable:{
-            return "Pushable Obj";
-        }
-        default:{
-            return "";
-        }
-    }
+    return "None";
 }

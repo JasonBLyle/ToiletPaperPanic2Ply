@@ -4,7 +4,7 @@
 #include <SDL2/SDL.h>
 #include <memory>
 #include "Sprite.h"
-enum class ObjType { Player, Pushable, Health, Enemy, TP, Checkout };
+enum class ObjType { None, Player, Pushable, Health, Enemy, TP, Checkout, Box };
 
 class GameObject{
     private:

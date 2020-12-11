@@ -12,7 +12,7 @@ PushableObj::PushableObj(){
     LastMovementState = PushableObjState::IDLE;
     pushForce = 0;
     velocity = 0;
-    PushedThisTick=0;
+    PushedThisTick = 0;
 };
 
 GameEngine* game2 = GameEngine::GetInstance();
@@ -23,12 +23,8 @@ double PushableObj::GetPushForce(){return pushForce;}
 double PushableObj::GetVelocity(){return velocity;}
 int PushableObj::GetPushedtick(){return PushedThisTick;}
 int PushableObj::GetSpeed(){
-    if(velocity>0){
-        return velocity;
-    }
-    else{
-        return -velocity;
-    }
+    if(velocity > 0) return velocity;
+    else return -velocity;
 }
 
 /*
@@ -44,9 +40,8 @@ void PushableObj::SetObjState(PushableObjState state){
         LastMovementState=state;
     }
 }
-void PushableObj::SetVelocity(int speed){velocity=speed;}
+void PushableObj::SetVelocity(int speed){velocity = speed;}
 void PushableObj::SetPushForce(int force){pushForce = force;}
-
 
 //Updates object's position based on object's state
 void PushableObj::Update(){
@@ -101,7 +96,7 @@ void PushableObj::DoCollisionResponse(std::shared_ptr<GameObject> objCollidedWit
         case ObjType::Pushable: {
           //cast to Pushable
           auto pushob = std::dynamic_pointer_cast<PushableObj>(objCollidedWith);
-          if(GetSpeed()<pushob->GetSpeed()){
+          if(GetSpeed() < pushob->GetSpeed()){
             if(GetPushedtick()<=0){
                 if(pushob->GetObjState() == PushableObjState::PUSHED_FROM_RIGHT){
                     SetObjState(PushableObjState::PUSHED_FROM_RIGHT);
@@ -109,7 +104,7 @@ void PushableObj::DoCollisionResponse(std::shared_ptr<GameObject> objCollidedWit
                     SetPushedTick(1);
                     pushob->SetPushedTick(1);
                 }
-                else if(pushob->GetLastMovementState()== PushableObjState::PUSHED_FROM_RIGHT){
+                else if(pushob->GetLastMovementState() == PushableObjState::PUSHED_FROM_RIGHT){
                     SetObjState(PushableObjState::PUSHED_FROM_RIGHT);
                     pushob->SetObjState(PushableObjState::PUSHED_FROM_LEFT);
                     SetPushedTick(1);
@@ -137,11 +132,11 @@ void PushableObj::DoCollisionResponse(std::shared_ptr<GameObject> objCollidedWit
             if(GetPushedtick()==0){
               if(player->GetPlayerState() == PlayerState::MOVE_LEFT){
                     SetObjState(PushableObjState::PUSHED_FROM_LEFT);
-                    LastMovementState=PushableObjState::PUSHED_FROM_LEFT;
+                    LastMovementState = PushableObjState::PUSHED_FROM_LEFT;
               }
               else if(player->GetPlayerState() == PlayerState::MOVE_RIGHT){
                     SetObjState(PushableObjState::PUSHED_FROM_RIGHT);
-                    LastMovementState=PushableObjState::PUSHED_FROM_RIGHT;
+                    LastMovementState = PushableObjState::PUSHED_FROM_RIGHT;
               }
             }
             break;

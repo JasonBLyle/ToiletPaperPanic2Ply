@@ -26,6 +26,8 @@ auto enemy3 = std::make_shared<Enemy>();
 auto sanitizer = std::make_shared<HealthObj>();
 auto tp = std::make_shared<ToiletPaper>();
 auto checkout = std::make_shared<GameObject>();
+auto box = std::make_shared<GameObject>();
+auto boxes = std::make_shared<GameObject>();
 
 std::vector<std::shared_ptr<GameObject>> objs;
 auto pauseMenuOptions = std::make_shared<MenuOptions>();
@@ -138,7 +140,7 @@ void GameEngine::InitObjects(){
     double scale = 0.5;
     player->Init(renderer, "img/player.png",&camera);
     player->GetSprite()->SetSrcRect(0, 0, spriteFrameWidth, spriteFrameHeight); //set the area of the texture to be rendered
-    player->GetSprite()->SetScreenRect(screenW/2, screenH - spriteFrameHeight * scale - floorY, spriteFrameWidth * scale, spriteFrameHeight * scale); //set the area of the screen that renders src_rect
+    player->GetSprite()->SetScreenRect(0, screenH - spriteFrameHeight * scale - floorY, spriteFrameWidth * scale, spriteFrameHeight * scale); //set the area of the screen that renders src_rect
     player->SetBoxCollider(player->GetSprite()->GetScreenRect());
     player->SetHealth(96.0);
     player->SetIdle();
@@ -151,7 +153,6 @@ void GameEngine::InitObjects(){
     enemy->GetSprite()->SetScreenRect(screenW/2 + 300, screenH - spriteFrameHeight * scale - floorY, spriteFrameWidth * scale, spriteFrameHeight * scale); //set the area of the screen that renders src_rect
     enemy->SetBoxCollider(enemy->GetSprite()->GetScreenRect());
     enemy->SetIdle();
-
 
     enemy2->Init(renderer, "img/enemy.png", &camera);
     enemy2->GetSprite()->SetSrcRect(0, 0, spriteFrameWidth, spriteFrameHeight); //set the area of the texture to be rendered
@@ -172,14 +173,14 @@ void GameEngine::InitObjects(){
     scale = 0.5;
     cart->Init(renderer,"img/shoppingcart.png",&camera);//background change
     cart->GetSprite()->SetSrcRect(0, 0, spriteFrameWidth, spriteFrameHeight);
-    cart->GetSprite()->SetScreenRect(screenW/2 + 600, screenH - spriteFrameHeight * scale - floorY, spriteFrameWidth * scale, spriteFrameHeight * scale);
+    cart->GetSprite()->SetScreenRect(screenW/2 + 1200, screenH - spriteFrameHeight * scale - floorY, spriteFrameWidth * scale, spriteFrameHeight * scale);
     cart->SetBoxCollider(cart->GetSprite()->GetScreenRect());
     cart->SetObjState(PushableObjState::IDLE);
     cart->SetVelocity(0);
 
     cart2->Init(renderer,"img/shoppingcart.png",&camera);//background change
     cart2->GetSprite()->SetSrcRect(0, 0, spriteFrameWidth, spriteFrameHeight);
-    cart2->GetSprite()->SetScreenRect(screenW/2 + 200, screenH - (spriteFrameHeight * scale) - floorY, spriteFrameWidth * scale, spriteFrameHeight * scale);
+    cart2->GetSprite()->SetScreenRect(screenW, screenH - (spriteFrameHeight * scale) - floorY, spriteFrameWidth * scale, spriteFrameHeight * scale);
     cart2->SetBoxCollider(cart2->GetSprite()->GetScreenRect());
     cart2->SetObjState(PushableObjState::IDLE);
     cart2->SetVelocity(0);
@@ -195,16 +196,6 @@ void GameEngine::InitObjects(){
     sanitizer->SetObjState(HealthObjState::NOT_COLLECTED);
     sanitizer->ResetSprite();
 
-    spriteFrameWidth = 240;
-    spriteFrameHeight = 249;
-    scale = 0.2;
-    tp->Init(renderer,"img/tp.png",&camera);//background change
-    tp->GetSprite()->SetSrcRect(0, 0, spriteFrameWidth, spriteFrameHeight);
-    tp->GetSprite()->SetScreenRect(screenW/2 + 300, screenH - spriteFrameHeight * scale - floorY, spriteFrameWidth * scale, spriteFrameHeight * scale);
-    tp->SetBoxCollider(tp->GetSprite()->GetScreenRect());
-    tp->SetObjState(TPObjState::NOT_COLLECTED);
-    tp->ResetSprite();
-
     spriteFrameWidth = 271;
     spriteFrameHeight = 372;
     scale = 0.85;
@@ -213,6 +204,37 @@ void GameEngine::InitObjects(){
     checkout->GetSprite()->SetScreenRect(-50, screenH - spriteFrameHeight * scale - floorY, spriteFrameWidth * scale, spriteFrameHeight * scale);
     checkout->SetBoxCollider(checkout->GetSprite()->GetScreenRect());
     checkout->SetType(ObjType::Checkout);
+
+    spriteFrameWidth = 186;
+    spriteFrameHeight = 153;
+    scale = 0.6;
+    box->Init(renderer,"img/box.png",&camera);//background change
+    box->GetSprite()->SetSrcRect(0, 0, spriteFrameWidth, spriteFrameHeight);
+    box->GetSprite()->SetScreenRect(2000 - spriteFrameWidth * scale, screenH - spriteFrameHeight * scale - floorY, spriteFrameWidth * scale, spriteFrameHeight * scale);
+    box->SetBoxCollider(box->GetSprite()->GetScreenRect());
+    box->SetType(ObjType::Box);
+
+    spriteFrameWidth = 240;
+    spriteFrameHeight = 249;
+    scale = 0.2;
+    tp->Init(renderer,"img/tp.png",&camera);//background change
+    tp->GetSprite()->SetSrcRect(0, 0, spriteFrameWidth, spriteFrameHeight);
+    tp->GetSprite()->SetScreenRect(
+        box->GetSprite()->GetX() + 10,
+        box->GetSprite()->GetY() - spriteFrameHeight * scale + 15, 
+        spriteFrameWidth * scale, spriteFrameHeight * scale);
+    tp->SetBoxCollider(tp->GetSprite()->GetScreenRect());
+    tp->SetObjState(TPObjState::NOT_COLLECTED);
+    tp->ResetSprite();
+
+    spriteFrameWidth = 234;
+    spriteFrameHeight = 399;
+    scale = 0.6;
+    boxes->Init(renderer,"img/boxes.png",&camera);//background change
+    boxes->GetSprite()->SetSrcRect(0, 0, spriteFrameWidth, spriteFrameHeight);
+    boxes->GetSprite()->SetScreenRect(1000, screenH - spriteFrameHeight * scale - floorY, spriteFrameWidth * scale, spriteFrameHeight * scale);
+    boxes->SetBoxCollider(boxes->GetSprite()->GetScreenRect());
+    boxes->SetType(ObjType::Box);
 }
 
 
@@ -247,7 +269,7 @@ void GameEngine::Init(const int w, const int h){
 
     //Initialize Game Objects
     InitObjects();
-    objs = {checkout, enemy, enemy2, enemy3, cart, cart2, sanitizer, tp, player};
+    objs = {checkout, boxes, enemy, enemy2, enemy3, cart, cart2, sanitizer, box, tp, player};
 
 
     /* ---------------- MUSIC ------------------- */
