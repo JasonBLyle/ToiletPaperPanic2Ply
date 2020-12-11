@@ -155,7 +155,6 @@ void Player::DoCollisionResponse(std::shared_ptr<GameObject> objCollidedWith){
         case ObjType::Health: {
             health += 10;
             if(health > maxHealth) health = maxHealth;
-            //std::cout << "health: " + std::to_string(health) << std::endl;
             break;
         }
 
