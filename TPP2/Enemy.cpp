@@ -98,6 +98,7 @@ void Enemy::DoCollisionResponse(std::shared_ptr<GameObject> objCollidedWith){
             //cast to Player
             auto player = std::dynamic_pointer_cast<Player>(objCollidedWith);
             player->ChangeHealth(damagePerHit * -1);
+	    player->SetDamaged(1);
             break;
         }
 

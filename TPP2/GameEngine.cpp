@@ -139,8 +139,11 @@ void GameEngine::InitObjects(){
     int spriteFrameHeight = 370;
     double scale = 0.5;
     player->Init(renderer, "img/player.png",&camera);
+    player->SetDamagedSprite(renderer, "img/player_damaged.png");
     player->GetSprite()->SetSrcRect(0, 0, spriteFrameWidth, spriteFrameHeight); //set the area of the texture to be rendered
     player->GetSprite()->SetScreenRect(0, screenH - spriteFrameHeight * scale - floorY, spriteFrameWidth * scale, spriteFrameHeight * scale); //set the area of the screen that renders src_rect
+    player->GetDamagedSprite()->SetSrcRect(0, 0, spriteFrameWidth, spriteFrameHeight); 
+    player->GetDamagedSprite()->SetScreenRect(0, screenH - spriteFrameHeight * scale - floorY, spriteFrameWidth * scale, spriteFrameHeight * scale); 
     player->SetBoxCollider(player->GetSprite()->GetScreenRect());
     player->SetHealth(96.0);
     player->SetIdle();
@@ -440,6 +443,7 @@ void GameEngine::HandleEvents(){
 
     if(!paused && !showTitleScreen && !win && !gameOver){
         /* ---------- COLLISION CHECKING  ---------- */
+	player->SetDamaged(0);
         bool playerTest = false;
         for (auto obj1 : objs){
             for(auto obj2 : objs){
@@ -585,7 +589,11 @@ void GameEngine::Render(){
         for(auto obj : objs){
             switch(obj->GetType()){
                 case ObjType::Player:{
-                    player->Render(0, NULL, player->GetSprite()->GetFlip());
+		    if(player->GetDamaged() == 0) {
+                    	player->Render(0, NULL, player->GetSprite()->GetFlip());
+		    } else {
+			player->RenderDamaged(renderer, 0, NULL, player->GetSprite()->GetFlip());
+		    }
 
                     #ifdef DEBUG_SHOWCOLLIDERS
                     player->RenderBoxCollider();
