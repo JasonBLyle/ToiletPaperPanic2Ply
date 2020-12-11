@@ -1,9 +1,3 @@
-/*
-    Nikita Tran
-    CPSC 4160 2D Game Engine Construction
-    Fall 2020
-*/
-
 #include "GameEngine.h"
 
 #include <SDL2/SDL.h>
@@ -20,6 +14,7 @@
 
 //#define DEBUG_SHOWCOLLIDERS
 #define DEBUG_BYPASSTITLESCREEN
+//#define DEBUG_MUTEAUDIO
 
 /* ---------- GAME OBJECTS  ---------- */
 auto cart = std::make_shared<PushableObj>();
@@ -36,6 +31,7 @@ std::vector<std::shared_ptr<GameObject>> objs;
 auto pauseMenuOptions = std::make_shared<MenuOptions>();
 auto titleMenuOptions = std::make_shared<MenuOptions>();
 auto gameOverMenuOptions = std::make_shared<MenuOptions>();
+auto winMenuOptions = std::make_shared<MenuOptions>();
 
 /* ---------- TEXT  ---------- */
 auto healthLabel = std::make_shared<Text>();
@@ -52,13 +48,19 @@ auto quitGame_text = std::make_shared<Text>();
 auto tryagain_text = std::make_shared<Text>();
 auto exitToTitle2_text = std::make_shared<Text>();
 
-auto selection_controls = std::make_shared<Text>();
+auto playagain_text = std::make_shared<Text>();
+auto exitToTitle3_text= std::make_shared<Text>();
+
+auto selection_controlsW = std::make_shared<Text>();
+auto selection_controlsB = std::make_shared<Text>();
 
 /* ---------- FOR THE MENUS  ---------- */
 SDL_Rect fullScreenRect;
 auto pause_title_sprite = std::make_shared<GameObject>();
 auto main_title_sprite = std::make_shared<GameObject>();
 auto gameover_sprite = std::make_shared<GameObject>();
+auto win_sprite = std::make_shared<GameObject>();
+auto howtoplay_img = std::make_shared<GameObject>();
 /* ------------------------------------ */
 
 GameEngine::GameEngine(){
@@ -74,6 +76,7 @@ GameEngine::GameEngine(){
     paused = false;
     gameOver = false;
     win = false;
+    showHowToPlay = false;
 
     #ifdef DEBUG_BYPASSTITLESCREEN
         showTitleScreen = false;
@@ -124,6 +127,10 @@ void GameEngine::InitObjects(){
     setCameraY(0);
 
     floorY = 25;
+
+    paused = false;
+    win = false;
+    gameOver = false;
 
     /* ----------------------------------- */
     int spriteFrameWidth = 220;
@@ -234,14 +241,13 @@ void GameEngine::Init(const int w, const int h){
     GameBG = temp;//Background change
 
     spriteFrameWidth = 2000;//Background change
-    spriteFrameHeight = 960;//Background change
-    Background temp2(renderer, "img/woodenbackground.png",0, 0, spriteFrameWidth, spriteFrameHeight,&camera);//Background change
+    spriteFrameHeight = 480;//Background change
+    Background temp2(renderer, "img/background.png",0, 0, spriteFrameWidth, spriteFrameHeight,&camera);//Background change
     TitleBG = temp2;//Background change
 
     //Initialize Game Objects
     InitObjects();
-    objs = {player, enemy, enemy2, enemy3, cart, cart2, sanitizer, tp, checkout};
-    //objs = {player, tp, checkout};
+    objs = {checkout, enemy, enemy2, enemy3, cart, cart2, sanitizer, tp, player};
 
 
     /* ---------------- MUSIC ------------------- */
@@ -253,8 +259,14 @@ void GameEngine::Init(const int w, const int h){
     menuMusic = Mix_LoadMUS( "sounds/Toilet_Paper_Waltz_Final.wav" );
     gameMusic = Mix_LoadMUS( "sounds/TPP_3rd_Draft_Final.wav" );
     gameOverMusic = Mix_LoadMUS( "sounds/Game_Over.wav" );
+    winMusic = Mix_LoadMUS( "sounds/Victory.wav" );
 
-    Mix_VolumeMusic(60); //max volume is 128
+    #ifdef DEBUG_MUTEAUDIO
+        Mix_VolumeMusic(0);
+    #endif
+    #ifndef DEBUG_MUTEAUDIO
+        Mix_VolumeMusic(60);
+    #endif
 
     /* ---------------- TEXT ------------------- */
     InitMenus(renderer, screenW, screenH);
@@ -279,7 +291,7 @@ void GameEngine::HandleEvents(){
         if(my_input.type == SDL_QUIT) runningState = false; //ends the game
         if(my_input.type == SDL_KEYDOWN){
             switch (my_input.key.keysym.sym){
-		case SDLK_a: {
+	            case SDLK_a: {
                     player->SetPlayerState(PlayerState::MOVE_LEFT);
                     break;
                 }
@@ -287,8 +299,8 @@ void GameEngine::HandleEvents(){
                     player->SetPlayerState(PlayerState::MOVE_RIGHT);
                     break;
                 }
-		case SDLK_SPACE: {
-                    if(paused && !showTitleScreen){
+		        case SDLK_SPACE: {
+                    if(paused && !showTitleScreen && !gameOver && !win){
                         switch(pauseMenuOptions->GetCurrentOption()){//need to update to track
                             case 0: { //Unpause
                                 paused = false;
@@ -305,7 +317,6 @@ void GameEngine::HandleEvents(){
                         switch(titleMenuOptions->GetCurrentOption()){
                             case 0: { //Start new game
                                 showTitleScreen = false;
-                                paused = false;
                                 InitObjects();
                                 Mix_PlayMusic( gameMusic, -1 );
                                 //reset all objects to original states/positions
@@ -313,6 +324,7 @@ void GameEngine::HandleEvents(){
                             }
                             case 1: {
                                 //show instructions page
+                                showHowToPlay = true;
                                 break;
                             }
                             case 2: {
@@ -326,7 +338,6 @@ void GameEngine::HandleEvents(){
                         switch(gameOverMenuOptions->GetCurrentOption()){
                             case 0: { //Retry?
                                 showTitleScreen = false;
-                                paused = false;
                                 InitObjects();
                                 Mix_PlayMusic( gameMusic, -1 );
                                 break;
@@ -339,17 +350,29 @@ void GameEngine::HandleEvents(){
                             }
                         }
                     }
+                    else if(win){
+                        switch(winMenuOptions->GetCurrentOption()){
+                            case 0: { //Play again?
+                                showTitleScreen = false;
+                                InitObjects();
+                                Mix_PlayMusic( gameMusic, -1 );
+                                break;
+                            }
+                            case 1: { //Exit to title
+                                //probably need to add a background change at somepoint
+                                Mix_PlayMusic( menuMusic, -1 );
+                                showTitleScreen = true;
+                                break;
+                            }
+                        }
+                    }
+                    else if(player->GetPlayerState() == PlayerState::JUMP){
+			            player->SetPlayerState(PlayerState::FALL);
+			        }
                     else{
-			if(player->GetPlayerState() == PlayerState::IDLE && player->GetSprite()->GetY() > 0){
-			    if(player->GetJumping() < 1) {
-				//std::cout << "Set state to jump\n";
-				player->SetPlayerState(PlayerState::JUMP);
-				//jumping++;
-			    }
-			} else if(player->GetPlayerState() == PlayerState::JUMP){
-			    player->SetPlayerState(PlayerState::FALL);
-			}
-
+			            if(player->GetPlayerState() == PlayerState::IDLE && player->GetSprite()->GetY() > 0){
+			                if(player->GetJumping() < 1) { player->SetPlayerState(PlayerState::JUMP); }
+			            }
                     }
 
                     break;
@@ -358,12 +381,14 @@ void GameEngine::HandleEvents(){
                     if(paused && !showTitleScreen){ pauseMenuOptions->SelectPrevOption();}
                     if (showTitleScreen){titleMenuOptions->SelectPrevOption();}
                     if (gameOver){gameOverMenuOptions->SelectPrevOption();}
+                    if (win){winMenuOptions->SelectPrevOption();}
                     break;
                 }
                 case SDLK_s: {
                     if (showTitleScreen){titleMenuOptions->SelectNextOption();}
                     if(paused && !showTitleScreen){pauseMenuOptions->SelectNextOption();}
                     if (gameOver){gameOverMenuOptions->SelectNextOption();}
+                    if (win){winMenuOptions->SelectNextOption();}
                     else if(player->GetSprite()->GetY() + player->GetSprite()->GetH() < GetScreenHeight() - floorY){
                         player->SetPlayerState(PlayerState::FALL);
                     }
@@ -371,6 +396,7 @@ void GameEngine::HandleEvents(){
                 }
                 case SDLK_ESCAPE:{
                     if(!gameOver && !showTitleScreen && !win) paused = true;
+                    if(showHowToPlay) showHowToPlay = false;
                     break;
                 }
             }
@@ -384,33 +410,32 @@ void GameEngine::HandleEvents(){
 
             if(player->GetPlayerState() != PlayerState::FALL){
                 player->SetPlayerState(PlayerState::IDLE);
-		player->SetJumping(0);
+	        	player->SetJumping(0);
             }
 
         }
     }
 
-    if(!paused && !showTitleScreen){
+    if(!paused && !showTitleScreen && !win && !gameOver){
         /* ---------- COLLISION CHECKING  ---------- */
         bool playerTest = false;
         for (auto obj1 : objs){
             for(auto obj2 : objs){
                 if(obj1 != obj2){ //make sure the object isn't being compared with itself
                     if(IsColliding(obj1->GetBoxCollider(), obj2->GetBoxCollider())){
-                        //std::cout << "obj1: " << obj1->PrintObjType() << " obj2: " << obj2->PrintObjType() << "   COLLIDING" << std::endl;
                         if(obj1->GetType() == ObjType::Player || obj2->GetType() == ObjType::Player){ playerTest = true; }
                         
                         //if player has the TP and is at the checkout, you win!
-                        if(obj1->GetType() == ObjType::Player && obj2->GetType() == ObjType::Checkout && player->GotTP()){ win = true; }
+                        if(obj1->GetType() == ObjType::Player && obj2->GetType() == ObjType::Checkout && player->GotTP()){ 
+                            win = true; 
+                            Mix_PlayMusic(winMusic, -1);
+                        }
                         
                         obj1->DoCollisionResponse(obj2);
                     }
 
                     else{
-                        //std::cout << "obj1: " << obj1->PrintObjType() << " obj2: " << obj2->PrintObjType() << "   NOT COLLIDING" << std::endl;
-
                         if(obj1->GetType() == ObjType::Player && obj2->GetType() == ObjType::Pushable){
-			    //std::cout << "set to idle1\n";
                             obj2->SetIdle();
                         }
                     }
@@ -511,17 +536,25 @@ void GameEngine::Render(){
 
     /* OBJECTS TO RENDER */
     if(showTitleScreen){
-        SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
-        SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
-        SDL_RenderFillRect(renderer, &fullScreenRect);
+        if (showHowToPlay){
+            SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
+            SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
+            SDL_RenderFillRect(renderer, &fullScreenRect);
 
-        setCameraX(0);//background change
-        setCameraY(0);//background change
-        TitleBG.render();
+            howtoplay_img->Render();
+        } else{
+            SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
+            SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
+            SDL_RenderFillRect(renderer, &fullScreenRect);
 
-        main_title_sprite->Render();
-        selection_controls->Render();
-        titleMenuOptions->Render();
+            setCameraX(0);//background change
+            setCameraY(0);//background change
+            TitleBG.render();
+
+            main_title_sprite->Render();
+            selection_controlsB->Render();
+            titleMenuOptions->Render();
+        }
     }
     else{
 
@@ -569,7 +602,7 @@ void GameEngine::Render(){
             pause_title_sprite->Render();
             pause_title_sprite->GetSprite()->AddX(-GetCameraX());//background change
 
-            selection_controls->Render();
+            selection_controlsW->Render();
             pauseMenuOptions->Render();
         }
         else if(gameOver){
@@ -581,13 +614,20 @@ void GameEngine::Render(){
             gameover_sprite->Render();
             gameover_sprite->GetSprite()->AddX(-GetCameraX());//background change
 
-            selection_controls->Render();
+            selection_controlsW->Render();
             gameOverMenuOptions->Render();
         }
         else if(win){
             SDL_SetRenderDrawColor(renderer, 255, 255, 255, 200);
             SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
             SDL_RenderFillRect(renderer, &fullScreenRect);
+
+            win_sprite->GetSprite()->AddX(GetCameraX());//background change
+            win_sprite->Render();
+            win_sprite->GetSprite()->AddX(-GetCameraX());//background change
+
+            selection_controlsB->Render();
+            winMenuOptions->Render();
         }
     }
 
@@ -602,6 +642,7 @@ void GameEngine::Quit(){
     Mix_FreeMusic(menuMusic);
     Mix_FreeMusic(gameMusic);
     Mix_FreeMusic(gameOverMusic);
+    Mix_FreeMusic(winMusic);
 
     SDL_DestroyRenderer(renderer);
     SDL_DestroyWindow(window);
@@ -684,22 +725,37 @@ void GameEngine::InitText(SDL_Renderer *renderer, int screenW, int screenH){
     quitGame_text->SetX(screenW/2 - quitGame_text->GetW()/2);
     quitGame_text->SetY(howToPlayLabel_text->GetY() + howToPlayLabel_text->GetH() + 5);
 
-    selection_controls->Init(renderer, "fonts/Comfortaa-Regular.ttf", 18, 0, 0, black);
-    selection_controls->SetText("Use W and S to select, [SPACE] to confirm");
-    selection_controls->SetX(screenW/2 - selection_controls->GetW()/2);
-    selection_controls->SetY(screenH - selection_controls->GetH() - 10);
+    selection_controlsW->Init(renderer, "fonts/Comfortaa-Regular.ttf", 18, 0, 0, white);
+    selection_controlsW->SetText("Use W and S to select, [SPACE] to confirm");
+    selection_controlsW->SetX(screenW/2 - selection_controlsW->GetW()/2);
+    selection_controlsW->SetY(screenH - selection_controlsW->GetH() - 10);
 
+    selection_controlsB->Init(renderer, "fonts/Comfortaa-Regular.ttf", 18, 0, 0, black);
+    selection_controlsB->SetText("Use W and S to select, [SPACE] to confirm");
+    selection_controlsB->SetX(screenW/2 - selection_controlsB->GetW()/2);
+    selection_controlsB->SetY(screenH - selection_controlsB->GetH() - 10);
 
     tryagain_text->Init(renderer, "fonts/theboldfont.ttf", 48, 0, 0, white);
-    tryagain_text->SetText("Retry?");
-    tryagain_text->SetX(screenW/2 - unpause_text->GetW()/2);
+    tryagain_text->SetText("Try again?");
+    tryagain_text->SetX(screenW/2 - tryagain_text->GetW()/2);
     tryagain_text->SetY(gameover_sprite->GetSprite()->GetY() +
                         gameover_sprite->GetSprite()->GetH() + 60);
 
     exitToTitle2_text->Init(renderer, "fonts/theboldfont.ttf", 48, 0, 0, white);
     exitToTitle2_text->SetText("Exit to title");
-    exitToTitle2_text->SetX(screenW/2 - exitToTitle_text->GetW()/2);
+    exitToTitle2_text->SetX(screenW/2 - exitToTitle2_text->GetW()/2);
     exitToTitle2_text->SetY(unpause_text->GetY() + unpause_text->GetH() + 50);
+
+    playagain_text->Init(renderer, "fonts/theboldfont.ttf", 36, 0, 0, black);
+    playagain_text->SetText("Play again?");
+    playagain_text->SetX(screenW/2 - playagain_text->GetW()/2);
+    playagain_text->SetY(win_sprite->GetSprite()->GetY() +
+                        win_sprite->GetSprite()->GetH() + 10);
+
+    exitToTitle3_text->Init(renderer, "fonts/theboldfont.ttf", 35, 0, 0, black);
+    exitToTitle3_text->SetText("Exit to title");
+    exitToTitle3_text->SetX(screenW/2 - exitToTitle3_text->GetW()/2);
+    exitToTitle3_text->SetY(playagain_text->GetY() + playagain_text->GetH() + 25);
 
     //create pause menu buttons
     std::vector<std::shared_ptr<Text>> temp;
@@ -713,6 +769,9 @@ void GameEngine::InitText(SDL_Renderer *renderer, int screenW, int screenH){
     //create game over menu buttons
     temp = {tryagain_text, exitToTitle2_text};
     gameOverMenuOptions->Init(renderer, "img/selector.png", 100, 100, 0.4, temp);
+
+    temp = {playagain_text, exitToTitle3_text};
+    winMenuOptions->Init(renderer, "img/selector.png", 100, 100, 0.3, temp);
 }
 
 void GameEngine::InitMenus(SDL_Renderer *renderer, int screenW, int screenH){
@@ -739,9 +798,21 @@ void GameEngine::InitMenus(SDL_Renderer *renderer, int screenW, int screenH){
     spriteFrameWidth = 736;
     spriteFrameHeight = 397;
     scale = 0.40;
-
     gameover_sprite->Init(renderer,"img/gameover.png",&camera);//background change
-
     gameover_sprite->GetSprite()->SetSrcRect(0, 0, spriteFrameWidth, spriteFrameHeight);
     gameover_sprite->GetSprite()->SetScreenRect(screenW/2 - (spriteFrameWidth/2 * scale), 10, spriteFrameWidth * scale, spriteFrameHeight * scale);
+
+    spriteFrameWidth = 923;
+    spriteFrameHeight = 602;
+    scale = 0.50;
+    win_sprite->Init(renderer,"img/youwin.png",&camera);//background change
+    win_sprite->GetSprite()->SetSrcRect(0, 0, spriteFrameWidth, spriteFrameHeight);
+    win_sprite->GetSprite()->SetScreenRect(screenW/2 - (spriteFrameWidth/2 * scale), 10, spriteFrameWidth * scale, spriteFrameHeight * scale);
+    
+    spriteFrameWidth = 640;
+    spriteFrameHeight = 480;
+    scale = 1;
+    howtoplay_img->Init(renderer,"img/instructions.png",&camera);//background change
+    howtoplay_img->GetSprite()->SetSrcRect(0, 0, spriteFrameWidth, spriteFrameHeight);
+    howtoplay_img->GetSprite()->SetScreenRect(0, 0, spriteFrameWidth * scale, spriteFrameHeight * scale);
 }

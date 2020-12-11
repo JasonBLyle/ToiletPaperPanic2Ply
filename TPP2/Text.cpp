@@ -33,10 +33,8 @@ int Text::GetX(){ return textBox.x; }
 int Text::GetY(){ return textBox.y; }
 
 void Text::SetText(const char *text){
-    //std::cout << std::string(text) << " " << currText << std::endl;
     if(strcmp(currText.c_str(), text) != 0){
         currText = std::string(text);
-        //std::cout << "strings not equal" << std::endl;
         SDL_Surface *surface;
         if(!(surface = TTF_RenderText_Solid(font, text, textColor))){
             std::cout << "Font Error" << std::endl;

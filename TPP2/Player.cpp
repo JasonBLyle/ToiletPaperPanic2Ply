@@ -15,7 +15,7 @@ Player::Player(){
     objType = ObjType::Player;
     playerState = PlayerState::IDLE;
     ySpeed = 0;
-    moveSpeed = 5;
+    moveSpeed = 4;
 
     jumping = 0;
 
@@ -89,9 +89,7 @@ void Player::Update(){
             GetSprite()->UpdateFrame(animSpeed, moveAnimStartFrame, moveAnimTotalFrames);
 
             MoveX(moveSpeed * -1);
-	    if(ySpeed > 0) {
-		//MoveY(ySpeed);
-	    }
+	    
             GetSprite()->SetFlip(SDL_FLIP_HORIZONTAL);
             break;
         }
@@ -102,9 +100,7 @@ void Player::Update(){
             GetSprite()->UpdateFrame(animSpeed, moveAnimStartFrame, moveAnimTotalFrames);
 
             MoveX(moveSpeed);
-	    if(ySpeed > 0) {
-		//MoveY(ySpeed);
-	    }
+	    
             GetSprite()->SetFlip(SDL_FLIP_NONE);
             break;
         }
@@ -126,15 +122,12 @@ void Player::Update(){
             break;
         }
         case PlayerState::FALL: {
-	    //std::cout << "Falling\n";
             if(gotTP) GetSprite()->SetSrcY(moveAnimYOffset * 2);
             else GetSprite()->SetSrcY(moveAnimYOffset * 0);
             GetSprite()->UpdateFrame(animSpeed, idleAnimStartFrame, idleAnimTotalFrames);
             MoveY(ySpeed);
             ySpeed += 0.25;
-            if(GetYSpeed() < 0){
-                SetOnTopOf(NULL);
-            }
+            if(GetYSpeed() < 0){ SetOnTopOf(NULL);}
 
             break;
         }
@@ -160,7 +153,7 @@ void Player::DoCollisionResponse(std::shared_ptr<GameObject> objCollidedWith){
 
     switch(objCollidedWith->GetType()){
         case ObjType::Health: {
-            health += 5;
+            health += 10;
             if(health > maxHealth) health = maxHealth;
             //std::cout << "health: " + std::to_string(health) << std::endl;
             break;

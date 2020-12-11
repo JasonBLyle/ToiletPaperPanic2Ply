@@ -1,9 +1,3 @@
-/*
-    Nikita Tran
-    CPSC 4160 2D Game Engine Construction
-    Fall 2020
-*/
-
 #include "PushableObj.h"
 #include "GameEngine.h"
 
@@ -29,12 +23,12 @@ double PushableObj::GetPushForce(){return pushForce;}
 double PushableObj::GetVelocity(){return velocity;}
 int PushableObj::GetPushedtick(){return PushedThisTick;}
 int PushableObj::GetSpeed(){
-  if(velocity>0){
-    return velocity;
-  }
-  else{
-    return -velocity;
-  }
+    if(velocity>0){
+        return velocity;
+    }
+    else{
+        return -velocity;
+    }
 }
 
 /*
@@ -42,24 +36,22 @@ int PushableObj::GetSpeed(){
 */
 void PushableObj::SetPushedTick(int pushed){PushedThisTick=pushed;}
 void PushableObj::SetObjState(PushableObjState state){
-  objState = state;
-//SetPushedTick(0);
-  if(velocity==0){
-    LastMovementState=state;
-  }
-  else if(state!=PushableObjState::IDLE){
-    LastMovementState=state;
-  }
+    objState = state;
+        if(velocity==0){
+        LastMovementState=state;
+    }
+    else if(state!=PushableObjState::IDLE){
+        LastMovementState=state;
+    }
 }
 void PushableObj::SetVelocity(int speed){velocity=speed;}
 void PushableObj::SetPushForce(int force){pushForce = force;}
 
 
 //Updates object's position based on object's state
-//double velocity = 0;
 void PushableObj::Update(){
     //dampen = amount of slow-down when the object goes from moving to idle
-    // closer to 0 means more abrupt stop
+    //closer to 0 means more abrupt stop
     double dampen = 0.15;
 
     switch(objState){
@@ -70,7 +62,6 @@ void PushableObj::Update(){
             else velocity = 0;
 
             MoveX(velocity);
-            //std::cout << velocity << std::endl;
             if(GetPushedtick()>0){
               SetPushedTick(GetPushedtick()-1);
             }
@@ -107,36 +98,36 @@ void PushableObj::Update(){
 
 void PushableObj::DoCollisionResponse(std::shared_ptr<GameObject> objCollidedWith){
     switch(objCollidedWith->GetType()){
-        case ObjType::Pushable: {//test
+        case ObjType::Pushable: {
           //cast to Pushable
           auto pushob = std::dynamic_pointer_cast<PushableObj>(objCollidedWith);
           if(GetSpeed()<pushob->GetSpeed()){
             if(GetPushedtick()<=0){
-            if(pushob->GetObjState() == PushableObjState::PUSHED_FROM_RIGHT){
-                SetObjState(PushableObjState::PUSHED_FROM_RIGHT);
-                pushob->SetObjState(PushableObjState::PUSHED_FROM_LEFT);
-                SetPushedTick(1);
-                pushob->SetPushedTick(1);
+                if(pushob->GetObjState() == PushableObjState::PUSHED_FROM_RIGHT){
+                    SetObjState(PushableObjState::PUSHED_FROM_RIGHT);
+                    pushob->SetObjState(PushableObjState::PUSHED_FROM_LEFT);
+                    SetPushedTick(1);
+                    pushob->SetPushedTick(1);
+                }
+                else if(pushob->GetLastMovementState()== PushableObjState::PUSHED_FROM_RIGHT){
+                    SetObjState(PushableObjState::PUSHED_FROM_RIGHT);
+                    pushob->SetObjState(PushableObjState::PUSHED_FROM_LEFT);
+                    SetPushedTick(1);
+                    pushob->SetPushedTick(1);
+                }
+                else if(pushob->GetObjState() == PushableObjState::PUSHED_FROM_LEFT){
+                    SetObjState(PushableObjState::PUSHED_FROM_LEFT);
+                    pushob->SetObjState(PushableObjState::PUSHED_FROM_RIGHT);
+                    SetPushedTick(1);
+                    pushob->SetPushedTick(1);
+                }
+                else if(pushob->GetLastMovementState() == PushableObjState::PUSHED_FROM_LEFT){
+                    SetObjState(PushableObjState::PUSHED_FROM_LEFT);
+                    pushob->SetObjState(PushableObjState::PUSHED_FROM_RIGHT);
+                    SetPushedTick(1);
+                    pushob->SetPushedTick(1);
+                }
             }
-            else if(pushob->GetLastMovementState()== PushableObjState::PUSHED_FROM_RIGHT){
-              SetObjState(PushableObjState::PUSHED_FROM_RIGHT);
-              pushob->SetObjState(PushableObjState::PUSHED_FROM_LEFT);
-              SetPushedTick(1);
-              pushob->SetPushedTick(1);
-            }
-            else if(pushob->GetObjState() == PushableObjState::PUSHED_FROM_LEFT){
-              SetObjState(PushableObjState::PUSHED_FROM_LEFT);
-              pushob->SetObjState(PushableObjState::PUSHED_FROM_RIGHT);
-              SetPushedTick(1);
-              pushob->SetPushedTick(1);
-            }
-            else if(pushob->GetLastMovementState() == PushableObjState::PUSHED_FROM_LEFT){
-              SetObjState(PushableObjState::PUSHED_FROM_LEFT);
-              pushob->SetObjState(PushableObjState::PUSHED_FROM_RIGHT);
-              SetPushedTick(1);
-              pushob->SetPushedTick(1);
-            }
-          }
         }
         break;
       }
@@ -145,15 +136,14 @@ void PushableObj::DoCollisionResponse(std::shared_ptr<GameObject> objCollidedWit
             auto player = std::dynamic_pointer_cast<Player>(objCollidedWith);
             if(GetPushedtick()==0){
               if(player->GetPlayerState() == PlayerState::MOVE_LEFT){
-                  SetObjState(PushableObjState::PUSHED_FROM_LEFT);
-                  LastMovementState=PushableObjState::PUSHED_FROM_LEFT;
+                    SetObjState(PushableObjState::PUSHED_FROM_LEFT);
+                    LastMovementState=PushableObjState::PUSHED_FROM_LEFT;
               }
               else if(player->GetPlayerState() == PlayerState::MOVE_RIGHT){
-                  SetObjState(PushableObjState::PUSHED_FROM_RIGHT);
-                  LastMovementState=PushableObjState::PUSHED_FROM_RIGHT;
+                    SetObjState(PushableObjState::PUSHED_FROM_RIGHT);
+                    LastMovementState=PushableObjState::PUSHED_FROM_RIGHT;
               }
             }
-
             break;
         }
 
@@ -164,10 +154,8 @@ void PushableObj::DoCollisionResponse(std::shared_ptr<GameObject> objCollidedWit
 }
 
 void PushableObj::SetIdle(){
-  SetObjState(PushableObjState::IDLE);
-  if(velocity==0){
     SetObjState(PushableObjState::IDLE);
-  }
+    if(velocity == 0) SetObjState(PushableObjState::IDLE);
 }
 
 std::string PushableObj::PrintObjType(){ return "PushableObj"; }

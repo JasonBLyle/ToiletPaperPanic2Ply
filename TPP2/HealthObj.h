@@ -1,9 +1,3 @@
-/*
-    Nikita Tran
-    CPSC 4160 2D Game Engine Construction
-    Assignment 4
-*/
-
 #ifndef HEALTHOBJ_H
 #define HEALTHOBJ_H
 
