@@ -48,11 +48,15 @@ void Player::SetHealth(double h){health = h;}
 void Player::SetMaxHealth(double h){maxHealth = h;}
 void Player::GotTP(bool b){ gotTP = b; }
 
-void Player::ChangeHealth(double i){ health += i; }
+void Player::ChangeHealth(double i){ 
+    health += i;
+    if (health < 0) health = 0;
+    if (health > maxHealth) health = maxHealth;
+}
 
 //Updates player's position and sprite animation frame depending on player's state
 void Player::Update(){
-    int moveAnimYOffset = GetSprite()->GetSrcH();; //used to set sprite's src_rect to the next row of sprites in the sprite sheet
+    int moveAnimYOffset = GetSprite()->GetSrcH(); //used to set sprite's src_rect to the next row of sprites in the sprite sheet
     int moveAnimTotalFrames = 4;
     int moveAnimStartFrame = 0; //which animation frame you want to start at
 

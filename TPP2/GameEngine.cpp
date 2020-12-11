@@ -259,12 +259,12 @@ void GameEngine::Init(const int w, const int h){
     /* ---------------- BACKGROUND ------------------- */
     int bg_srcW = 2000;//Background change
     int bg_srcH = 480;//Background change
-    Background temp(renderer, "img/background.png", 0, 0, bg_srcW, bg_srcH, screenW, screenH, &camera);//Background change
+    Background temp(renderer, "img/background.png", 0, 0, bg_srcW, bg_srcH, &camera);//Background change
     GameBG = temp;//Background change
 
     bg_srcW = 2000;//Background change
     bg_srcH = 480;//Background change
-    Background temp2(renderer, "img/background.png", 0, 0, bg_srcW, bg_srcH, screenW, screenH, &camera);//Background change
+    Background temp2(renderer, "img/background.png", 0, 0, bg_srcW, bg_srcH, &camera);//Background change
     TitleBG = temp2;//Background change
 
     //Initialize Game Objects

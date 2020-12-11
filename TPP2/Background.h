@@ -10,14 +10,13 @@ class Background{
     SDL_Texture* texture;
     SDL_Rect BG_rect;
     SDL_Rect* screen_rect;
-    SDL_Rect* window;
     const char *bgfile;
 
   public:
     Background();
     ~Background();
 
-    Background(SDL_Renderer *render, const char *file,int x, int y, int w, int h, int window_w, int window_h, SDL_Rect* camera);
+    Background(SDL_Renderer *render, const char *file,int x, int y, int w, int h, SDL_Rect* camera);
 
     int getMapWidth();
     int getMapHeight();
