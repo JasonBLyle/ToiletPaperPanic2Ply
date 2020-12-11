@@ -4,7 +4,7 @@
 #include <SDL2/SDL.h>
 #include <memory>
 #include "Sprite.h"
-enum class ObjType { Player, Pushable, Health, Enemy };
+enum class ObjType { None, Player, Pushable, Health, Enemy, TP, Checkout, Box };
 
 class GameObject{
     private:
@@ -20,8 +20,7 @@ class GameObject{
 
     protected:
         ObjType objType;
-        //i don't want to make a public setter to set type in child class since it shouldn't change after being set
-
+        
     public:
         GameObject();
         virtual ~GameObject();
@@ -46,6 +45,7 @@ class GameObject{
         void SetAlpha(int a);
         void SetOnTopOf(std::shared_ptr<GameObject> below);
         void SetOnTop(bool x);
+        void SetType(ObjType type);
 
         void ChangeAlpha(int var);
 

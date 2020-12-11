@@ -1,9 +1,3 @@
-/*
-    Nikita Tran
-    CPSC 4160 2D Game Engine Construction
-    Fall 2020
-*/
-
 #include "Sprite.h"
 
 #include <string>

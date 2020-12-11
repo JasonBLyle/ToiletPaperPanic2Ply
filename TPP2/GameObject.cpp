@@ -1,9 +1,3 @@
-/*
-    Nikita Tran
-    CPSC 4160 2D Game Engine Construction
-    Fall 2020
-*/
-
 #include "GameObject.h"
 
 #include <string>
@@ -12,15 +6,19 @@
 
 GameObject::GameObject(){
     sprite = NULL;
+    objType = ObjType::None;
+    SDL_Rect temp{0,0,0,0};
+    boxCollider = temp;
+    alpha = 255;
+    onTopOf = NULL;
 };
 
-//VIRTUAL FUNCTIONS
-//NEEDS TO BE OVERWRITTEN BY CHILD
+
 GameObject::~GameObject(){};
 void GameObject::DoCollisionResponse(std::shared_ptr<GameObject> objCollidedWith){};
 void GameObject::SetIdle(){};
 void GameObject::Update(){};
-/* ------------------------------------- */
+
 
 
 
@@ -34,11 +32,7 @@ void GameObject::Update(){};
 void GameObject::Init(SDL_Renderer *ren, const char *file,SDL_Rect* camera){//Background change
     renderer = ren;
     if(sprite == NULL) sprite = new Sprite(renderer, file);
-    SDL_Rect temp{0,0,0,0};
-    boxCollider = temp;
-    alpha = 255;
     screen_rect = camera;//Background change
-    onTopOf = NULL;
 }
 
 /*
@@ -70,11 +64,16 @@ void GameObject::Render(){
 void GameObject::RenderBoxCollider(){
     SDL_SetRenderDrawColor(renderer, 255, 0, 0, 128);
     SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
-    SDL_RenderFillRect(renderer, &boxCollider);
+
+    SDL_Rect temp;//Background change
+    temp.x = boxCollider.x - screen_rect->x;//Background change
+    temp.y = boxCollider.y;//Background change
+    temp.w = boxCollider.w;//Background change
+    temp.h = boxCollider.h;//Background change
+    SDL_RenderFillRect(renderer, &temp);
 }
 
 
-//GETTERS
 int GameObject::GetScreenRecX(){return screen_rect->x;}//Background change
 Sprite* GameObject::GetSprite(){ return sprite; }
 ObjType GameObject::GetType(){ return objType; }
@@ -82,7 +81,6 @@ SDL_Rect GameObject::GetBoxCollider(){ return boxCollider; }
 int GameObject::GetAlpha(){ return alpha; }
 bool GameObject::GetOnTop() { return onTop; }
 std::shared_ptr<GameObject> GameObject::GetOnTopOf() { return onTopOf; }
-/* ------------------------------------- */
 
 
 // Move x position of object by i pixels on screen
@@ -137,6 +135,7 @@ void GameObject::SetOnTopOf(std::shared_ptr<GameObject> below){
 }
 
 void GameObject::SetOnTop(bool x){ onTop = x; }
+void GameObject::SetType(ObjType type){ objType = type;}
 
 /*
     This function increment/decrements alpha value by var
@@ -148,15 +147,5 @@ void GameObject::ChangeAlpha(int var){
 }
 
 std::string GameObject::PrintObjType(){
-    switch (GetType()){
-        case ObjType::Player:{
-            return "Player Obj";
-        }
-        case ObjType::Pushable:{
-            return "Pushable Obj";
-        }
-        default:{
-            return "";
-        }
-    }
+    return "None";
 }

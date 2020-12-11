@@ -1,9 +1,3 @@
-/*
-    Nikita Tran
-    CPSC 4160 2D Game Engine Construction
-    Fall 2020
-*/
-
 #ifndef PLAYER_H
 #define PLAYER_H
 
@@ -24,24 +18,26 @@ class Player: public GameObject{
         double health;
         double maxHealth;
 
+        bool gotTP;
     public:
         //Player(SDL_Renderer *ren, const char *file):GameObject(ren, file){};
         Player();
         PlayerState GetPlayerState();
         int GetMovementSpeed();
         int GetYSpeed();
-
 		int GetJumping();
-		void SetJumping(int jump);
+        bool GotTP();
 
         double GetHealth();
         double GetMaxHealth();
 
         void SetMovementSpeed(int speed);
         void SetYSpeed(int speed);
+		void SetJumping(int jump);
         void SetPlayerState(PlayerState state);
         void SetHealth(double h);
         void SetMaxHealth(double h);
+        void GotTP(bool b);
 
         void ChangeHealth(double i);
 

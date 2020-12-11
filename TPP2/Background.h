@@ -16,7 +16,7 @@ class Background{
     Background();
     ~Background();
 
-    Background(SDL_Renderer *render, const char *file,int x, int y, int w, int h,SDL_Rect*);
+    Background(SDL_Renderer *render, const char *file,int x, int y, int w, int h, SDL_Rect* camera);
 
     int getMapWidth();
     int getMapHeight();

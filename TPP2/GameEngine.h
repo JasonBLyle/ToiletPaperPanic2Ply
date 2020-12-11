@@ -1,10 +1,3 @@
-/*
-    Nikita Tran
-    CPSC 4160 2D Game Engine Construction
-    Assignment 3
-    October 23 2020
-*/
-
 #ifndef GAMEENGINE_H
 #define GAMEENGINE_H
 
@@ -17,6 +10,7 @@
 #include "MenuOptions.h"
 #include "Background.h"
 #include "Enemy.h"
+#include "ToiletPaper.h"
 
 class GameEngine{
     private:
@@ -36,7 +30,9 @@ class GameEngine{
         bool runningState;
         bool paused;
         bool showTitleScreen;
+        bool showHowToPlay;
         bool gameOver;
+        bool win;
         void InitText(SDL_Renderer *renderer, int screenW, int screenH);
         void InitMenus(SDL_Renderer *renderer, int screenW, int screenH);
         void InitObjects();
@@ -45,6 +41,7 @@ class GameEngine{
         Mix_Music *menuMusic;
         Mix_Music *gameMusic;
         Mix_Music *gameOverMusic;
+        Mix_Music *winMusic;
 
 
 
