@@ -23,6 +23,7 @@ Player::Player(){
     maxHealth = 100;
 
     gotTP = 0;
+    damaged = 0;
 };
 
 GameEngine* game = GameEngine::GetInstance();
@@ -34,7 +35,7 @@ int Player::GetJumping(){return jumping;}
 double Player::GetHealth(){return health;}
 double Player::GetMaxHealth(){return maxHealth;}
 bool Player::GotTP(){ return gotTP; }
-
+bool Player::GetDamaged(){return damaged;}
 
 /*
     state = one of the valid states that Player can have. Valid states (defined in header file) are IDLE, MOVE_LEFT, MOVE_RIGHT, JUMP, FALL
@@ -47,6 +48,7 @@ void Player::SetJumping(int jump){jumping = jump;}
 void Player::SetHealth(double h){health = h;}
 void Player::SetMaxHealth(double h){maxHealth = h;}
 void Player::GotTP(bool b){ gotTP = b; }
+void Player::SetDamaged(bool d){damaged = d;}
 
 void Player::ChangeHealth(double i){ 
     health += i;
@@ -80,16 +82,28 @@ void Player::Update(){
 
     switch(playerState){
         case PlayerState::IDLE: {
-            if(gotTP) GetSprite()->SetSrcY(moveAnimYOffset * 2);
-            else GetSprite()->SetSrcY(moveAnimYOffset * 0);
+            if(gotTP){
+ 		GetSprite()->SetSrcY(moveAnimYOffset * 2);
+		sprite_damaged->SetSrcY(moveAnimYOffset * 2);
+	    }
+            else {
+		GetSprite()->SetSrcY(moveAnimYOffset * 0);
+		sprite_damaged->SetSrcY(moveAnimYOffset * 0);
+	    }
 
             GetSprite()->UpdateFrame(animSpeed, idleAnimStartFrame, idleAnimTotalFrames);
             break;
         }
 
         case PlayerState::MOVE_LEFT: {
-            if(gotTP) GetSprite()->SetSrcY(moveAnimYOffset * 3);
-            else GetSprite()->SetSrcY(moveAnimYOffset * 1);
+            if(gotTP) { 
+		GetSprite()->SetSrcY(moveAnimYOffset * 3);
+		sprite_damaged->SetSrcY(moveAnimYOffset * 3);
+	    }
+            else {
+		GetSprite()->SetSrcY(moveAnimYOffset * 1);
+		sprite_damaged->SetSrcY(moveAnimYOffset * 1);
+	    }
             GetSprite()->UpdateFrame(animSpeed, moveAnimStartFrame, moveAnimTotalFrames);
 
             MoveX(moveSpeed * -1);
@@ -99,8 +113,14 @@ void Player::Update(){
         }
 
         case PlayerState::MOVE_RIGHT: {
-            if(gotTP) GetSprite()->SetSrcY(moveAnimYOffset * 3);
-            else GetSprite()->SetSrcY(moveAnimYOffset * 1);
+            if(gotTP) { 
+		GetSprite()->SetSrcY(moveAnimYOffset * 3);
+		sprite_damaged->SetSrcY(moveAnimYOffset * 3);
+	    }
+            else {
+		GetSprite()->SetSrcY(moveAnimYOffset * 1);
+		sprite_damaged->SetSrcY(moveAnimYOffset * 1);
+	    }
             GetSprite()->UpdateFrame(animSpeed, moveAnimStartFrame, moveAnimTotalFrames);
 
             MoveX(moveSpeed);
@@ -113,10 +133,16 @@ void Player::Update(){
 	    if(jumping < 1) {
 	        //std::cout << "Jumping";
 	        jumping++;
-            ySpeed = -9.0;
-	        if(gotTP) GetSprite()->SetSrcY(moveAnimYOffset * 3);
-            else GetSprite()->SetSrcY(moveAnimYOffset * 1);
-            GetSprite()->UpdateFrame(animSpeed, moveAnimStartFrame, moveAnimTotalFrames);
+            	ySpeed = -9.0;
+		if(gotTP) { 
+		    GetSprite()->SetSrcY(moveAnimYOffset * 3);
+		    sprite_damaged->SetSrcY(moveAnimYOffset * 3);
+	    	}
+            	else {
+		    GetSprite()->SetSrcY(moveAnimYOffset * 1);
+		    sprite_damaged->SetSrcY(moveAnimYOffset * 1);
+	    	}
+            	GetSprite()->UpdateFrame(animSpeed, moveAnimStartFrame, moveAnimTotalFrames);
 
 	        if(GetSprite()->GetY() > 0) {
 	    	    MoveY(ySpeed);
@@ -126,8 +152,14 @@ void Player::Update(){
             break;
         }
         case PlayerState::FALL: {
-            if(gotTP) GetSprite()->SetSrcY(moveAnimYOffset * 2);
-            else GetSprite()->SetSrcY(moveAnimYOffset * 0);
+	    if(gotTP) { 
+		GetSprite()->SetSrcY(moveAnimYOffset * 2);
+		sprite_damaged->SetSrcY(moveAnimYOffset * 2);
+	    }
+            else {
+		GetSprite()->SetSrcY(moveAnimYOffset * 0);
+		sprite_damaged->SetSrcY(moveAnimYOffset * 0);
+	    }
             GetSprite()->UpdateFrame(animSpeed, idleAnimStartFrame, idleAnimTotalFrames);
             MoveY(ySpeed);
             ySpeed += 0.25;
@@ -166,6 +198,24 @@ void Player::DoCollisionResponse(std::shared_ptr<GameObject> objCollidedWith){
             break;
         }
     }
+}
+
+Sprite* Player::GetDamagedSprite() {
+    return sprite_damaged;
+}
+
+void Player::SetDamagedSprite(SDL_Renderer * ren, const char *file) {
+    sprite_damaged = new Sprite(ren, file);
+}
+
+void Player::RenderDamaged(SDL_Renderer * ren, double angle, SDL_Point* center, SDL_RendererFlip flip){
+    SDL_Rect temp;//Background change
+    temp.x = GetSprite()->GetScreenRect()->x - GetScreenRecX();//Background change
+    temp.y = GetSprite()->GetScreenRect()->y;//Background change
+    temp.w = GetSprite()->GetScreenRect()->w;//Background change
+    temp.h = GetSprite()->GetScreenRect()->h;//Background change
+    SDL_RenderCopyEx(ren, sprite_damaged->GetTexture(), sprite_damaged->GetSrcRect(),
+			 &temp, angle, center, flip);//Background change
 }
 
 void Player::SetIdle(){

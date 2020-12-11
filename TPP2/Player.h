@@ -19,6 +19,8 @@ class Player: public GameObject{
         double maxHealth;
 
         bool gotTP;
+	bool damaged;
+	Sprite * sprite_damaged;
     public:
         //Player(SDL_Renderer *ren, const char *file):GameObject(ren, file){};
         Player();
@@ -27,6 +29,7 @@ class Player: public GameObject{
         int GetYSpeed();
 		int GetJumping();
         bool GotTP();
+	bool GetDamaged();
 
         double GetHealth();
         double GetMaxHealth();
@@ -38,8 +41,13 @@ class Player: public GameObject{
         void SetHealth(double h);
         void SetMaxHealth(double h);
         void GotTP(bool b);
+	void SetDamaged(bool d);
 
         void ChangeHealth(double i);
+	
+	Sprite * GetDamagedSprite();
+	void SetDamagedSprite(SDL_Renderer * ren, const char *file);
+	void RenderDamaged(SDL_Renderer * ren, double angle, SDL_Point* center, SDL_RendererFlip flip);
 
         //overrides
         void Update() override;
