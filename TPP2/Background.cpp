@@ -1,11 +1,10 @@
 
 #include "Background.h"
 
-
 Background::Background(){}
 Background::~Background(){};
-Background::Background(SDL_Renderer *render, const char *file,int x, int y, int w, int h,SDL_Rect* camera){
-    renderer=render;
+Background::Background(SDL_Renderer *render, const char *file, int x, int y, int w, int h, int window_w, int window_h, SDL_Rect* camera){
+    renderer = render;
     SDL_Surface *surface = IMG_Load(file);
     texture = SDL_CreateTextureFromSurface(renderer, surface);
     SDL_FreeSurface(surface);
@@ -39,5 +38,5 @@ void Background::moveScreenX(SDL_Rect x){
 }
 
 void Background::render(){
-    SDL_RenderCopyEx(renderer,texture,screen_rect,&BG_rect,0.0,NULL,SDL_FLIP_NONE);
+    SDL_RenderCopyEx(renderer, texture, screen_rect, window, 0.0 , NULL,SDL_FLIP_NONE);
 }

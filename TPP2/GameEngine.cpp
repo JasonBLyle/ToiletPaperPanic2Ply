@@ -235,14 +235,14 @@ void GameEngine::Init(const int w, const int h){
     renderer = SDL_CreateRenderer(window, -1, 0);
 
     /* ---------------- BACKGROUND ------------------- */
-    int spriteFrameWidth = 2000;//Background change
-    int spriteFrameHeight = 480;//Background change
-    Background temp(renderer, "img/background.png",0, 0, spriteFrameWidth, spriteFrameHeight,&camera);//Background change
+    int bg_srcW = 2000;//Background change
+    int bg_srcH = 480;//Background change
+    Background temp(renderer, "img/background.png", 0, 0, bg_srcW, bg_srcH, screenW, screenH, &camera);//Background change
     GameBG = temp;//Background change
 
-    spriteFrameWidth = 2000;//Background change
-    spriteFrameHeight = 480;//Background change
-    Background temp2(renderer, "img/background.png",0, 0, spriteFrameWidth, spriteFrameHeight,&camera);//Background change
+    bg_srcW = 2000;//Background change
+    bg_srcH = 480;//Background change
+    Background temp2(renderer, "img/background.png", 0, 0, bg_srcW, bg_srcH, screenW, screenH, &camera);//Background change
     TitleBG = temp2;//Background change
 
     //Initialize Game Objects
@@ -543,14 +543,14 @@ void GameEngine::Render(){
 
             howtoplay_img->Render();
         } else{
-            SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
-            SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
-            SDL_RenderFillRect(renderer, &fullScreenRect);
-
             setCameraX(0);//background change
             setCameraY(0);//background change
             TitleBG.render();
 
+            SDL_SetRenderDrawColor(renderer, 255, 255, 255, 100);
+            SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
+            SDL_RenderFillRect(renderer, &fullScreenRect);
+            
             main_title_sprite->Render();
             selection_controlsB->Render();
             titleMenuOptions->Render();
